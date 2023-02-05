@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.10;
 
-// import './IERC20.sol';
-import './interfaces/IBalanceHolder_ERC20.sol';
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import './IERC20.sol';
+import './IBalanceHolder_ERC20.sol';
 
 contract BalanceHolder_ERC20 is IBalanceHolder_ERC20 {
 

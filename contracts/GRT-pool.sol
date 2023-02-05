@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/development/contracts/IRealityETH.sol";
+import "./interfaces/IRealityETH.sol";
 //import "https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/development/contracts/IRealityETH_ERC20.sol";
 
 contract GRTPOOL is OwnableUpgradeable {
@@ -17,81 +17,61 @@ contract GRTPOOL is OwnableUpgradeable {
         uint256 templateId;
         uint256 questionId;
     }
-    struct UserDetails {
-        address tokenAddressTowithdraw;
-        address recieverAddress;
-        uint256 tokenAmountTowithdraw;
-    }
 
-    struct IsFundsDeposited {
-        bool active;
-        address tokenAddressTowithdraw;
-    }
 
     constructor (address _addrtmpReality) {
         addrtmpReality = _addrtmpReality;
     }
+    
     address internal GRTaddress = 0x1e3C935E9A45aBd04430236DE959d12eD9763162;
     uint256 internal chainId = 5;
     uint256 internal templateIdERC20;
     mapping(address => uint256) tokenExchangeRate;
     mapping(address => mapping(address => uint256)) balanceTokens;
-    mapping (address => mapping(bytes32 => UserDetails)) questionIdToUserDetails;
-    mapping(address=> mapping(uint256 => IsFundsDeposited)) isFundsDeposited;
-    mapping(address => mapping(bytes32 => bool)) canWithdrawFunds;
+    mapping (address => mapping(bytes32 => Deposit)) questionIdToDeposit;
+    mapping(address => mapping(bytes32 => bool)) public canWithdrawFunds;
 
-    string templateERC20 = '{'
-        '"title": "I propose the transaction %s on chain %s with a deposit of %s tokens ERC20 (%s) and therefore a request of %s tokens ERC20 (%s) on chain %s, who wants to help?",'
-        '"type": "address",'
-        '"category": "payment-request",' 
-        '"lang": "eng"'
-    '}';
     mapping(bytes32 => bytes32) QuestionTx;
     mapping(bytes32 => bool) isTxAlreadyCovered;
 
     event LogDepositERC20 (address indexed _addrToken, uint256 indexed _amount);
     event LogWithdrawInfoERC20 (address indexed _addrToken, uint256 indexed _chainId, uint256 indexed _amount, uint256 _rewardAmnt);
 
+    event logTemplateCreated(uint256 templateId);
+    event logQuestionCreated(bytes32 questionId);
     struct Deposit {
-        uint256 _amount;
-        address _tokenDepositAddr;
-        uint256 _chainId;
-        address _tokenWithdrawAddr;
-        address _recipientAddr;
+        uint256 amount;
+        uint96 chainId;
+        address recipientAddr;
+        address tokenWithdrawAddr;
+        uint256 tokenWithdrawalAmount;
     }
 
     function initialize() external initializer {
         __Ownable_init();
     }
 
-    function createRealityERC20Template() external returns (uint256) {
-        templateIdERC20 = IRealityETH(addrtmpReality).createTemplate(templateERC20);
+    function createRealityERC20Template(string memory _templateERC20) external returns (uint256) {
+        templateIdERC20 = IRealityETH(addrtmpReality).createTemplate(_templateERC20);
+        emit logTemplateCreated(templateIdERC20);
         return templateIdERC20;
     }
 
     function createQuestionERC20(
+        string memory question,
         bytes32 _txHash, 
         uint256 _chainIdDeposit,
         uint256 _amountDeposit,
-        address _addrTokenDeposit,
         address _addrTokenWithdraw,
-        uint256 _chainIdWithdraw,
-        address _recieverAddress
+        address _recieverAddress,
+        uint256 templateId
     ) public payable returns (bytes32) {
-        require((isFundsDeposited[msg.sender][_amountDeposit].active  == true && isFundsDeposited[msg.sender][_amountDeposit].tokenAddressTowithdraw == _addrTokenWithdraw), "Deposit funds before asking questions");
+        require (msg.value > 0 , "Question bond must be greater than 0");
         uint256 exchange = tokenExchangeRate[_addrTokenWithdraw];
         uint256 amountOfTokenExpected = exchange * _amountDeposit;
-        bytes32 questionReality = IRealityETH(addrtmpReality).askQuestion(
-            templateIdERC20,
-            string.concat(
-                string(abi.encodePacked(_txHash)), unicode"␟", 
-                Strings.toHexString(_chainIdDeposit), unicode"␟", 
-                Strings.toHexString(_amountDeposit), unicode"␟", 
-                Strings.toHexString(uint256(uint160(_addrTokenDeposit)), 20), unicode"␟", 
-                Strings.toHexString(amountOfTokenExpected), unicode"␟", 
-                Strings.toHexString(uint256(uint160(_addrTokenWithdraw)), 20), unicode"␟", 
-                Strings.toHexString(_chainIdWithdraw)
-            ),
+        bytes32 questionReality = IRealityETH(addrtmpReality).askQuestion{value: msg.value}(
+            templateId,
+            question,
             address(this),
             1 days,
             0,
@@ -99,12 +79,11 @@ contract GRTPOOL is OwnableUpgradeable {
         );
 
         QuestionTx[keccak256(abi.encodePacked(_txHash, _chainIdDeposit))] = questionReality;
-        delete(isFundsDeposited[msg.sender][_amountDeposit]);
-        UserDetails memory _userDetails = UserDetails(_addrTokenWithdraw, _recieverAddress, amountOfTokenExpected);
-        questionIdToUserDetails[msg.sender][questionReality] = _userDetails;
-
+        emit logQuestionCreated(questionReality);
+        questionIdToDeposit[msg.sender][questionReality] = Deposit(_amountDeposit, uint96(_chainIdDeposit), _recieverAddress, _addrTokenWithdraw, amountOfTokenExpected);
         return questionReality;     
     }
+
     function setExchangeRate (address _tokenAddress, uint256 exchangeRate) external onlyOwner{
         require (tokenExchangeRate[_tokenAddress] == 0, "Exchange rate set");
         tokenExchangeRate[_tokenAddress] = exchangeRate;
@@ -120,13 +99,10 @@ contract GRTPOOL is OwnableUpgradeable {
         uint256 exchange = tokenExchangeRate[tokenWithdrawAddr_];
         uint256 amountOfTokenExpected = exchange * amount_;
         require (IERC20(tokenWithdrawAddr_).balanceOf(address(this)) >= amountOfTokenExpected, "Not enough funds to secure this transaction");
-        require((isFundsDeposited[msg.sender][amount_].active  == false && isFundsDeposited[msg.sender][amount_].tokenAddressTowithdraw == address(0)), "Complete previous transaction");
         bool success = IERC20(addrToken_).transferFrom(msg.sender, address(this), amount_);
         if (success) {
             emit LogDepositERC20(addrToken_, amount_);
             emit LogWithdrawInfoERC20(tokenWithdrawAddr_, chainId_, amount_, amountOfTokenExpected);
-            IsFundsDeposited memory _a = IsFundsDeposited(true, tokenWithdrawAddr_);
-            isFundsDeposited[msg.sender][amount_] = _a;
         }
         return success;
     }
@@ -141,6 +117,10 @@ contract GRTPOOL is OwnableUpgradeable {
         IRealityETH(addrtmpReality).submitAnswer{value: msg.value}(_questionId, answer, _maxPrevious);
     }
 
+    function getBytes(string memory _str) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_str));
+    }
+
     function claimWinnings (
         bytes32 _questionId,
         bytes32[] memory _history_hashes,
@@ -148,20 +128,44 @@ contract GRTPOOL is OwnableUpgradeable {
         uint256[] memory _bonds,
         bytes32[] memory _answers
         ) external {
-        address recieverAddress = questionIdToUserDetails[msg.sender][_questionId].recieverAddress;
+        address recieverAddress = questionIdToDeposit[msg.sender][_questionId].recipientAddr;
         IRealityETH(addrtmpReality).claimWinnings( _questionId, _history_hashes, _addrs, _bonds, _answers);
         canWithdrawFunds[recieverAddress][_questionId] = true;
     }
 
     function claimDepositExchange (bytes32 _questionId, address _grtDepositor) external {
-        address addrTokenWithdraw = questionIdToUserDetails[_grtDepositor][_questionId].tokenAddressTowithdraw;
-        address recieverAddress = questionIdToUserDetails[_grtDepositor][_questionId].recieverAddress;
+        address addrTokenWithdraw = questionIdToDeposit[_grtDepositor][_questionId].tokenWithdrawAddr;
+        address recieverAddress = questionIdToDeposit[_grtDepositor][_questionId].recipientAddr;
         require(msg.sender == recieverAddress, "Wrong reward claimer" );
-        uint256 tokenAmount = questionIdToUserDetails[_grtDepositor][_questionId].tokenAmountTowithdraw;
+        uint256 tokenAmount = questionIdToDeposit[_grtDepositor][_questionId].tokenWithdrawalAmount;
         require (canWithdrawFunds[recieverAddress][_questionId] == true, "Cannot yet claim exchange deposit");
         IERC20(addrTokenWithdraw).transferFrom(address(this), recieverAddress, tokenAmount);
         canWithdrawFunds[recieverAddress][_questionId] = false;
     } 
+
+    function isFinalized(bytes32 question_id) 
+    view public returns (bool) {
+        return  IRealityETH(addrtmpReality).isFinalized(question_id);
+    }
+
+    function getFinalizeTS(bytes32 question_id) 
+    external view returns (uint32) {
+        return IRealityETH(addrtmpReality).getFinalizeTS(question_id);
+    }
+
+     function getBounty(bytes32 question_id) 
+    public view returns(uint256) {
+        return IRealityETH(addrtmpReality).getBounty(question_id);
+    }
+
+    function getBestAnswer(bytes32 question_id) 
+    public view returns(bytes32) {
+        return IRealityETH(addrtmpReality).getBestAnswer(question_id);
+    }
+
+    function getHistoryHash (bytes32 question_id) public view returns (bytes32) {
+        return IRealityETH(addrtmpReality).getHistoryHash(question_id);
+    }
 
 
     function questionIdFromHash(bytes32 hash_, uint256 chainId_) external view returns (bytes32) {
