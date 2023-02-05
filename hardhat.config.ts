@@ -1,31 +1,8 @@
-import { HardhatUserConfig } from 'hardhat/config';
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
 
-interface SolcConfig {
-  optimizer: {
-    enabled: boolean;
-    runs: number;
-    viaIR: boolean;
-  };
-}
-
-interface CustomHardhatConfig extends HardhatUserConfig {
-  solc: {
-    version: string;
-    settings: SolcConfig;
-  };
-}
-
-const config: CustomHardhatConfig = {
-  solc: {
-    version: '0.8.17',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
-        viaIR: true,
-      },
-    },
-  },
+const config: HardhatUserConfig = {
+  solidity: "0.8.17",
 };
 
 export default config;
