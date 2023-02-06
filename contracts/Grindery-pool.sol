@@ -7,8 +7,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "./interfaces/IRealityETH.sol";
-//import "https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/development/contracts/IRealityETH_ERC20.sol";
+import "https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/development/contracts/IRealityETH_ERC20.sol";
 
 contract GRTPOOL is OwnableUpgradeable {
 
@@ -22,9 +21,9 @@ contract GRTPOOL is OwnableUpgradeable {
     constructor (address _addrtmpReality) {
         addrtmpReality = _addrtmpReality;
     }
-
+    
     address internal GRTaddress = 0x1e3C935E9A45aBd04430236DE959d12eD9763162;
-    uint256 internal chainId = 5;
+    uint256 internal _chainIdGRT = 5;
     uint256 internal templateIdERC20;
     mapping(address => uint256) tokenExchangeRate;
     mapping(address => mapping(address => uint256)) balanceTokens;
@@ -39,6 +38,7 @@ contract GRTPOOL is OwnableUpgradeable {
 
     event logTemplateCreated(uint256 templateId);
     event logQuestionCreated(bytes32 questionId);
+
     struct Deposit {
         uint256 amount;
         uint96 chainId;
@@ -59,8 +59,7 @@ contract GRTPOOL is OwnableUpgradeable {
 
     function createQuestionERC20(
         string memory question,
-        bytes32 _txHash,
-        uint256 _chainIdDeposit,
+        bytes32 _txHash, 
         uint256 _amountDeposit,
         address _addrTokenWithdraw,
         address _recieverAddress,
@@ -78,10 +77,10 @@ contract GRTPOOL is OwnableUpgradeable {
             0
         );
 
-        QuestionTx[keccak256(abi.encodePacked(_txHash, _chainIdDeposit))] = questionReality;
+        QuestionTx[keccak256(abi.encodePacked(_txHash, _chainIdGRT))] = questionReality;
         emit logQuestionCreated(questionReality);
         questionIdToDeposit[msg.sender][questionReality] = Deposit(_amountDeposit, uint96(_chainIdDeposit), _recieverAddress, _addrTokenWithdraw, amountOfTokenExpected);
-        return questionReality;
+        return questionReality;     
     }
 
     function setExchangeRate (address _tokenAddress, uint256 exchangeRate) external onlyOwner{
@@ -90,18 +89,17 @@ contract GRTPOOL is OwnableUpgradeable {
     }
 
     function transferERC20(
-        address addrToken_,
-        uint amount_,
-        uint chainId_,
+        uint amount_, 
+        uint chainId_, 
         address tokenWithdrawAddr_
     ) external returns (bool) {
         require (tokenExchangeRate[tokenWithdrawAddr_] != 0, "exchange rate does not exist");
         uint256 exchange = tokenExchangeRate[tokenWithdrawAddr_];
         uint256 amountOfTokenExpected = exchange * amount_;
         require (IERC20(tokenWithdrawAddr_).balanceOf(address(this)) >= amountOfTokenExpected, "Not enough funds to secure this transaction");
-        bool success = IERC20(addrToken_).transferFrom(msg.sender, address(this), amount_);
+        bool success = IERC20(GRTaddress).transferFrom(msg.sender, address(this), amount_);
         if (success) {
-            emit LogDepositERC20(addrToken_, amount_);
+            emit LogDepositERC20(GRTaddress, amount_);
             emit LogWithdrawInfoERC20(tokenWithdrawAddr_, chainId_, amount_, amountOfTokenExpected);
         }
         return success;
@@ -114,7 +112,7 @@ contract GRTPOOL is OwnableUpgradeable {
     ) public payable{
         require (msg.value > 0, "Bond must be greater than zero");
         bytes32 answer = keccak256(abi.encodePacked(_answer));
-        IRealityETH(addrtmpReality).submitAnswer{value: msg.value}(_questionId, answer, _maxPrevious);
+        IRealityETH(addrtmpReality).submitAnswerFor{value: msg.value}(_questionId, answer, _maxPrevious);
     }
 
     function getBytes(string memory _str) public pure returns (bytes32) {
@@ -139,26 +137,26 @@ contract GRTPOOL is OwnableUpgradeable {
         require(msg.sender == recieverAddress, "Wrong reward claimer" );
         uint256 tokenAmount = questionIdToDeposit[_grtDepositor][_questionId].tokenWithdrawalAmount;
         require (canWithdrawFunds[recieverAddress][_questionId] == true, "Cannot yet claim exchange deposit");
-        IERC20(addrTokenWithdraw).transferFrom(address(this), recieverAddress, tokenAmount);
+        IERC20(addrTokenWithdraw).transfer(recieverAddress, tokenAmount);
         canWithdrawFunds[recieverAddress][_questionId] = false;
-    }
+    } 
 
-    function isFinalized(bytes32 question_id)
+    function isFinalized(bytes32 question_id) 
     view public returns (bool) {
         return  IRealityETH(addrtmpReality).isFinalized(question_id);
     }
 
-    function getFinalizeTS(bytes32 question_id)
+    function getFinalizeTS(bytes32 question_id) 
     external view returns (uint32) {
         return IRealityETH(addrtmpReality).getFinalizeTS(question_id);
     }
 
-     function getBounty(bytes32 question_id)
+     function getBounty(bytes32 question_id) 
     public view returns(uint256) {
         return IRealityETH(addrtmpReality).getBounty(question_id);
     }
 
-    function getBestAnswer(bytes32 question_id)
+    function getBestAnswer(bytes32 question_id) 
     public view returns(bytes32) {
         return IRealityETH(addrtmpReality).getBestAnswer(question_id);
     }
@@ -180,7 +178,7 @@ contract GRTPOOL is OwnableUpgradeable {
         isTxAlreadyCovered[keccak256(abi.encodePacked(hash_, chainId_))] = true;
     }
 
-
+    
 
 
 }
