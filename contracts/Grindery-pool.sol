@@ -115,6 +115,27 @@ contract GRTPOOL is OwnableUpgradeable {
         IRealityETH(addrtmpReality).submitAnswerFor{value: msg.value}(_questionId, answer, _maxPrevious, msg.sender);
     }
 
+     function submitAnswerCommitment (
+        bytes32 _answer_hash,
+        bytes32 _questionId,
+        uint256 _maxPrevious
+    ) 
+    external payable {
+        require (msg.value > 0, "Bond must be greater than zero");
+        IRealityETH(addrtmpReality).submitAnswerCommitment{value: msg.value}(_questionId, _answer_hash, _maxPrevious, msg.sender);
+    }
+
+    function submitAnswerReveal (
+         string memory _answer,
+         uint256 nonce,
+        bytes32 _questionId,
+        uint256 bond
+    ) 
+    external {
+        bytes32 answer = keccak256(abi.encodePacked(_answer));
+        IRealityETH(addrtmpReality).submitAnswerReveal(_questionId, answer, nonce, bond);
+    }
+
     function claimWinnings (
         bytes32 _questionId,
         bytes32[] memory _history_hashes,
