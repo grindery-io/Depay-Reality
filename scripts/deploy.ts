@@ -1,22 +1,27 @@
-import { ethers } from "hardhat";
+// Right click on the script name and hit "Run" to execute
+// const { ethers } = require("hardhat");
+const hre = require("hardhat");
+const { ethers } = hre;
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  let GRINDERYPOOL;
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  const _REALITYETH = await ethers.getContractFactory("RealityETH_v3_0");
+  const REALITYETH = await _REALITYETH.deploy()
+  console.log(REALITYETH.address)
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  const _GRINDERYPOOL = await ethers.getContractFactory("GRINDERYPOOL");
+  GRINDERYPOOL = await _GRINDERYPOOL.deploy(REALITYETH.address);
+  await GRINDERYPOOL.deployed();
 
-  await lock.deployed();
+  console.log('GRINDERYPOOL deployed at:' + GRINDERYPOOL.address)
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
-}
+  const _GRTToken = await ethers.getContractFactory('ERC20')
+  const GRTToken = await _GRTToken.deploy();
+  await GRTToken.deployed();
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
+
+};
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;

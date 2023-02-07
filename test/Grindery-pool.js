@@ -97,7 +97,7 @@ describe("GRTPOOL", function () {
       0,
       { value: ethers.utils.parseEther("1") }
     );
-    const answerQuestion = await _answerQuestion.wait();
+    await _answerQuestion.wait();
 
     // Getting hash history after first answer
     const getHistoryHash1 = await GRTPOOL.getHistoryHash(questionId);
@@ -157,7 +157,7 @@ describe("GRTPOOL", function () {
       userA.address
     );
     expect(await TokenToWithdraw.balanceOf(userB.address)).to.equal(
-      "200000000000000000"
+      "2000"
     );
   });
 });

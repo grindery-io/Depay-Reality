@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/development/contracts/IRealityETH_ERC20.sol";
+import "./interfaces/IRealityEth.sol";
 
 contract GRTPOOL is OwnableUpgradeable {
 
@@ -79,7 +79,7 @@ contract GRTPOOL is OwnableUpgradeable {
 
         QuestionTx[keccak256(abi.encodePacked(_txHash, _chainIdGRT))] = questionReality;
         emit logQuestionCreated(questionReality);
-        questionIdToDeposit[msg.sender][questionReality] = Deposit(_amountDeposit, uint96(_chainIdDeposit), _recieverAddress, _addrTokenWithdraw, amountOfTokenExpected);
+        questionIdToDeposit[msg.sender][questionReality] = Deposit(_amountDeposit, uint96(_chainIdGRT), _recieverAddress, _addrTokenWithdraw, amountOfTokenExpected);
         return questionReality;     
     }
 
@@ -112,11 +112,7 @@ contract GRTPOOL is OwnableUpgradeable {
     ) public payable{
         require (msg.value > 0, "Bond must be greater than zero");
         bytes32 answer = keccak256(abi.encodePacked(_answer));
-        IRealityETH(addrtmpReality).submitAnswerFor{value: msg.value}(_questionId, answer, _maxPrevious);
-    }
-
-    function getBytes(string memory _str) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(_str));
+        IRealityETH(addrtmpReality).submitAnswerFor{value: msg.value}(_questionId, answer, _maxPrevious, msg.sender);
     }
 
     function claimWinnings (
@@ -146,13 +142,13 @@ contract GRTPOOL is OwnableUpgradeable {
         return  IRealityETH(addrtmpReality).isFinalized(question_id);
     }
 
-    function getFinalizeTS(bytes32 question_id) 
-    external view returns (uint32) {
-        return IRealityETH(addrtmpReality).getFinalizeTS(question_id);
+    function getFinalAnswer(bytes32 question_id) 
+    external view returns (bytes32) {
+        return IRealityETH(addrtmpReality).getFinalAnswer(question_id);
     }
 
-     function getBounty(bytes32 question_id) 
-    public view returns(uint256) {
+    function getBounty (bytes32 question_id) 
+    external view returns (uint256) {
         return IRealityETH(addrtmpReality).getBounty(question_id);
     }
 
@@ -165,18 +161,13 @@ contract GRTPOOL is OwnableUpgradeable {
         return IRealityETH(addrtmpReality).getHistoryHash(question_id);
     }
 
+    // function isTxCovered(bytes32 hash_, uint256 chainId_) external view returns (bool) {
+    //     return isTxAlreadyCovered[keccak256(abi.encodePacked(hash_, chainId_))];
+    // }
 
-    function questionIdFromHash(bytes32 hash_, uint256 chainId_) external view returns (bytes32) {
-        return QuestionTx[keccak256(abi.encodePacked(hash_, chainId_))];
-    }
-
-    function isTxCovered(bytes32 hash_, uint256 chainId_) external view returns (bool) {
-        return isTxAlreadyCovered[keccak256(abi.encodePacked(hash_, chainId_))];
-    }
-
-    function _setTxCovered(bytes32 hash_, uint256 chainId_) internal {
-        isTxAlreadyCovered[keccak256(abi.encodePacked(hash_, chainId_))] = true;
-    }
+    // function _setTxCovered(bytes32 hash_, uint256 chainId_) internal {
+    //     isTxAlreadyCovered[keccak256(abi.encodePacked(hash_, chainId_))] = true;
+    // }
 
     
 
