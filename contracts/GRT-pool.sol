@@ -73,14 +73,14 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         uint chnIdReq,
         address destAddr
     ) public returns (bool) {
-        
+
         bool succDep = IERC20(_addrGRT).transferFrom(msg.sender, address(this), amntDepGRT);
-        
+
         if (succDep) {
-            
+
             emit LogDepERC20(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
             emit LogReqERC20(_countReq, addrTknReq, amntReq, chnIdReq);
-            
+
             _requests[_countReq] = Request(
                 msg.sender,
                 destAddr,
@@ -89,10 +89,10 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
                 false,
                 initOffer()
             );
-            
+
             _countReq++;
         }
-        
+
         return succDep;
     }
 
@@ -116,7 +116,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // User who made the request can then accept an offer associated with it
     function acceptOffer(uint idReq) public {
-        
+
         require(_requests[idReq].isOffer, "GRT pool: no offer to accept!");
         require(!_requests[idReq].offer.isAccept, "GRT pool: the offer has already been accepted!");
         require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
@@ -135,7 +135,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         require(msg.sender == _requests[idReq].userAddr, "GRT pool: you are not authorized to reject an offer that has not been issued by you!");
 
         emit LogRejectOffrERC20(idReq);
-        _requests[idReq].offer = initOffer();         
+        _requests[idReq].offer = initOffer();
     }
 
     // Honour the offer on the same chain as the request has been made
@@ -180,14 +180,14 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         claimWinnings(questionId, history_hashes, addrs, bonds, answers);
 
         if (getFinalAnswer(questionId) == "true") {
-            bool success = IERC20(_addrGRT).transfer(_requests[idReq].offer.userAddr, _requests[idReq].deposit.amount); 
+            bool success = IERC20(_addrGRT).transfer(_requests[idReq].offer.userAddr, _requests[idReq].deposit.amount);
             if (success) {
                 emit LogHndOffrERC20CrossChain(idReq);
                 _requests[idReq].offer.isHnd = true;
             }
             return success;
         }
-        
+
         return false;
     }
 
@@ -200,7 +200,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
         require(msg.sender == _requests[idReq].offer.userAddr , "GRT pool: you have not made an offer for this request and therefore you are not entitled to make this request!");
 
-        bool success = IERC20(_addrGRT).transfer(_requests[idReq].offer.userAddr, _requests[idReq].deposit.amount); 
+        bool success = IERC20(_addrGRT).transfer(_requests[idReq].offer.userAddr, _requests[idReq].deposit.amount);
         if (success) {
             emit LogHndOffrERC20CrossChain(idReq);
             _requests[idReq].offer.isHnd = true;
@@ -268,10 +268,10 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     function setGRTAddr(address addr) external onlyOwner {
        _addrGRT = addr;
-    }   
+    }
 
     function setGRTChainId(uint chainId) external onlyOwner {
        _chainIdGRT = chainId;
-    }   
+    }
 
 }

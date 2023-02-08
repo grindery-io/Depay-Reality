@@ -16,6 +16,8 @@ contract GrtSatellite is OwnableUpgradeable {
         __Ownable_init();
     }
 
+    // Native token to do
+
     // Honour the offer cross chain (require dispute)
     function HnOfferERC20CrossChain(
         address token,
