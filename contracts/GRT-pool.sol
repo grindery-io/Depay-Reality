@@ -10,7 +10,7 @@ import "./GRT-dispute.sol";
 contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // State variables
-    uint internal _countReq;
+    uint256 internal _countReq;
     address internal _addrGRT;
     uint256 internal _chainIdGRT;
 
@@ -20,45 +20,45 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         address destAddr;
         TokenInfo deposit;
         TokenInfo request;
-        bool isOffer;
+        bool isRequest;
         Offer offer;
+        Offer[] offerTmp;
     }
-
     struct Offer {
         address userAddr;
+        uint256 amount;
         bool isAccept;
-        bool isHnd;
+        bool isPaid;
     }
-
     struct TokenInfo {
-        address addr;
-        uint amount;
-        uint chainId;
+        address token;
+        uint256 amount;
+        uint256 chainId;
     }
 
     // Mapping declarations
-    mapping(uint => Request) internal _requests;
-    mapping(address => uint) internal _stakes;
+    mapping(uint256 => Request) internal _requests;
+    mapping(address => uint256) internal _stakes;
 
     // Event declarations
-    event LogStake (address indexed _user, uint indexed _amount);
-    event LogDeposit (uint indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
-    event LogRequest (uint indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
-    event LogCreateOffer (uint indexed _idRequest);
-    event LogAcceptOffer (uint indexed _idRequest);
-    event LogRejectOffer (uint indexed _idRequest);
-    event LogHndOffrERC20OnChain (uint indexed _idRequest);
-    event LogHndOffrERC20CrossChain (uint indexed _idRequest);
+    event LogStake (address indexed _user, uint256 indexed _amount);
+    event LogDeposit (uint256 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
+    event LogRequest (uint256 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
+    event LogCreateOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
+    event LogAcceptOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
+    event LogRejectOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
+    event LogOfferPaidOnChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
+    event LogOfferPaidCrossChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
 
     // Initialize
-    function initializePool(address addrGRT, uint chainIdGRT) external initializer {
+    function initializePool(address addrGRT, uint256 chainIdGRT) external initializer {
         __Ownable_init();
         _addrGRT = addrGRT;
         _chainIdGRT = chainIdGRT;
     }
 
     // UserB must stake before submitting an offer
-    function stakeGRT(uint amount) public returns (bool) {
+    function stakeGRT(uint256 amount) external returns (bool) {
         bool success = depositGRT(amount);
         if (success) {
             emit LogStake(msg.sender, amount);
@@ -68,28 +68,28 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // Initial user who wants to obtain some ERC20 token: he makes a GRT deposit and a request for that
-    function depositGRTReqERC20(
-        uint amntDepGRT,
-        address addrTknReq,
-        uint amntReq,
-        uint chnIdReq,
+    function depositGRTRequestERC20(
+        uint256 amntDepGRT,
+        address tokenRequest,
+        uint256 amntReq,
+        uint256 chnIdReq,
         address destAddr
-    ) public returns (bool) {
+    ) external returns (bool) {
         bool succDep = depositGRT(amntDepGRT);
         if (succDep) {
             emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
-            addRequest(amntDepGRT, addrTknReq, amntReq, chnIdReq, destAddr);
+            addRequest(amntDepGRT, tokenRequest, amntReq, chnIdReq, destAddr);
         }
         return succDep;
     }
 
     // Initial user who wants to obtain some native token: he makes a GRT deposit and a request for that
-    function depositGRTReqNative(
-        uint amntDepGRT,
-        uint amntReq,
-        uint chnIdReq,
+    function depositGRTRequestNative(
+        uint256 amntDepGRT,
+        uint256 amntReq,
+        uint256 chnIdReq,
         address destAddr
-    ) public returns (bool) {
+    ) external returns (bool) {
         bool succDep = depositGRT(amntDepGRT);
         if (succDep) {
             emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
@@ -99,67 +99,73 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // User can make an offer as a response to another user request
-    function createOffer(
-        uint idReq,
-        address addrTknOffr,
-        uint amntOffr,
-        uint chnIdOffr
-    ) public {
-
-        require(!_requests[idReq].isOffer, "GRT pool: an offer has already been made or is already in progress on this request!");
-        require(addrTknOffr == _requests[idReq].request.addr, "GRT pool: the token of your offer is not the one the user wants!");
-        require(amntOffr == _requests[idReq].request.amount, "GRT pool: the amount of token of your offer doesn't correspond to what the user wants!");
-        require(chnIdOffr == _requests[idReq].request.chainId, "GRT pool: the chain of your offer doesn't correspond to what the user wants!");
+    function createOffer(uint256 idRequest, uint256 amount) external {
+        require(_requests[idRequest].isRequest, "GRT pool: the request for which you are trying to place an offer does not exist!");
         require(_stakes[msg.sender] > 1, "GRT pool: your stake amount is not sufficient!");
-
-        emit LogCreateOffer(idReq);
-        _requests[idReq].offer = Offer(msg.sender, true, false);
+        emit LogCreateOffer(idRequest, _requests[idRequest].offerTmp.length);
+        _requests[idRequest].offerTmp.push(Offer(msg.sender, amount, false, false));
     }
 
     // User who made the request can then accept an offer associated with it
-    function acceptOffer(uint idReq) public {
-
-        require(_requests[idReq].isOffer, "GRT pool: no offer to accept!");
-        require(!_requests[idReq].offer.isAccept, "GRT pool: the offer has already been accepted!");
-        require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
-        require(msg.sender == _requests[idReq].userAddr, "GRT pool: you are not authorized to accept an offer that has not been issued by you!");
-
-        _requests[idReq].offer.isAccept = true;
-        emit LogAcceptOffer(idReq);
-    }
-
-    // User who made the request can then reject an offer associated with it
-    function rejectOffer(uint idReq) public {
-
-        require(_requests[idReq].isOffer, "GRT pool: no offer to accept!");
-        require(!_requests[idReq].offer.isAccept, "GRT pool: the offer has already been accepted!");
-        require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
-        require(msg.sender == _requests[idReq].userAddr, "GRT pool: you are not authorized to reject an offer that has not been issued by you!");
-
-        emit LogRejectOffer(idReq);
-        _requests[idReq].offer = initOffer();
+    function acceptOffer(uint256 idRequest, uint256 idOffer) external {
+        require(_requests[idRequest].isRequest, "GRT pool: the request for which you are trying to place an offer does not exist!");
+        require(idOffer > 0 && idOffer < _requests[idRequest].offerTmp.length, "GRT pool: the offer Id is invalid!");
+        require(!_requests[idRequest].offerTmp[idOffer].isAccept, "GRT pool: the offer has already been accepted!");
+        require(msg.sender == _requests[idRequest].userAddr, "GRT pool: you are not authorized to accept an offer that has not been issued by you!");
+        _requests[idRequest].offerTmp[idOffer].isAccept = true;
+        emit LogAcceptOffer(idRequest, idOffer);
     }
 
     // Honour the offer on the same chain as the request has been made
-    function HnOfferERC20OnChain(
-        uint idReq,
+    function payOfferOnChainERC20(
+        uint256 idRequest,
+        uint256 idOffer,
         address token,
-        uint amount
-    ) public returns (bool HndOffer, bool GRTReward) {
+        uint256 amount
+    ) external returns (bool HndOffer, bool GRTReward) {
 
-        require(_requests[idReq].isOffer, "GRT pool: no offer to honour!");
-        require(block.chainid == _requests[idReq].request.chainId, "GRT pool: the offer should not be honoured on this chain!");
-        require(msg.sender == _requests[idReq].offer.userAddr, "GRT pool: you are not allowed to honour this offer!");
-        require(_requests[idReq].offer.isAccept, "GRT pool: the offer has not been accepted yet!");
-        require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
+        require(_requests[idRequest].offerTmp[idOffer].isAccept, "GRT pool: the offer you are trying to pay has not been accepted yet!");
+        require(!_requests[idRequest].offerTmp[idOffer].isPaid, "GRT pool: the offer you are trying to pay has already been paid!");
+        require(block.chainid == _requests[idRequest].request.chainId, "GRT pool: the offer should not be paid on this chain!");
+        require(amount == _requests[idRequest].request.amount, "GRT pool: the amount you entered does not match the offer you made!");
+        require(msg.sender == _requests[idRequest].offerTmp[idOffer].userAddr, "GRT pool: you are not allowed to honour this offer!");
+        require(token == _requests[idRequest].request.token, "GRT pool: the token you wish to propose is not the one expected!");
 
-        // Bond in GRT is 1 for the moment to simplify
-        bool successHndOffer = IERC20(token).transferFrom(msg.sender, _requests[idReq].destAddr, amount);
-        bool successGRTReward = IERC20(_addrGRT).transferFrom(address(this), msg.sender, _requests[idReq].deposit.amount);
+        bool successHndOffer = IERC20(token).transferFrom(msg.sender, _requests[idRequest].destAddr, amount);
+        bool successGRTReward;
 
-        if (successHndOffer && successGRTReward) {
-            emit LogHndOffrERC20OnChain(idReq);
-            _requests[idReq].offer.isHnd = true;
+        if (successHndOffer) {
+            successGRTReward = IERC20(_addrGRT).transfer(msg.sender, _requests[idRequest].deposit.amount);
+            if (successGRTReward) {
+                emit LogOfferPaidOnChain(idRequest, idOffer);
+                _requests[idRequest].offer.isPaid = true;
+            }
+        }
+
+        return (successHndOffer, successGRTReward);
+    }
+
+    // Honour the offer on the same chain as the request has been made
+    function payOfferOnChainNative(
+        uint256 idRequest,
+        uint256 idOffer
+    ) external payable returns (bool HndOffer, bool GRTReward) {
+
+        require(_requests[idRequest].offerTmp[idOffer].isAccept, "GRT pool: the offer you are trying to pay has not been accepted yet!");
+        require(!_requests[idRequest].offerTmp[idOffer].isPaid, "GRT pool: the offer you are trying to pay has already been paid!");
+        require(block.chainid == _requests[idRequest].request.chainId, "GRT pool: the offer should not be paid on this chain!");
+        require(msg.value == _requests[idRequest].request.amount, "GRT pool: the amount you entered does not match the offer you made!");
+        require(msg.sender == _requests[idRequest].offerTmp[idOffer].userAddr, "GRT pool: you are not allowed to honour this offer!");
+
+        (bool successHndOffer, ) = _requests[idRequest].destAddr.call{value: msg.value}("");
+        bool successGRTReward;
+
+        if (successHndOffer) {
+            successGRTReward = IERC20(_addrGRT).transfer(msg.sender, _requests[idRequest].deposit.amount);
+            if (successGRTReward) {
+                emit LogOfferPaidOnChain(idRequest, idOffer);
+                _requests[idRequest].offer.isPaid = true;
+            }
         }
 
         return (successHndOffer, successGRTReward);
@@ -167,7 +173,8 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // Claim GRT after dispute
     function claimGRTWithDispute (
-        uint idReq,
+        uint256 idRequest,
+        uint256 idOffer,
         bytes32 questionId,
         bytes32[] memory history_hashes,
         address[] memory addrs,
@@ -175,17 +182,16 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         bytes32[] memory answers
     ) external returns (bool) {
 
-        require(_requests[idReq].isOffer, "GRT pool: no offer to honour!");
-        require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
-        require(msg.sender == _requests[idReq].offer.userAddr , "GRT pool: you have not made an offer for this request and therefore you are not entitled to make this request!");
+        require(!_requests[idRequest].offerTmp[idOffer].isPaid, "GRT pool: the offer you are trying to pay has already been paid!");
+        require(msg.sender == _requests[idRequest].offerTmp[idOffer].userAddr , "GRT pool: you have not made an offer for this request and therefore you are not entitled to make this request!");
 
         claimWinnings(questionId, history_hashes, addrs, bonds, answers);
 
         if (getFinalAnswer(questionId) == "true") {
-            bool success = IERC20(_addrGRT).transfer(_requests[idReq].offer.userAddr, _requests[idReq].deposit.amount);
+            bool success = IERC20(_addrGRT).transfer(_requests[idRequest].offer.userAddr, _requests[idRequest].deposit.amount);
             if (success) {
-                emit LogHndOffrERC20CrossChain(idReq);
-                _requests[idReq].offer.isHnd = true;
+                emit LogOfferPaidCrossChain(idRequest, idOffer);
+                _requests[idRequest].offer.isPaid = true;
             }
             return success;
         }
@@ -194,18 +200,16 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // Claim GRT without dispute
-    function claimGRTWithoutDispute (
-        uint idReq
-    ) external returns (bool) {
+    function claimGRTWithoutDispute (uint256 idRequest, uint256 idOffer) external returns (bool) {
 
-        require(_requests[idReq].isOffer, "GRT pool: no offer to honour!");
-        require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
-        require(msg.sender == _requests[idReq].offer.userAddr , "GRT pool: you have not made an offer for this request and therefore you are not entitled to make this request!");
+        require(_requests[idRequest].isRequest, "GRT pool: no offer to honour!");
+        require(!_requests[idRequest].offer.isPaid, "GRT pool: the offer has already been honoured!");
+        require(msg.sender == _requests[idRequest].offer.userAddr , "GRT pool: you have not made an offer for this request and therefore you are not entitled to make this request!");
 
-        bool success = IERC20(_addrGRT).transfer(_requests[idReq].offer.userAddr, _requests[idReq].deposit.amount);
+        bool success = IERC20(_addrGRT).transfer(_requests[idRequest].offer.userAddr, _requests[idRequest].deposit.amount);
         if (success) {
-            emit LogHndOffrERC20CrossChain(idReq);
-            _requests[idReq].offer.isHnd = true;
+            emit LogOfferPaidCrossChain(idRequest, idOffer);
+            _requests[idRequest].offer.isPaid = true;
         }
         return success;
 
@@ -213,46 +217,46 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // Initialize a new offer
     function initOffer() internal pure returns (Offer memory) {
-        return Offer(address(0), false, false);
+        return Offer(address(0), 0, false, false);
     }
 
     // Set token infos
-    function setTokenInfo(address token, uint amount, uint chainId) internal pure returns (TokenInfo memory) {
+    function setTokenInfo(address token, uint256 amount, uint256 chainId) internal pure returns (TokenInfo memory) {
         return TokenInfo(token, amount, chainId);
     }
 
     // Get information for a given request (deposit)
-    function getInfoDep(uint idReq) external view returns (
+    function getInfoDep(uint256 idRequest) external view returns (
         address userAddr,
         address addrTokenDep,
-        uint amntDep,
-        uint chainIdDep
+        uint256 amntDep,
+        uint256 chainIdDep
     ) {
         return (
-            _requests[idReq].userAddr,
-            _requests[idReq].deposit.addr,
-            _requests[idReq].deposit.amount,
-            _requests[idReq].deposit.chainId
+            _requests[idRequest].userAddr,
+            _requests[idRequest].deposit.token,
+            _requests[idRequest].deposit.amount,
+            _requests[idRequest].deposit.chainId
         );
     }
 
     // Get information for a given request (request)
-    function getInfoReq(uint idReq) external view returns (
+    function getInfoReq(uint256 idRequest) external view returns (
         address userAddr,
         address addrTokenReq,
-        uint amntReq,
-        uint chainIdReq
+        uint256 amntReq,
+        uint256 chainIdReq
     ) {
         return (
-            _requests[idReq].userAddr,
-            _requests[idReq].request.addr,
-            _requests[idReq].request.amount,
-            _requests[idReq].request.chainId
+            _requests[idRequest].userAddr,
+            _requests[idRequest].request.token,
+            _requests[idRequest].request.amount,
+            _requests[idRequest].request.chainId
         );
     }
 
     // Get information for a given request (offer)
-    function getInfoOffr(uint idReq) external view returns (
+    function getInfoOffr(uint256 idRequest) external view returns (
         address userAddr,
         bool isOffr,
         address offrUserAdrr,
@@ -260,48 +264,50 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         bool isOfferHnd
     ) {
         return (
-            _requests[idReq].userAddr,
-            _requests[idReq].isOffer,
-            _requests[idReq].offer.userAddr,
-            _requests[idReq].offer.isAccept,
-            _requests[idReq].offer.isHnd
+            _requests[idRequest].userAddr,
+            _requests[idRequest].isRequest,
+            _requests[idRequest].offer.userAddr,
+            _requests[idRequest].offer.isAccept,
+            _requests[idRequest].offer.isPaid
         );
     }
 
     // Modify GRT address
-    function setGRTAddr(address addr) external onlyOwner {
-       _addrGRT = addr;
+    function setGRTAddr(address token) external onlyOwner {
+       _addrGRT = token;
     }
 
     // Modify GRT Chain Id
-    function setGRTChainId(uint chainId) external onlyOwner {
+    function setGRTChainId(uint256 chainId) external onlyOwner {
        _chainIdGRT = chainId;
     }
 
     // Deposit GRT on the pool
-    function depositGRT(uint amount) internal returns (bool) {
+    function depositGRT(uint256 amount) internal returns (bool) {
         return IERC20(_addrGRT).transferFrom(msg.sender, address(this), amount);
     }
 
     // Add new request
     function addRequest(
-        uint amntDepGRT,
-        address addrTknReq,
-        uint amntReq,
-        uint chnIdReq,
-        address destAddr
+        uint256 amntDepGRT,
+        address tokenRequest,
+        uint256 amntReq,
+        uint256 chnIdReq,
+        address recipient
     ) internal {
 
-        emit LogRequest(_countReq, addrTknReq, amntReq, chnIdReq);
+        emit LogRequest(_countReq, tokenRequest, amntReq, chnIdReq);
 
-        _requests[_countReq] = Request(
-            msg.sender,
-            destAddr,
-            setTokenInfo(_addrGRT, amntDepGRT, _chainIdGRT),
-            setTokenInfo(addrTknReq, amntReq, chnIdReq),
-            false,
-            initOffer()
-        );
+        Request storage request = _requests[_countReq];
+
+        request.userAddr = msg.sender;
+        request.destAddr = recipient;
+        request.deposit = setTokenInfo(_addrGRT, amntDepGRT, _chainIdGRT);
+        request.request = setTokenInfo(tokenRequest, amntReq, chnIdReq);
+        request.isRequest = true;
+        request.offer = initOffer();
+        request.offerTmp.push(initOffer());
+        _requests[_countReq] = request;
 
         _countReq++;
     }
