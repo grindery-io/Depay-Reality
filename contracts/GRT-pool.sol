@@ -10,9 +10,9 @@ import "./GRT-dispute.sol";
 contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // State variables
-    address private _addrGRT;
-    uint256 private _chainIdGRT;
-    uint private _countReq;
+    uint internal _countReq;
+    address internal _addrGRT;
+    uint256 internal _chainIdGRT;
 
     // Structure declarations
     struct Request {
@@ -37,15 +37,16 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // Mapping declarations
-    mapping(uint => Request) private _requests;
-    mapping(address => uint) private _stakes;
+    mapping(uint => Request) internal _requests;
+    mapping(address => uint) internal _stakes;
 
     // Event declarations
-    event LogDepERC20 (uint indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
-    event LogReqERC20 (uint indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
-    event LogCreateOffrERC20 (uint indexed _idRequest);
-    event LogAcceptOffrERC20 (uint indexed _idRequest);
-    event LogRejectOffrERC20 (uint indexed _idRequest);
+    event LogStake (address indexed _user, uint indexed _amount);
+    event LogDeposit (uint indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
+    event LogRequest (uint indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
+    event LogCreateOffer (uint indexed _idRequest);
+    event LogAcceptOffer (uint indexed _idRequest);
+    event LogRejectOffer (uint indexed _idRequest);
     event LogHndOffrERC20OnChain (uint indexed _idRequest);
     event LogHndOffrERC20CrossChain (uint indexed _idRequest);
 
@@ -58,46 +59,47 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // UserB must stake before submitting an offer
     function stakeGRT(uint amount) public returns (bool) {
-        bool success = IERC20(_addrGRT).transfer(address(this), amount);
+        bool success = depositGRT(amount);
         if (success) {
+            emit LogStake(msg.sender, amount);
             _stakes[msg.sender] += amount;
         }
         return success;
     }
 
     // Initial user who wants to obtain some ERC20 token: he makes a GRT deposit and a request for that
-    function depositGRT(
+    function depositGRTReqERC20(
         uint amntDepGRT,
         address addrTknReq,
         uint amntReq,
         uint chnIdReq,
         address destAddr
     ) public returns (bool) {
-
-        bool succDep = IERC20(_addrGRT).transferFrom(msg.sender, address(this), amntDepGRT);
-
+        bool succDep = depositGRT(amntDepGRT);
         if (succDep) {
-
-            emit LogDepERC20(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
-            emit LogReqERC20(_countReq, addrTknReq, amntReq, chnIdReq);
-
-            _requests[_countReq] = Request(
-                msg.sender,
-                destAddr,
-                setTokenInfo(_addrGRT, amntDepGRT, _chainIdGRT),
-                setTokenInfo(addrTknReq, amntReq, chnIdReq),
-                false,
-                initOffer()
-            );
-
-            _countReq++;
+            emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
+            addRequest(amntDepGRT, addrTknReq, amntReq, chnIdReq, destAddr);
         }
+        return succDep;
+    }
 
+    // Initial user who wants to obtain some native token: he makes a GRT deposit and a request for that
+    function depositGRTReqNative(
+        uint amntDepGRT,
+        uint amntReq,
+        uint chnIdReq,
+        address destAddr
+    ) public returns (bool) {
+        bool succDep = depositGRT(amntDepGRT);
+        if (succDep) {
+            emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
+            addRequest(amntDepGRT, address(0), amntReq, chnIdReq, destAddr);
+        }
         return succDep;
     }
 
     // User can make an offer as a response to another user request
-    function makeOfferERC20(
+    function createOffer(
         uint idReq,
         address addrTknOffr,
         uint amntOffr,
@@ -110,7 +112,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         require(chnIdOffr == _requests[idReq].request.chainId, "GRT pool: the chain of your offer doesn't correspond to what the user wants!");
         require(_stakes[msg.sender] > 1, "GRT pool: your stake amount is not sufficient!");
 
-        emit LogCreateOffrERC20(idReq);
+        emit LogCreateOffer(idReq);
         _requests[idReq].offer = Offer(msg.sender, true, false);
     }
 
@@ -123,7 +125,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         require(msg.sender == _requests[idReq].userAddr, "GRT pool: you are not authorized to accept an offer that has not been issued by you!");
 
         _requests[idReq].offer.isAccept = true;
-        emit LogAcceptOffrERC20(idReq);
+        emit LogAcceptOffer(idReq);
     }
 
     // User who made the request can then reject an offer associated with it
@@ -134,7 +136,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         require(!_requests[idReq].offer.isHnd, "GRT pool: the offer has already been honoured!");
         require(msg.sender == _requests[idReq].userAddr, "GRT pool: you are not authorized to reject an offer that has not been issued by you!");
 
-        emit LogRejectOffrERC20(idReq);
+        emit LogRejectOffer(idReq);
         _requests[idReq].offer = initOffer();
     }
 
@@ -266,12 +268,42 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         );
     }
 
+    // Modify GRT address
     function setGRTAddr(address addr) external onlyOwner {
        _addrGRT = addr;
     }
 
+    // Modify GRT Chain Id
     function setGRTChainId(uint chainId) external onlyOwner {
        _chainIdGRT = chainId;
+    }
+
+    // Deposit GRT on the pool
+    function depositGRT(uint amount) internal returns (bool) {
+        return IERC20(_addrGRT).transferFrom(msg.sender, address(this), amount);
+    }
+
+    // Add new request
+    function addRequest(
+        uint amntDepGRT,
+        address addrTknReq,
+        uint amntReq,
+        uint chnIdReq,
+        address destAddr
+    ) internal {
+
+        emit LogRequest(_countReq, addrTknReq, amntReq, chnIdReq);
+
+        _requests[_countReq] = Request(
+            msg.sender,
+            destAddr,
+            setTokenInfo(_addrGRT, amntDepGRT, _chainIdGRT),
+            setTokenInfo(addrTknReq, amntReq, chnIdReq),
+            false,
+            initOffer()
+        );
+
+        _countReq++;
     }
 
 }
