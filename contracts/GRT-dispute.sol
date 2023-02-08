@@ -3,7 +3,7 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "https://github.com/RealityETH/reality-eth-monorepo/blob/main/packages/contracts/development/contracts/IRealityETH.sol";
+import "./reality/IRealityETH.sol";
 
 contract GrtDispute is OwnableUpgradeable {
 
@@ -15,10 +15,10 @@ contract GrtDispute is OwnableUpgradeable {
     struct QuestionReality {
         bytes32 txHash;
         address fromOffer;
-        address toOffer; 
+        address toOffer;
         address tokenOffer;
         uint256 amountOffer;
-        uint256 chainIdOffer;  
+        uint256 chainIdOffer;
     }
 
     // Mapping declarations
@@ -46,10 +46,10 @@ contract GrtDispute is OwnableUpgradeable {
         uint256 templateId,
         bytes32 txHashOffer,
         address fromOffer,
-        address toOffer, 
+        address toOffer,
         address tokenOffer,
         uint256 amountOffer,
-        uint256 chainIdOffer       
+        uint256 chainIdOffer
     ) public payable returns (bytes32, QuestionReality memory) {
 
         bytes32 questionReality = IRealityETH(_addrReality).askQuestion{value: msg.value}(
@@ -66,7 +66,7 @@ contract GrtDispute is OwnableUpgradeable {
         return (questionReality,  QuestionReality(
             txHashOffer,
             fromOffer,
-            toOffer, 
+            toOffer,
             tokenOffer,
             amountOffer,
             chainIdOffer
@@ -90,13 +90,13 @@ contract GrtDispute is OwnableUpgradeable {
     function getFinalAnswer(bytes32 question_id) public view returns (bytes32) {
         return IRealityETH(_addrReality).getFinalAnswer(question_id);
     }
-    
+
     function getHistoryHash (bytes32 question_id) public view returns (bytes32) {
         return IRealityETH(_addrReality).getHistoryHash(question_id);
-    } 
+    }
 
 
     function setAddrReality(address addr) external onlyOwner {
        _addrReality = addr;
-    }   
+    }
 }
