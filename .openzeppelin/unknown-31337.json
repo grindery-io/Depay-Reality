@@ -2,19 +2,29 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0x8c6b841154db8645fc04d39b70710fdb606d570b4a3cecd01c0746fccb438366"
+    "txHash": "0xce220e8020d14a3e0e60f8472cc63844fcc70bd437e13a41812bc141136fc41d"
   },
   "proxies": [
     {
+      "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+      "txHash": "0x3bfe269fde3529630f23802f2b75bcc049d5d861dc6dfef38b439c1f1a469f42",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+      "txHash": "0x278aba6f395750fac99dd0ac8035dec9717d15a1d714196ecfdf2e1cafcebcd4",
+      "kind": "transparent"
+    },
+    {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x79e976a1adf5b2622b79112b63cd6a06b308e9ba8ed18acbedce48c80bf22c1b",
+      "txHash": "0x0dd3450500fca5805bbf4cdb23ad616071c2aa7ba66773c505f719dc66e409ca",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "a8030f6793c6a439a1923f83389409fb0cc4712ba429f70af488c63168804451": {
+    "0f4b9a3f9d630d5b52da0a5190186b3dfde9da16b53392ef06395e960527fe80": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x5654323e78d56c85c48437fc980c624e4f8139935e83b1fe9b2dcd93c5446b48",
+      "txHash": "0x34c88d70b92d697d215b7f5954f808fda37c8bc89840051d40168ea489b9ce7e",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -65,7 +75,7 @@
             "slot": "101",
             "type": "t_address",
             "contract": "GrtDispute",
-            "src": "contracts/GRT-dispute.sol:11"
+            "src": "contracts/GrtDispute.sol:11"
           },
           {
             "label": "_countQuestion",
@@ -73,7 +83,7 @@
             "slot": "102",
             "type": "t_uint256",
             "contract": "GrtDispute",
-            "src": "contracts/GRT-dispute.sol:12"
+            "src": "contracts/GrtDispute.sol:12"
           },
           {
             "label": "_questions",
@@ -81,39 +91,39 @@
             "slot": "103",
             "type": "t_mapping(t_uint256,t_bytes32)",
             "contract": "GrtDispute",
-            "src": "contracts/GRT-dispute.sol:25"
-          },
-          {
-            "label": "_addrGRT",
-            "offset": 0,
-            "slot": "104",
-            "type": "t_address",
-            "contract": "GrtPool",
-            "src": "contracts/GRT-pool.sol:13"
-          },
-          {
-            "label": "_chainIdGRT",
-            "offset": 0,
-            "slot": "105",
-            "type": "t_uint256",
-            "contract": "GrtPool",
-            "src": "contracts/GRT-pool.sol:14"
+            "src": "contracts/GrtDispute.sol:25"
           },
           {
             "label": "_countReq",
             "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "GrtPool",
+            "src": "contracts/GrtPool.sol:13"
+          },
+          {
+            "label": "_addrGRT",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_address",
+            "contract": "GrtPool",
+            "src": "contracts/GrtPool.sol:14"
+          },
+          {
+            "label": "_chainIdGRT",
+            "offset": 0,
             "slot": "106",
             "type": "t_uint256",
             "contract": "GrtPool",
-            "src": "contracts/GRT-pool.sol:15"
+            "src": "contracts/GrtPool.sol:15"
           },
           {
             "label": "_requests",
             "offset": 0,
             "slot": "107",
-            "type": "t_mapping(t_uint256,t_struct(Request)1601_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Request)1597_storage)",
             "contract": "GrtPool",
-            "src": "contracts/GRT-pool.sol:40"
+            "src": "contracts/GrtPool.sol:39"
           },
           {
             "label": "_stakes",
@@ -121,13 +131,17 @@
             "slot": "108",
             "type": "t_mapping(t_address,t_uint256)",
             "contract": "GrtPool",
-            "src": "contracts/GRT-pool.sol:41"
+            "src": "contracts/GrtPool.sol:40"
           }
         ],
         "types": {
           "t_address": {
             "label": "address",
             "numberOfBytes": "20"
+          },
+          "t_array(t_struct(Offer)1606_storage)dyn_storage": {
+            "label": "struct GrtPool.Offer[]",
+            "numberOfBytes": "32"
           },
           "t_array(t_uint256)49_storage": {
             "label": "uint256[49]",
@@ -153,11 +167,11 @@
             "label": "mapping(uint256 => bytes32)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Request)1601_storage)": {
+          "t_mapping(t_uint256,t_struct(Request)1597_storage)": {
             "label": "mapping(uint256 => struct GrtPool.Request)",
             "numberOfBytes": "32"
           },
-          "t_struct(Offer)1608_storage": {
+          "t_struct(Offer)1606_storage": {
             "label": "struct GrtPool.Offer",
             "members": [
               {
@@ -167,21 +181,27 @@
                 "slot": "0"
               },
               {
-                "label": "isAccept",
-                "type": "t_bool",
-                "offset": 20,
-                "slot": "0"
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
               },
               {
-                "label": "isHnd",
+                "label": "isAccept",
                 "type": "t_bool",
-                "offset": 21,
-                "slot": "0"
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "isPaid",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "2"
               }
             ],
-            "numberOfBytes": "32"
+            "numberOfBytes": "96"
           },
-          "t_struct(Request)1601_storage": {
+          "t_struct(Request)1597_storage": {
             "label": "struct GrtPool.Request",
             "members": [
               {
@@ -198,36 +218,36 @@
               },
               {
                 "label": "deposit",
-                "type": "t_struct(TokenInfo)1615_storage",
+                "type": "t_struct(TokenInfo)1613_storage",
                 "offset": 0,
                 "slot": "2"
               },
               {
                 "label": "request",
-                "type": "t_struct(TokenInfo)1615_storage",
+                "type": "t_struct(TokenInfo)1613_storage",
                 "offset": 0,
                 "slot": "5"
               },
               {
-                "label": "isOffer",
+                "label": "isRequest",
                 "type": "t_bool",
                 "offset": 0,
                 "slot": "8"
               },
               {
-                "label": "offer",
-                "type": "t_struct(Offer)1608_storage",
+                "label": "offers",
+                "type": "t_array(t_struct(Offer)1606_storage)dyn_storage",
                 "offset": 0,
                 "slot": "9"
               }
             ],
             "numberOfBytes": "320"
           },
-          "t_struct(TokenInfo)1615_storage": {
+          "t_struct(TokenInfo)1613_storage": {
             "label": "struct GrtPool.TokenInfo",
             "members": [
               {
-                "label": "addr",
+                "label": "token",
                 "type": "t_address",
                 "offset": 0,
                 "slot": "0"

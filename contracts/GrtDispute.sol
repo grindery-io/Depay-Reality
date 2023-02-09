@@ -29,8 +29,7 @@ contract GrtDispute is OwnableUpgradeable {
     event LogQuestionCreated(uint indexed _questionId, bytes32 indexed _realityQuestionId);
 
     // Initialize
-    function initializeDispute(address addrReality) external initializer {
-        __Ownable_init();
+    function initializeDispute(address addrReality) internal {
         _addrReality = addrReality;
     }
 

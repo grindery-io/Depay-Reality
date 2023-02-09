@@ -5,7 +5,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./reality/IRealityETH.sol";
-import "./GRT-dispute.sol";
+import "./GrtDispute.sol";
 
 contract GrtPool is OwnableUpgradeable, GrtDispute {
 
@@ -50,10 +50,11 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     event LogOfferPaidCrossChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
 
     // Initialize
-    function initializePool(address addrGRT, uint256 chainIdGRT) external initializer {
+    function initializePool(address addrGRT, uint256 chainIdGRT, address addrReality) external initializer {
         __Ownable_init();
         _addrGRT = addrGRT;
         _chainIdGRT = chainIdGRT;
+        initializeDispute(addrReality);
     }
 
     // UserB must stake before submitting an offer
@@ -186,7 +187,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
         claimWinnings(questionId, history_hashes, addrs, bonds, answers);
 
-        if (getFinalAnswer(questionId) == "true") {
+        if (getFinalAnswer(questionId) == keccak256(abi.encodePacked("true"))) {
             bool success = IERC20(_addrGRT).transfer(_requests[idRequest].offers[idOffer].userAddr, _requests[idRequest].deposit.amount);
             if (success) {
                 emit LogOfferPaidCrossChain(idRequest, idOffer);
