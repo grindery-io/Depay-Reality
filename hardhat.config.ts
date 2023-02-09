@@ -6,6 +6,11 @@ import "@nomicfoundation/hardhat-chai-matchers";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.17",
+  networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true
+    }
+  }
 };
 
 export default config;
