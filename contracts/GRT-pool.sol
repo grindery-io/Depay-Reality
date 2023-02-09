@@ -55,13 +55,13 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         __Ownable_init();
         _addrGRT = addrGRT;
         _chainIdGRT = chainIdGRT;
-        // juju => initializing the GRT-dispuute contract 
+        // Sam => initializing the GRT-dispuute contract 
         initializeDispute(addrReality);
     }
 
     // UserB must stake before submitting an offer
     function stakeGRT(uint amount) public returns (bool) {
-        // juju => changing the trasnfer address to the user staking instead of address(this)
+        // Sam => changing the trasnfer address to the user staking instead of address(this)
         bool success = IERC20(_addrGRT).transfer(msg.sender, amount);
         if (success) {
             _stakes[msg.sender] += amount;
@@ -115,9 +115,9 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         require(_stakes[msg.sender] > 1, "GRT pool: your stake amount is not sufficient!");
 
         emit LogCreateOffrERC20(idReq);
-        // juju =>  updating the mapping _requests[idReq].isOffer to true 
+        // Sam =>  updating the mapping _requests[idReq].isOffer to true 
         _requests[idReq].isOffer = true;
-        // juju =>  changing the offer.isAccept to false until user accepts it
+        // Sam =>  changing the offer.isAccept to false until user accepts it
         _requests[idReq].offer = Offer(msg.sender, false, false);
     }
 
@@ -187,7 +187,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
         claimWinnings(questionId, history_hashes, addrs, bonds, answers);
 
-        // juju => checking if the final answer is equal to the hash value of true isntead of 'true' string
+        // Sam => checking if the final answer is equal to the hash value of true isntead of 'true' string
         if (getFinalAnswer(questionId) == keccak256(abi.encodePacked("true"))) {
             bool success = IERC20(_addrGRT).transfer(_requests[idReq].offer.userAddr, _requests[idReq].deposit.amount);
             if (success) {

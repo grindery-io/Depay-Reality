@@ -31,7 +31,7 @@ contract GrtDispute is OwnableUpgradeable {
 
     // Initialize
     function initializeDispute(address addrReality) internal {
-        //juju => removing the initializer modifier and __Ownable_init() from this function and making it internal to call with the GRT pool initializer function
+        //Sam => removing the initializer modifier and __Ownable_init() from this function and making it internal to call with the GRT pool initializer function
         _addrReality = addrReality;
     }
 
