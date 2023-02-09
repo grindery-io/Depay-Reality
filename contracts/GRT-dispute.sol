@@ -14,11 +14,11 @@ contract GrtDispute is OwnableUpgradeable {
     // Structure declarations
     struct QuestionReality {
         bytes32 txHash;
-        address fromOffer;
-        address toOffer;
-        address tokenOffer;
-        uint256 amountOffer;
-        uint256 chainIdOffer;
+        address from;
+        address to;
+        address token;
+        uint256 amount;
+        uint256 chainId;
     }
 
     // Mapping declarations
@@ -35,13 +35,13 @@ contract GrtDispute is OwnableUpgradeable {
     }
 
     // Owner of the contract can create a new Reality template
-    function createRealityERC20Template(string memory templateERC20) external onlyOwner returns (uint) {
+    function createRealityTemplate(string memory templateERC20) external onlyOwner returns (uint) {
         uint templateIdERC20 = IRealityETH(_addrReality).createTemplate(templateERC20);
         emit LogTemplateCreated(templateIdERC20);
         return templateIdERC20;
     }
 
-    function createQuestionERC20(
+    function createQuestion(
         string memory question,
         uint256 templateId,
         bytes32 txHashOffer,
@@ -50,7 +50,7 @@ contract GrtDispute is OwnableUpgradeable {
         address tokenOffer,
         uint256 amountOffer,
         uint256 chainIdOffer
-    ) public payable returns (bytes32, QuestionReality memory) {
+    ) external payable returns (bytes32, QuestionReality memory) {
 
         bytes32 questionReality = IRealityETH(_addrReality).askQuestion{value: msg.value}(
             templateId,
@@ -94,7 +94,6 @@ contract GrtDispute is OwnableUpgradeable {
     function getHistoryHash (bytes32 question_id) public view returns (bytes32) {
         return IRealityETH(_addrReality).getHistoryHash(question_id);
     }
-
 
     function setAddrReality(address addr) external onlyOwner {
        _addrReality = addr;

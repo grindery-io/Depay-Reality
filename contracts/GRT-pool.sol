@@ -213,18 +213,8 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     }
 
-    // Initialize a new offer
-    function initOffer() internal pure returns (Offer memory) {
-        return Offer(address(0), 0, false, false);
-    }
-
-    // Set token infos
-    function setTokenInfo(address token, uint256 amount, uint256 chainId) internal pure returns (TokenInfo memory) {
-        return TokenInfo(token, amount, chainId);
-    }
-
     // Get information for a given request (deposit)
-    function getInfoDep(uint256 idRequest) external view returns (
+    function getInfoDeposit(uint256 idRequest) external view returns (
         address userAddr,
         address addrTokenDep,
         uint256 amntDep,
@@ -239,7 +229,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // Get information for a given request (request)
-    function getInfoReq(uint256 idRequest) external view returns (
+    function getInfoRequest(uint256 idRequest) external view returns (
         address userAddr,
         address addrTokenReq,
         uint256 amntReq,
@@ -254,7 +244,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // Get information for a given request (offer)
-    function getInfoOffr(uint256 idRequest, uint256 idOffer) external view returns (
+    function getInfoOffer(uint256 idRequest, uint256 idOffer) external view returns (
         address userAddr,
         bool isOffr,
         address offrUserAdrr,
@@ -268,6 +258,16 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
             _requests[idRequest].offers[idOffer].isAccept,
             _requests[idRequest].offers[idOffer].isPaid
         );
+    }
+
+    // Initialize a new offer
+    function initOffer() internal pure returns (Offer memory) {
+        return Offer(address(0), 0, false, false);
+    }
+
+    // Set token infos
+    function setTokenInfo(address token, uint256 amount, uint256 chainId) internal pure returns (TokenInfo memory) {
+        return TokenInfo(token, amount, chainId);
     }
 
     // Modify GRT address
