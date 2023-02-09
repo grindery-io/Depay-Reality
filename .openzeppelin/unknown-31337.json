@@ -111,7 +111,7 @@
             "label": "_requests",
             "offset": 0,
             "slot": "107",
-            "type": "t_mapping(t_uint256,t_struct(Request)1814_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Request)1180_storage)",
             "contract": "GrtPool",
             "src": "contracts/GrtPool.sol:41"
           },
@@ -153,11 +153,11 @@
             "label": "mapping(uint256 => bytes32)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Request)1814_storage)": {
+          "t_mapping(t_uint256,t_struct(Request)1180_storage)": {
             "label": "mapping(uint256 => struct GrtPool.Request)",
             "numberOfBytes": "32"
           },
-          "t_struct(Offer)1821_storage": {
+          "t_struct(Offer)1187_storage": {
             "label": "struct GrtPool.Offer",
             "members": [
               {
@@ -181,7 +181,7 @@
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(Request)1814_storage": {
+          "t_struct(Request)1180_storage": {
             "label": "struct GrtPool.Request",
             "members": [
               {
@@ -198,13 +198,13 @@
               },
               {
                 "label": "deposit",
-                "type": "t_struct(TokenInfo)1828_storage",
+                "type": "t_struct(TokenInfo)1194_storage",
                 "offset": 0,
                 "slot": "2"
               },
               {
                 "label": "request",
-                "type": "t_struct(TokenInfo)1828_storage",
+                "type": "t_struct(TokenInfo)1194_storage",
                 "offset": 0,
                 "slot": "5"
               },
@@ -216,14 +216,14 @@
               },
               {
                 "label": "offer",
-                "type": "t_struct(Offer)1821_storage",
+                "type": "t_struct(Offer)1187_storage",
                 "offset": 0,
                 "slot": "9"
               }
             ],
             "numberOfBytes": "320"
           },
-          "t_struct(TokenInfo)1828_storage": {
+          "t_struct(TokenInfo)1194_storage": {
             "label": "struct GrtPool.TokenInfo",
             "members": [
               {

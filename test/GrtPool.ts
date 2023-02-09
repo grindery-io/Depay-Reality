@@ -1,41 +1,44 @@
 // Right click on the script name and hit "Run" to execute
 // import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers, network } from "hardhat";
-import { GrtPool, ERC20_OZ, RealityETH_v3_0 } from "../typechain-types";
-import {loadFixture, deployContract} from 'ethereum-waffle';
+import { ethers, network, upgrades } from "hardhat";
+// import { GrtPool, ERC20_OZ, RealityETH_v3_0 } from "../typechain-types";
+// import {loadFixture, deployContract } from 'ethereum-waffle';
+// import {loadFixture, deployContract } from "@nomicfoundation/hardhat-chai-matchers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("Grindery Pool testings", function () {
-  let grtpool: GrtPool;
-  let GRTtoken: ERC20_OZ;
-  let RealityETH: RealityETH_v3_0;
-  let wdrToken: ERC20_OZ;
-  let owner: any, user1: any, user2: any, user3: any, user4: any, user5: any;
+  // let grtpool: GrtPool;
+  // let grtToken: ERC20_OZ;
+  // let realityEth: RealityETH_v3_0;
+  // let token: ERC20_OZ;
+  // let owner: any, user1: any, user2: any, user3: any, user4: any, user5: any;
 
   async function deployFixture() {
-    [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
 
-    const __GRTPOOL = await ethers.getContractFactory("GrtPool");
-    const GRTPOOL = await upgrades.deployProxy(__GRTPOOL);
-    await GRTPOOL.deployed();
+    const [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
 
-    let _RealityEth = await ethers.getContractFactory("RealityETH_v3_0");
-    const RealityETH = await _RealityEth.deploy();
-    await RealityETH.deployed();
+    const _grtPool = await ethers.getContractFactory("GrtPool");
+    const grtPool = await upgrades.deployProxy(_grtPool);
+    await grtPool.deployed();
 
-    let Token = await ethers.getContractFactory("ERC20_OZ");
-    const GRTtoken = await Token.deploy();
-    await GRTtoken.deployed();
+    let _realityEth = await ethers.getContractFactory("RealityETH_v3_0");
+    const realityEth = await _realityEth.deploy();
+    await realityEth.deployed();
 
-    let _Token = await ethers.getContractFactory("ERC20_OZ");
-    const wdrToken = await _Token.deploy();
-    await wdrToken.deployed();
+    let _grtToken = await ethers.getContractFactory("ERC20_OZ");
+    const grtToken = await _grtToken.deploy();
+    await grtToken.deployed();
+
+    let _token = await ethers.getContractFactory("ERC20_OZ");
+    const token = await _token.deploy();
+    await token.deployed();
 
     return {
-      GRTtoken,
-      wdrToken,
-      GRTPOOL,
-      RealityETH,
+      grtToken,
+      token,
+      grtPool,
+      realityEth,
       owner,
       user1,
       user2,
@@ -45,40 +48,41 @@ describe("Grindery Pool testings", function () {
     };
   }
 
-  beforeEach(async () => {
-    [
-      GRTtoken,
-      wdrToken,
-      grtpool,
-      RealityETH,
+  beforeEach(async function() {
+    const {
+      grtToken,
+      token,
+      grtPool,
+      realityEth,
       owner,
       user1,
       user2,
       user3,
       user4,
       user5,
-    ] = await loadFixture(deployFixture);
+     } = await loadFixture(deployFixture);
     // initialize contract
-    await grtpool.initializePool(GRTtoken.address, 5, RealityETH.address);
+    await grtPool.initializePool(grtToken.address, 5, realityEth.address);
+
   });
 
   it("Test should exchange GRT for another token without dispute on the same chain", async function () {
-    // Mint withdrawal tokens for GRTPOOL contract
+    // Mint withdrawal tokens for grtPool contract
 
-    await GRTtoken.mint(user1.address, ethers.utils.parseEther("200"));
+    await grtToken.mint(user1.address, ethers.utils.parseEther("200"));
 
-    expect(await GRTtoken.balanceOf(user1.address)).to.equal(
+    expect(await grtToken.balanceOf(user1.address)).to.equal(
       "200000000000000000000"
     );
-    await GRTtoken.connect(user1).approve(
+    await grtToken.connect(user1).approve(
       grtpool.address,
       ethers.utils.parseEther("2000000")
     );
 
     // minting GRT to the grt pool
-    await GRTtoken.mint(grtpool.address, ethers.utils.parseEther("200"));
+    await grtToken.mint(grtpool.address, ethers.utils.parseEther("200"));
 
-    expect(await GRTtoken.balanceOf(grtpool.address)).to.equal(
+    expect(await grtToken.balanceOf(grtpool.address)).to.equal(
       "200000000000000000000"
     );
 
@@ -87,7 +91,7 @@ describe("Grindery Pool testings", function () {
       .connect(user1)
       .depositGRT(
         ethers.utils.parseEther("10"),
-        wdrToken.address,
+        token.address,
         ethers.utils.parseEther("5"),
         31337,
         user2.address
@@ -98,7 +102,7 @@ describe("Grindery Pool testings", function () {
     // make offer
     // User3 staking deposit
 
-    await GRTtoken.connect(user3).approve(
+    await grtToken.connect(user3).approve(
       grtpool.address,
       ethers.utils.parseEther("20000000")
     );
@@ -107,48 +111,48 @@ describe("Grindery Pool testings", function () {
     // make right offer by user3
     await grtpool
       .connect(user3)
-      .makeOfferERC20(0, wdrToken.address, ethers.utils.parseEther("5"), 31337);
+      .makeOfferERC20(0, token.address, ethers.utils.parseEther("5"), 31337);
 
     // accpet offer by user1
     await grtpool.connect(user1).acceptOffer(0);
 
     // Honor offer on same chain by user3
 
-    await wdrToken.mint(user3.address, ethers.utils.parseEther("20"));
+    await token.mint(user3.address, ethers.utils.parseEther("20"));
 
-    expect(await wdrToken.balanceOf(user3.address)).to.equal(
+    expect(await token.balanceOf(user3.address)).to.equal(
       "20000000000000000000"
     );
-    await wdrToken
+    await token
       .connect(user3)
       .approve(grtpool.address, ethers.utils.parseEther("2000000"));
 
     await grtpool
       .connect(user3)
-      .HnOfferERC20OnChain(0, wdrToken.address, ethers.utils.parseEther("5"));
+      .HnOfferERC20OnChain(0, token.address, ethers.utils.parseEther("5"));
 
-    expect(await GRTtoken.balanceOf(user3.address)).to.equal(
+    expect(await grtToken.balanceOf(user3.address)).to.equal(
       "15000000000000000000"
     );
   });
 
   it("Test should excahnge GRT for another token without dispute on the another chain", async function () {
-    // Mint withdrawal tokens for GRTPOOL contract
+    // Mint withdrawal tokens for grtPool contract
 
-    await GRTtoken.mint(user1.address, ethers.utils.parseEther("200"));
+    await grtToken.mint(user1.address, ethers.utils.parseEther("200"));
 
-    expect(await GRTtoken.balanceOf(user1.address)).to.equal(
+    expect(await grtToken.balanceOf(user1.address)).to.equal(
       "200000000000000000000"
     );
-    await GRTtoken.connect(user1).approve(
+    await grtToken.connect(user1).approve(
       grtpool.address,
       ethers.utils.parseEther("200000")
     );
 
     // minting GRT to the grt pool
-    await GRTtoken.mint(grtpool.address, ethers.utils.parseEther("200"));
+    await grtToken.mint(grtpool.address, ethers.utils.parseEther("200"));
 
-    expect(await GRTtoken.balanceOf(grtpool.address)).to.equal(
+    expect(await grtToken.balanceOf(grtpool.address)).to.equal(
       "200000000000000000000"
     );
 
@@ -157,7 +161,7 @@ describe("Grindery Pool testings", function () {
       .connect(user1)
       .depositGRT(
         ethers.utils.parseEther("10"),
-        wdrToken.address,
+        token.address,
         ethers.utils.parseEther("5"),
         80001,
         user2.address
@@ -173,37 +177,37 @@ describe("Grindery Pool testings", function () {
     // make right offer by user3
     await grtpool
       .connect(user3)
-      .makeOfferERC20(0, wdrToken.address, ethers.utils.parseEther("5"), 80001);
+      .makeOfferERC20(0, token.address, ethers.utils.parseEther("5"), 80001);
 
     // accpet offer by user1
     await grtpool.connect(user1).acceptOffer(0);
 
-    // User3 honors transaction and has sent the amount of wdrToken the user1 requested for
+    // User3 honors transaction and has sent the amount of token the user1 requested for
 
     // Claim  rewards on different chain by user3
     await grtpool.connect(user3).claimGRTWithoutDispute(0);
-    expect(await GRTtoken.balanceOf(user3.address)).to.equal(
+    expect(await grtToken.balanceOf(user3.address)).to.equal(
       "15000000000000000000"
     );
   });
 
   it("Test should excahnge GRT for another token with dispute on the another chain", async function () {
-    // Mint withdrawal tokens for GRTPOOL contract
+    // Mint withdrawal tokens for grtPool contract
 
-    await GRTtoken.mint(user1.address, ethers.utils.parseEther("20"));
+    await grtToken.mint(user1.address, ethers.utils.parseEther("20"));
 
-    expect(await GRTtoken.balanceOf(user1.address)).to.equal(
+    expect(await grtToken.balanceOf(user1.address)).to.equal(
       "20000000000000000000"
     );
-    await GRTtoken.connect(user1).approve(
+    await grtToken.connect(user1).approve(
       grtpool.address,
       ethers.utils.parseEther("2000000")
     );
 
     // minting GRT to the grt pool
-    await GRTtoken.mint(grtpool.address, ethers.utils.parseEther("200"));
+    await grtToken.mint(grtpool.address, ethers.utils.parseEther("200"));
 
-    expect(await GRTtoken.balanceOf(grtpool.address)).to.equal(
+    expect(await grtToken.balanceOf(grtpool.address)).to.equal(
       "200000000000000000000"
     );
 
@@ -212,7 +216,7 @@ describe("Grindery Pool testings", function () {
       .connect(user1)
       .depositGRT(
         ethers.utils.parseEther("10"),
-        wdrToken.address,
+        token.address,
         ethers.utils.parseEther("5"),
         80001,
         user2.address
@@ -228,13 +232,13 @@ describe("Grindery Pool testings", function () {
     // make right offer by user3
     const offer = await grtpool
       .connect(user3)
-      .makeOfferERC20(0, wdrToken.address, ethers.utils.parseEther("5"), 80001);
+      .makeOfferERC20(0, token.address, ethers.utils.parseEther("5"), 80001);
     const txHash = offer.hash;
 
     // accpet offer by user1
     await grtpool.connect(user1).acceptOffer(0);
 
-    // User3 honors transaction and has sent the amount of wdrToken the user1 requested for
+    // User3 honors transaction and has sent the amount of token the user1 requested for
 
     // Claim  rewards on different chain by user3
 
@@ -253,7 +257,7 @@ describe("Grindery Pool testings", function () {
       txHash,
       user3.address,
       user2.address,
-      wdrToken.address,
+      token.address,
       ethers.utils.parseEther("5"),
       80001,
       { value: ethers.utils.parseEther("0.1") }
@@ -299,7 +303,7 @@ describe("Grindery Pool testings", function () {
         [ethers.utils.parseEther("2"), ethers.utils.parseEther("1")],
         [answer, answer]
       );
-    expect(await GRTtoken.balanceOf(user3.address)).to.equal(
+    expect(await grtToken.balanceOf(user3.address)).to.equal(
       "15000000000000000000"
     );
   });
