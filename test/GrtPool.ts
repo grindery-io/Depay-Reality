@@ -4,6 +4,7 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { GrtPool, ERC20_OZ, RealityETH_v3_0 } from "../typechain-types";
 import {loadFixture, deployContract} from 'ethereum-waffle';
+
 describe("Grindery Pool testings", function () {
   let grtpool: GrtPool;
   let GRTtoken: ERC20_OZ;
@@ -14,7 +15,7 @@ describe("Grindery Pool testings", function () {
   async function deployFixture() {
     [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
 
-    const __GRTPOOL = await ethers.getContractFactory("GRTPOOL");
+    const __GRTPOOL = await ethers.getContractFactory("GrtPool");
     const GRTPOOL = await upgrades.deployProxy(__GRTPOOL);
     await GRTPOOL.deployed();
 
