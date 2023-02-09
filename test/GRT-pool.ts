@@ -3,7 +3,7 @@
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { GrtPool, ERC20_OZ, RealityETH_v3_0 } from "../typechain-types";
-
+import {loadFixture, deployContract} from 'ethereum-waffle';
 describe("Grindery Pool testings", function () {
   let grtpool: GrtPool;
   let GRTtoken: ERC20_OZ;
