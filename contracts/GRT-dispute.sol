@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.17;
 
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./reality/IRealityETH.sol";
 
@@ -14,11 +15,11 @@ contract GrtDispute is OwnableUpgradeable {
     // Structure declarations
     struct QuestionReality {
         bytes32 txHash;
-        address from;
-        address to;
-        address token;
-        uint256 amount;
-        uint256 chainId;
+        address fromOffer;
+        address toOffer;
+        address tokenOffer;
+        uint256 amountOffer;
+        uint256 chainIdOffer;
     }
 
     // Mapping declarations
@@ -29,19 +30,19 @@ contract GrtDispute is OwnableUpgradeable {
     event LogQuestionCreated(uint indexed _questionId, bytes32 indexed _realityQuestionId);
 
     // Initialize
-    function initializeDispute(address addrReality) external initializer {
-        __Ownable_init();
+    function initializeDispute(address addrReality) internal {
+        //juju => removing the initializer modifier and __Ownable_init() from this function and making it internal to call with the GRT pool initializer function
         _addrReality = addrReality;
     }
 
     // Owner of the contract can create a new Reality template
-    function createRealityTemplate(string memory templateERC20) external onlyOwner returns (uint) {
+    function createRealityERC20Template(string memory templateERC20) external onlyOwner returns (uint) {
         uint templateIdERC20 = IRealityETH(_addrReality).createTemplate(templateERC20);
         emit LogTemplateCreated(templateIdERC20);
         return templateIdERC20;
     }
 
-    function createQuestion(
+    function createQuestionERC20(
         string memory question,
         uint256 templateId,
         bytes32 txHashOffer,
@@ -50,7 +51,7 @@ contract GrtDispute is OwnableUpgradeable {
         address tokenOffer,
         uint256 amountOffer,
         uint256 chainIdOffer
-    ) external payable returns (bytes32, QuestionReality memory) {
+    ) public payable returns (bytes32, QuestionReality memory) {
 
         bytes32 questionReality = IRealityETH(_addrReality).askQuestion{value: msg.value}(
             templateId,
@@ -71,6 +72,43 @@ contract GrtDispute is OwnableUpgradeable {
             amountOffer,
             chainIdOffer
         ));
+    }
+
+    // exposing functions to submit answers and commitments
+     function submitAnswerCommitment (
+        bytes32 _answer_hash,
+        bytes32 _questionId,
+        uint256 _maxPrevious
+    ) 
+    external payable {
+        require (msg.value > 0, "Bond must be greater than zero");
+        IRealityETH(_addrReality).submitAnswerCommitment{value: msg.value}(_questionId, _answer_hash, _maxPrevious, msg.sender);
+    }
+
+    function submitAnswerReveal (
+         string memory _answer,
+         uint256 nonce,
+        bytes32 _questionId,
+        uint256 bond
+    ) 
+    external {
+        bytes32 answer = keccak256(abi.encodePacked(_answer));
+        IRealityETH(_addrReality).submitAnswerReveal(_questionId, answer, nonce, bond);
+    }
+
+    function answerQuestion(
+        string memory _answer,
+        bytes32 _questionId,
+        uint256 _maxPrevious
+    ) public payable {
+        require (msg.value > 0, "Bond must be greater than zero");
+        bytes32 answer = keccak256(abi.encodePacked(_answer));
+        IRealityETH(_addrReality).submitAnswerFor{value: msg.value}(_questionId, answer, _maxPrevious, msg.sender);
+    }
+
+    // Extra function for test purposes
+    function getBytes(string memory _str) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_str));
     }
 
     function claimWinnings (
@@ -94,6 +132,7 @@ contract GrtDispute is OwnableUpgradeable {
     function getHistoryHash (bytes32 question_id) public view returns (bytes32) {
         return IRealityETH(_addrReality).getHistoryHash(question_id);
     }
+
 
     function setAddrReality(address addr) external onlyOwner {
        _addrReality = addr;

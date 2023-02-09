@@ -1,141 +1,305 @@
 // Right click on the script name and hit "Run" to execute
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+// import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers, deployments, upgrades } from "hardhat";
-
+import { ethers, network } from "hardhat";
+import { GrtPool, ERC20_OZ, RealityETH_v3_0 } from "../typechain-types";
 
 describe("Grindery Pool testings", function () {
-  // let GRTPOOL: GRTPOOL;
-  // let GRTToken: ERC20;
-  // let TokenToWithdraw: ERC20;
-  // let userA: any;
-  // let userB:any;
-  // let userC: any;
-  // let userD: any;
-
-  // before(async function () {
-  //   [userA, userB, userC, userD] = await ethers.getSigners();
-  //   const _realityEth = await ethers.getContractFactory("RealityETH_v3_0");
-  //   const REALITYETH = await _realityEth.deploy();
-  //   await REALITYETH.deployed();
-
-  //   // const _grtPool = await ethers.getContractFactory("GRTPOOL");
-  //   // GRTPOOL = await _grtPool.deploy(REALITYETH.address);
-  //   // await GRTPOOL.deployed();
-
-  //   // const _GRTToken = await ethers.getContractFactory('ERC20')
-  //   // GRTToken = await _GRTToken.deploy();
-  //   // await GRTToken.deployed();
-
-  //   // const _token_to_withdraw = await ethers.getContractFactory('ERC20')
-  //   // TokenToWithdraw = await _token_to_withdraw.deploy();
-  //   // await TokenToWithdraw.deployed();
-
-  //   console.log("totoi");
-
-  // });
+  let grtpool: GrtPool;
+  let GRTtoken: ERC20_OZ;
+  let RealityETH: RealityETH_v3_0;
+  let wdrToken: ERC20_OZ;
+  let owner: any, user1: any, user2: any, user3: any, user4: any, user5: any;
 
   async function deployFixture() {
+    [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
 
-		const [owner, user1, user2, user3] = await ethers.getSigners();
+    const __GRTPOOL = await ethers.getContractFactory("GRTPOOL");
+    const GRTPOOL = await upgrades.deployProxy(__GRTPOOL);
+    await GRTPOOL.deployed();
 
-    const GRTPool = await ethers.getContractFactory("GrtPool");
-		const grtpool = await upgrades.deployProxy(GRTPool);
-    await grtpool.deployed();
+    let _RealityEth = await ethers.getContractFactory("RealityETH_v3_0");
+    const RealityETH = await _RealityEth.deploy();
+    await RealityETH.deployed();
 
     let Token = await ethers.getContractFactory("ERC20_OZ");
-    const token = await Token.deploy();
-    await token.deployed();
+    const GRTtoken = await Token.deploy();
+    await GRTtoken.deployed();
 
-		return {
-      token,
-      grtpool,
+    let _Token = await ethers.getContractFactory("ERC20_OZ");
+    const wdrToken = await _Token.deploy();
+    await wdrToken.deployed();
+
+    return {
+      GRTtoken,
+      wdrToken,
+      GRTPOOL,
+      RealityETH,
       owner,
       user1,
       user2,
-      user3
+      user3,
+      user4,
+      user5,
     };
   }
 
-  describe("Owner of the Grindery Gas Station", function () {
+  beforeEach(async () => {
+    [
+      GRTtoken,
+      wdrToken,
+      grtpool,
+      RealityETH,
+      owner,
+      user1,
+      user2,
+      user3,
+      user4,
+      user5,
+    ] = await loadFixture(deployFixture);
+    // initialize contract
+    await grtpool.initializePool(GRTtoken.address, 5, RealityETH.address);
+  });
 
-  it("Test should deposit GRT and create a question", async function () {
+  it("Test should exchange GRT for another token without dispute on the same chain", async function () {
+    // Mint withdrawal tokens for GRTPOOL contract
 
-    const { token, grtpool } = await loadFixture(deployFixture);
+    await GRTtoken.mint(user1.address, ethers.utils.parseEther("200"));
 
-    // console.log('GRTPOOL deployed at:' + GRTPOOL.address)
-    // console.log('GRTToken deployed at: ' + GRTToken.address);
-    // console.log('TokenToWithdraw deployed at: ' + TokenToWithdraw.address);
+    expect(await GRTtoken.balanceOf(user1.address)).to.equal(
+      "200000000000000000000"
+    );
+    await GRTtoken.connect(user1).approve(
+      grtpool.address,
+      ethers.utils.parseEther("2000000")
+    );
 
-    // // initialize contract
-    // await GRTPOOL.initialize()
-    // // set exchange rate with withdrawal token
-    // await GRTPOOL.setExchangeRate(TokenToWithdraw.address, 2)
-    // // Mint withdrawal tokens for GRTPOOL contract
-    // await TokenToWithdraw.mint(GRTPOOL.address, '1000000000000000000000')
-    // expect(await TokenToWithdraw.balanceOf(GRTPOOL.address)).to.equal(
-    //   '1000000000000000000000'
-    // );
+    // minting GRT to the grt pool
+    await GRTtoken.mint(grtpool.address, ethers.utils.parseEther("200"));
 
-    // await GRTToken.mint(
-    //   userA.address, '1000000000000000000000');
+    expect(await GRTtoken.balanceOf(grtpool.address)).to.equal(
+      "200000000000000000000"
+    );
 
-    // expect(await GRTToken.balanceOf(userA.address)).to.equal(
-    //   '1000000000000000000000'
-    // );
-    // await GRTToken.approve(GRTPOOL.address, '1000000000000000000000')
+    // deposit ERC20 to pool by UserA
+    await grtpool
+      .connect(user1)
+      .depositGRT(
+        ethers.utils.parseEther("10"),
+        wdrToken.address,
+        ethers.utils.parseEther("5"),
+        31337,
+        user2.address
+      );
+    const res = await grtpool.getInfoDep(0);
+    expect(res.userAddr).to.equal(user1.address);
 
-    // // transfer ERC20 to pool by UserA
-    // const res = await GRTPOOL.transferERC20(GRTToken.address, 1000, 2, TokenToWithdraw.address)
-    // const txhash = res.hash
+    // make offer
+    // User3 staking deposit
 
-    // // creating template
-    // const stringTemplate = '{"title": "%s", "type": "bool", "category": "%s", "lang": "%s"}'
-    // const id = await GRTPOOL.createRealityERC20Template(stringTemplate)
-    // const _id = await id.wait()
-    // const templateId = _id?.events[1]?.args[0].toString()
-    // console.log(templateId.toString())
-    // const questionStr = 'Did I make a transaction deposit of 1000GRT?␟␟en'
-    // const __questionId = await GRTPOOL.createQuestionERC20(questionStr, txhash, 2, 1000, TokenToWithdraw.address, userB.address, templateId, { value: ethers.utils.parseEther("0.1") });
-    // const _questionId = await __questionId.wait()
-    // const questionId = _questionId?.events[2]?.args[0]
+    await GRTtoken.connect(user3).approve(
+      grtpool.address,
+      ethers.utils.parseEther("20000000")
+    );
+    await grtpool.connect(user3).stakeGRT(ethers.utils.parseEther("5"));
 
+    // make right offer by user3
+    await grtpool
+      .connect(user3)
+      .makeOfferERC20(0, wdrToken.address, ethers.utils.parseEther("5"), 31337);
 
-    // // answering a question
-    // await GRTPOOL.connect(userC).answerQuestion('true', questionId, 1, { value: ethers.utils.parseEther("1") });
-    // await GRTPOOL.connect(userD).answerQuestion('false', questionId, 1, { value: ethers.utils.parseEther("2") });
+    // accpet offer by user1
+    await grtpool.connect(user1).acceptOffer(0);
 
-    // // const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
-    // // const network = { provider: provider };
+    // Honor offer on same chain by user3
 
-    // // console.log('provider', network)
-    // // //  const signer = await hardhatEthers.getSigner();
+    await wdrToken.mint(user3.address, ethers.utils.parseEther("20"));
 
-    // await network.provider.send("evm_increaseTime", [97200])
-    // await network.provider.send("evm_mine")
+    expect(await wdrToken.balanceOf(user3.address)).to.equal(
+      "20000000000000000000"
+    );
+    await wdrToken
+      .connect(user3)
+      .approve(grtpool.address, ethers.utils.parseEther("2000000"));
 
-    // // checking if question is finalized
-    // const isFinalized = await GRTPOOL.isFinalized(questionId)
-    // console.log(isFinalized)
+    await grtpool
+      .connect(user3)
+      .HnOfferERC20OnChain(0, wdrToken.address, ethers.utils.parseEther("5"));
 
-    // const getFinalizeTS = await GRTPOOL.getFinalizeTS(questionId)
-    // console.log(getFinalizeTS)
+    expect(await GRTtoken.balanceOf(user3.address)).to.equal(
+      "15000000000000000000"
+    );
+  });
 
+  it("Test should excahnge GRT for another token without dispute on the another chain", async function () {
+    // Mint withdrawal tokens for GRTPOOL contract
 
-    // const getBounty = await GRTPOOL.getBounty(questionId)
-    // console.log(getBounty.toString())
+    await GRTtoken.mint(user1.address, ethers.utils.parseEther("200"));
 
-    // const getHistoryHash = await GRTPOOL.getHistoryHash(questionId)
-    // console.log(getHistoryHash)
+    expect(await GRTtoken.balanceOf(user1.address)).to.equal(
+      "200000000000000000000"
+    );
+    await GRTtoken.connect(user1).approve(
+      grtpool.address,
+      ethers.utils.parseEther("200000")
+    );
 
-    // const answer = await GRTPOOL.getBytes(questionStr);
-    // const canWithdrawA = await GRTPOOL.canUserWithdraw(userB.address, questionId)
-    // console.log('a', canWithdrawA)
-    // await GRTPOOL.claimWinnings(questionId, [getHistoryHash], [userC.address], ['100000000000000000'], [answer])
+    // minting GRT to the grt pool
+    await GRTtoken.mint(grtpool.address, ethers.utils.parseEther("200"));
 
-    // const canWithdrawB = await GRTPOOL.canUserWithdraw(userB.address, questionId)
-    // console.log(canWithdrawB)
+    expect(await GRTtoken.balanceOf(grtpool.address)).to.equal(
+      "200000000000000000000"
+    );
+
+    // deposit ERC20 to pool by UserA
+    await grtpool
+      .connect(user1)
+      .depositGRT(
+        ethers.utils.parseEther("10"),
+        wdrToken.address,
+        ethers.utils.parseEther("5"),
+        80001,
+        user2.address
+      );
+    const res = await grtpool.getInfoDep(0);
+    expect(res.userAddr).to.equal(user1.address);
+
+    // make offer
+    // User3 staking deposit
+
+    await grtpool.connect(user3).stakeGRT(ethers.utils.parseEther("5"));
+
+    // make right offer by user3
+    await grtpool
+      .connect(user3)
+      .makeOfferERC20(0, wdrToken.address, ethers.utils.parseEther("5"), 80001);
+
+    // accpet offer by user1
+    await grtpool.connect(user1).acceptOffer(0);
+
+    // User3 honors transaction and has sent the amount of wdrToken the user1 requested for
+
+    // Claim  rewards on different chain by user3
+    await grtpool.connect(user3).claimGRTWithoutDispute(0);
+    expect(await GRTtoken.balanceOf(user3.address)).to.equal(
+      "15000000000000000000"
+    );
+  });
+
+  it("Test should excahnge GRT for another token with dispute on the another chain", async function () {
+    // Mint withdrawal tokens for GRTPOOL contract
+
+    await GRTtoken.mint(user1.address, ethers.utils.parseEther("20"));
+
+    expect(await GRTtoken.balanceOf(user1.address)).to.equal(
+      "20000000000000000000"
+    );
+    await GRTtoken.connect(user1).approve(
+      grtpool.address,
+      ethers.utils.parseEther("2000000")
+    );
+
+    // minting GRT to the grt pool
+    await GRTtoken.mint(grtpool.address, ethers.utils.parseEther("200"));
+
+    expect(await GRTtoken.balanceOf(grtpool.address)).to.equal(
+      "200000000000000000000"
+    );
+
+    // deposit ERC20 to pool by UserA
+    await grtpool
+      .connect(user1)
+      .depositGRT(
+        ethers.utils.parseEther("10"),
+        wdrToken.address,
+        ethers.utils.parseEther("5"),
+        80001,
+        user2.address
+      );
+    const res = await grtpool.getInfoDep(0);
+    expect(res.userAddr).to.equal(user1.address);
+
+    // make offer
+    // User3 staking deposit
+
+    await grtpool.connect(user3).stakeGRT(ethers.utils.parseEther("5"));
+
+    // make right offer by user3
+    const offer = await grtpool
+      .connect(user3)
+      .makeOfferERC20(0, wdrToken.address, ethers.utils.parseEther("5"), 80001);
+    const txHash = offer.hash;
+
+    // accpet offer by user1
+    await grtpool.connect(user1).acceptOffer(0);
+
+    // User3 honors transaction and has sent the amount of wdrToken the user1 requested for
+
+    // Claim  rewards on different chain by user3
+
+    // create question template
+    const stringTemplate =
+      '{"title": "%s", "type": "bool", "category": "%s", "lang": "%s"}';
+    const id = await grtpool.createRealityERC20Template(stringTemplate);
+    const _id = await id.wait();
+    const templateId = _id?.events[1]?.args[0].toString();
+
+    // creating the question
+    const questionStr = "Did I make a transaction deposit of 1000GRT?␟␟en";
+    const __question = await grtpool.createQuestionERC20(
+      questionStr,
+      templateId,
+      txHash,
+      user3.address,
+      user2.address,
+      wdrToken.address,
+      ethers.utils.parseEther("5"),
+      80001,
+      { value: ethers.utils.parseEther("0.1") }
+    );
+    const _questionId = await __question.wait();
+    const questionId = _questionId?.events[2]?.args[1];
+
+    const getHistoryHash = await grtpool.getHistoryHash(questionId);
+    //answering the question posted by user3 by users 4 and 5
+    await grtpool
+      .connect(user4)
+      .answerQuestion("true", questionId, 0, {
+        value: ethers.utils.parseEther("1"),
+      });
+
+    const getHistoryHash1 = await grtpool.getHistoryHash(questionId);
+
+    await grtpool
+      .connect(user5)
+      .answerQuestion("true", questionId, 0, {
+        value: ethers.utils.parseEther("2"),
+      });
+
+    // const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+    // const network = { provider: provider };
+
+    await network.provider.send("evm_increaseTime", [97200]);
+    await network.provider.send("evm_mine");
+
+    // checking if question is finalized
+    const isFinalized = await grtpool.isFinalized(questionId);
+    expect(isFinalized).to.equal(true);
+
+    const answer = await grtpool.getBytes("true");
+    // resolving dispute and claiming GRT exchanged
+    await grtpool
+      .connect(user3)
+      .claimGRTWithDispute(
+        0,
+        questionId,
+        [getHistoryHash1, getHistoryHash],
+        [user5.address, user4.address],
+        [ethers.utils.parseEther("2"), ethers.utils.parseEther("1")],
+        [answer, answer]
+      );
+    expect(await GRTtoken.balanceOf(user3.address)).to.equal(
+      "15000000000000000000"
+    );
   });
 });
-});
-
