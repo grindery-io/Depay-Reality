@@ -71,6 +71,42 @@ contract GrtDispute is OwnableUpgradeable {
             chainIdOffer
         ));
     }
+     // exposing functions to submit answers and commitments
+     function submitAnswerCommitment (
+        bytes32 _answer_hash,
+        bytes32 _questionId,
+        uint256 _maxPrevious
+    ) 
+    external payable {
+        require (msg.value > 0, "Bond must be greater than zero");
+        IRealityETH(_addrReality).submitAnswerCommitment{value: msg.value}(_questionId, _answer_hash, _maxPrevious, msg.sender);
+    }
+
+    function submitAnswerReveal (
+         string memory _answer,
+         uint256 nonce,
+        bytes32 _questionId,
+        uint256 bond
+    ) 
+    external {
+        bytes32 answer = keccak256(abi.encodePacked(_answer));
+        IRealityETH(_addrReality).submitAnswerReveal(_questionId, answer, nonce, bond);
+    }
+
+    function answerQuestion(
+        string memory _answer,
+        bytes32 _questionId,
+        uint256 _maxPrevious
+    ) public payable {
+        require (msg.value > 0, "Bond must be greater than zero");
+        bytes32 answer = keccak256(abi.encodePacked(_answer));
+        IRealityETH(_addrReality).submitAnswerFor{value: msg.value}(_questionId, answer, _maxPrevious, msg.sender);
+    }
+
+    // Extra function for test purposes
+    function getBytes(string memory _str) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_str));
+    }
 
     function claimWinnings (
         bytes32 questionId,
