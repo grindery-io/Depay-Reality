@@ -116,6 +116,14 @@ describe("Grindery Pool testings", function () {
 
     });
 
+    it("Should return true if the deposit is accepted", async function () {
+
+    });
+
+    it("Should return false if the deposit isn't accepted", async function () {
+
+    });
+
   });
 
 
@@ -158,6 +166,14 @@ describe("Grindery Pool testings", function () {
     });
 
     it("A native token request should add a new item in the requests mapping with an empty offers array inside", async function () {
+
+    });
+
+    it("Should return true if the deposit is accepted", async function () {
+
+    });
+
+    it("Should return false if the deposit isn't accepted", async function () {
 
     });
 
@@ -226,7 +242,299 @@ describe("Grindery Pool testings", function () {
 
     });
 
+    it("Should set isPaid as true for the corresponding request Id and offer Id", async function () {
+
+    });
+
+    it("Should return true for successHndOffer and true for successGRTReward", async function () {
+
+    });
+
   });
+
+
+  describe("Pay an offer on chain with an ERC20 token", function () {
+
+    it("Should fail if the offer is not accepted yet", async function () {
+
+    });
+
+    it("Should fail if the offer has already been paid", async function () {
+
+    });
+
+    it("Should fail if the chain Id mentionned in the corresponding offer is not the actual chain Id", async function () {
+
+    });
+
+    it("Should fail if the amount doesn't correspond to the offer", async function () {
+
+    });
+
+    it("Should fail if the transaction signer is not the address which made the offer", async function () {
+
+    });
+
+    it("Should fail if the proposed ERC20 token is not the one requested", async function () {
+
+    });
+
+    it("Should fail if allowance for the correspoànding ERC20 token is not high enough for the transfer", async function () {
+
+    });
+
+    it("Should increase the token amount of the recipient with the correct amount", async function () {
+
+    });
+
+    it("A successful payment should generate a reward for the transaction signer corresponding to the initial deposit for this request", async function () {
+
+    });
+
+    it("A successful payment and reward transfer should emit and event", async function () {
+
+    });
+
+
+  });
+
+  describe("Pay an offer on chain with a native token", function () {
+
+    it("Should fail if the offer is not accepted yet", async function () {
+
+    });
+
+    it("Should fail if the offer has already been paid", async function () {
+
+    });
+
+    it("Should fail if the chain Id mentionned in the corresponding offer is not the actual chain Id", async function () {
+
+    });
+
+    it("Should fail if the amount doesn't correspond to the offer", async function () {
+
+    });
+
+    it("Should fail if the transaction signer is not the address which made the offer", async function () {
+
+    });
+
+    it("Should fail if the proposed ERC20 token is not the one requested", async function () {
+
+    });
+
+    it("Should fail if allowance for the correspoànding ERC20 token is not high enough for the transfer", async function () {
+
+    });
+
+    it("Should increase the token amount of the recipient with the correct amount", async function () {
+
+    });
+
+    it("A successful payment should generate a GRT reward for the transaction signer corresponding to the initial deposit for this request", async function () {
+
+    });
+
+    it("A successful payment and reward transfer should emit and event", async function () {
+
+    });
+
+  });
+
+
+  describe("Claim GRT with dispute", function () {
+
+  });
+
+
+  describe("Claim GRT without dispute", function () {
+
+    it("Should fail if the request doesn't exist", async function () {
+
+    });
+
+    it("Should fail if the offer doesn't exist", async function () {
+
+    });
+
+    it("Should fail if the offer has already been paid", async function () {
+
+    });
+
+    it("Should fail if the transaction signer is not the one who made the corresponding offer", async function () {
+
+    });
+
+    it("Should generate a GRT reward for the transaction signer corresponding to the initial deposit for this request", async function () {
+
+    });
+
+    it("A successful GRT reward for the transaction signer should emit an event", async function () {
+
+    });
+
+    it("A successful GRT reward for the transaction should set isPaid to true for the corresponding offer", async function () {
+
+    });
+
+    it("A successful GRT reward for the transaction signer should return true", async function () {
+
+    });
+
+  });
+
+
+  describe("Get information about a deposit", function () {
+
+    it("Should return the correct address for the requester", async function () {
+
+    });
+
+    it("Should return the correct token address", async function () {
+
+    });
+
+    it("Should return the correct token amount", async function () {
+
+    });
+
+    it("Should return the correct chain Id", async function () {
+
+    });
+
+  });
+
+
+  describe("Get information about a request", function () {
+
+    it("Should return the correct address for the requester", async function () {
+
+    });
+
+    it("Should return the correct token address", async function () {
+
+    });
+
+    it("Should return the correct token amount", async function () {
+
+    });
+
+    it("Should return the correct chain Id", async function () {
+
+    });
+
+  });
+
+
+  describe("Get information about an offer", function () {
+
+    it("Should return the correct address for the requester", async function () {
+
+    });
+
+    it("Should return isRequest as false if no offer exist for this request", async function () {
+
+    });
+
+    it("Should return isRequest as true if at least one offer exist for this request", async function () {
+
+    });
+
+    it("Should return the correct address for the offeror", async function () {
+
+    });
+
+    it("Should return isAccept as true if the offer is accepted", async function () {
+
+    });
+
+    it("Should return isAccept as false if the offer is not accepted", async function () {
+
+    });
+
+    it("Should return isPaid as true if the offer is paid", async function () {
+
+    });
+
+    it("Should return isPaid as false if the offer is not paid", async function () {
+
+    })
+
+  });
+
+
+  describe("Set token information", function () {
+
+    it("Should return the proper token address", async function () {
+
+    })
+
+    it("Should return the proper amount", async function () {
+
+    })
+
+    it("Should return the proper chain Id", async function () {
+
+    })
+
+  });
+
+
+  describe("Set GRT address", function () {
+
+    it("Should fail if the transaction signer is not the owner of the contract", async function () {
+
+    })
+
+    it("Should modify _addrGRT", async function () {
+
+    })
+
+  });
+
+  describe("Set GRT chain Id", function () {
+
+    it("Should fail if the transaction signer is not the owner of the contract", async function () {
+
+    })
+
+    it("Should modify _chainIdGRT", async function () {
+
+    })
+
+  });
+
+
+  describe("Deposit GRT on the pool", function () {
+
+    it("Should fail if the allowance is not high enough", async function () {
+
+    });
+
+    it("Should decrease the token amount for the transaction signer", async function () {
+
+    });
+
+    it("Should increase the token amount for the GRT pool contract", async function () {
+
+    });
+
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   it("Test should exchange GRT for another token without dispute on the same chain", async function () {
     // Mint withdrawal tokens for grtPool contract
