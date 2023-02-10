@@ -41,11 +41,28 @@ describe("Grindery Pool testings", function () {
 
   });
 
-  it("Should set the correct Owner", async function () {
-    expect(await grtPool.owner()).to.equal(owner.address);
+  describe("GRT pool initialisation", function () {
+
+    it("Should set the correct Owner", async function () {
+      expect(await grtPool.owner()).to.equal(owner.address);
+    });
+
+    it("Should set the correct GRT token address", async function () {
+
+    });
+
+    it("Should set the correct chain ID", async function () {
+
+    });
+
+    it("Should set the correct Reality smart contract address", async function () {
+
+    });
+
   });
 
   describe("Staking GRT", function () {
+
     it("Staking GRT should update the stake mapping", async function () {
 
     });
@@ -53,6 +70,97 @@ describe("Grindery Pool testings", function () {
     it("Staking GRT should emit an event", async function () {
 
     });
+
+  });
+
+
+  describe("Deposit GRT and request ERC20 tokens", function () {
+
+    it("GRT deposit should fail if the allowance is not high enough", async function () {
+
+    });
+
+    it("A successful GRT deposit should emit an event", async function () {
+
+    });
+
+    it("An ERC20 request should emit an event", async function () {
+
+    });
+
+    it("An ERC20 request should increase by one the request counter", async function () {
+
+    });
+
+    it("An ERC20 request should add a new item in the requests mapping with the proper requester", async function () {
+
+    });
+
+    it("An ERC20 request should add a new item in the requests mapping with the proper recipient address", async function () {
+
+    });
+
+    it("An ERC20 request should add a new item in the requests mapping with the proper deposit information (token address, amount and chain Id)", async function () {
+
+    });
+
+    it("An ERC20 request should add a new item in the requests mapping with the proper request information (token address, amount and chain Id)", async function () {
+
+    });
+
+    it("An ERC20 request should add a new item in the requests mapping with the isRequest item set to true", async function () {
+
+    });
+
+    it("An ERC20 request should add a new item in the requests mapping with an empty offers array inside", async function () {
+
+    });
+
+  });
+
+
+  describe("Deposit GRT and request native tokens", function () {
+
+    it("GRT deposit should fail if the allowance is not high enough", async function () {
+
+    });
+
+    it("A successful GRT deposit should emit an event", async function () {
+
+    });
+
+    it("A native token request should emit an event", async function () {
+
+    });
+
+    it("A native token request should increase by one the request counter", async function () {
+
+    });
+
+    it("A native token request should add a new item in the requests mapping with the proper requester", async function () {
+
+    });
+
+    it("A native token request should add a new item in the requests mapping with the proper recipient address", async function () {
+
+    });
+
+    it("A native token request should add a new item in the requests mapping with the proper deposit information (token address, amount and chain Id)", async function () {
+
+    });
+
+    it("A native token request should add a new item in the requests mapping with the proper request information (zero address for the token address, amount and chain Id)", async function () {
+
+    });
+
+    it("A native token request should add a new item in the requests mapping with the isRequest item set to true", async function () {
+
+    });
+
+    it("A native token request should add a new item in the requests mapping with an empty offers array inside", async function () {
+
+    });
+
   });
 
   it("Test should exchange GRT for another token without dispute on the same chain", async function () {
@@ -84,7 +192,8 @@ describe("Grindery Pool testings", function () {
         ethers.utils.parseEther("5"),
         31337,
         user2.address
-      );
+      )
+      ;
     const res = await grtPool.getInfoDeposit(0);
     expect(res.userAddr).to.equal(user1.address);
 
