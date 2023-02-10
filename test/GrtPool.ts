@@ -214,6 +214,18 @@ describe("Grindery Pool testings", function () {
 
     });
 
+    it("Should fail if the transaction signer is not the requester", async function () {
+
+    });
+
+    it("Should set isAccept to true for the corresponding request Id and offer Id", async function () {
+
+    });
+
+    it("Should emit an event for offer acceptance", async function () {
+
+    });
+
   });
 
   it("Test should exchange GRT for another token without dispute on the same chain", async function () {
