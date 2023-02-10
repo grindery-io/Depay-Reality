@@ -41,6 +41,20 @@ describe("Grindery Pool testings", function () {
 
   });
 
+  it("Should set the correct Owner", async function () {
+    expect(await grtPool.owner()).to.equal(owner.address);
+  });
+
+  describe("Staking GRT", function () {
+    it("Staking GRT should update the stake mapping", async function () {
+
+    });
+
+    it("Staking GRT should emit an event", async function () {
+
+    });
+  });
+
   it("Test should exchange GRT for another token without dispute on the same chain", async function () {
     // Mint withdrawal tokens for grtPool contract
 
@@ -76,7 +90,7 @@ describe("Grindery Pool testings", function () {
 
     // make offer
     // User3 staking deposit
-  await grtToken.mint(user3.address, ethers.utils.parseEther("0.2"));
+    await grtToken.mint(user3.address, ethers.utils.parseEther("0.2"));
 
     expect(await grtToken.balanceOf(user3.address)).to.equal(
       "200000000000000000"

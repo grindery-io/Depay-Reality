@@ -2,7 +2,7 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0xce220e8020d14a3e0e60f8472cc63844fcc70bd437e13a41812bc141136fc41d"
+    "txHash": "0xd8d03d2166f28627da31822610ccf4c8905ce758bc0dd3eda1924d860a853818"
   },
   "proxies": [
     {
@@ -16,15 +16,50 @@
       "kind": "transparent"
     },
     {
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "txHash": "0x5ea343306ce64e36df68ae4eded986ac89dab4b5662197f2437d4eca83f03160",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
+      "txHash": "0x657c5dceffcae3cbf6532f444a71157292e392094a10c831f63c8e4b9b664c08",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
+      "txHash": "0xca59ca400a25208132c3d2ca22593bdc072928a4caa834bdf1a69ea37bf99d6f",
+      "kind": "transparent"
+    },
+    {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x0dd3450500fca5805bbf4cdb23ad616071c2aa7ba66773c505f719dc66e409ca",
+      "txHash": "0xea8eef7c48a5f99d626aa2ca3cfcb18815e6bcef10fe745721ecee3b64fe976f",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "txHash": "0x1fd1fb8e5338853bcbccb1b741ea99184dca20a385ab86064c254a61de18137a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+      "txHash": "0xa4ba84a87f706722411071dad0281fb565e6b58d4ed6982d7d2523b8780f20b1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
+      "txHash": "0x30f29e23d1c12d52d4912c01917bcc888bc9198acec74a72960e504be0f9edf5",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
+      "txHash": "0x758d4bd5d0963eac83280b0c84cb9e6b78dc97d80826c47262961b68b80aebbe",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "0f4b9a3f9d630d5b52da0a5190186b3dfde9da16b53392ef06395e960527fe80": {
+    "654bf167561317abe8d63f12ac1eb9a7fe7defd758251c57ef6a326eb3bcedb1": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x34c88d70b92d697d215b7f5954f808fda37c8bc89840051d40168ea489b9ce7e",
+      "txHash": "0xe17f8ee2e641fffc2fa99e6ba96310601d1929dc248eefc115ab9239ac906fc4",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -121,7 +156,7 @@
             "label": "_requests",
             "offset": 0,
             "slot": "107",
-            "type": "t_mapping(t_uint256,t_struct(Request)1597_storage)",
+            "type": "t_mapping(t_uint256,t_struct(Request)1082_storage)",
             "contract": "GrtPool",
             "src": "contracts/GrtPool.sol:39"
           },
@@ -139,7 +174,7 @@
             "label": "address",
             "numberOfBytes": "20"
           },
-          "t_array(t_struct(Offer)1606_storage)dyn_storage": {
+          "t_array(t_struct(Offer)1091_storage)dyn_storage": {
             "label": "struct GrtPool.Offer[]",
             "numberOfBytes": "32"
           },
@@ -167,11 +202,11 @@
             "label": "mapping(uint256 => bytes32)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Request)1597_storage)": {
+          "t_mapping(t_uint256,t_struct(Request)1082_storage)": {
             "label": "mapping(uint256 => struct GrtPool.Request)",
             "numberOfBytes": "32"
           },
-          "t_struct(Offer)1606_storage": {
+          "t_struct(Offer)1091_storage": {
             "label": "struct GrtPool.Offer",
             "members": [
               {
@@ -201,7 +236,7 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(Request)1597_storage": {
+          "t_struct(Request)1082_storage": {
             "label": "struct GrtPool.Request",
             "members": [
               {
@@ -218,13 +253,13 @@
               },
               {
                 "label": "deposit",
-                "type": "t_struct(TokenInfo)1613_storage",
+                "type": "t_struct(TokenInfo)1098_storage",
                 "offset": 0,
                 "slot": "2"
               },
               {
                 "label": "request",
-                "type": "t_struct(TokenInfo)1613_storage",
+                "type": "t_struct(TokenInfo)1098_storage",
                 "offset": 0,
                 "slot": "5"
               },
@@ -236,14 +271,14 @@
               },
               {
                 "label": "offers",
-                "type": "t_array(t_struct(Offer)1606_storage)dyn_storage",
+                "type": "t_array(t_struct(Offer)1091_storage)dyn_storage",
                 "offset": 0,
                 "slot": "9"
               }
             ],
             "numberOfBytes": "320"
           },
-          "t_struct(TokenInfo)1613_storage": {
+          "t_struct(TokenInfo)1098_storage": {
             "label": "struct GrtPool.TokenInfo",
             "members": [
               {
