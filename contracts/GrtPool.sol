@@ -194,9 +194,9 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
                 _requests[idRequest].offers[idOffer].isPaid = true;
             }
             return success;
-        }
+        } else revert('Incorrect answer');
 
-        return false;
+        // return false;
     }
 
     // Claim GRT without dispute
