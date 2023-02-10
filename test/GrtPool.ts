@@ -163,6 +163,59 @@ describe("Grindery Pool testings", function () {
 
   });
 
+
+  describe("Create an offer", function () {
+
+    it("Should fail if there is no request for the provided Id", async function () {
+
+    });
+
+
+    it("Should fail if the user has not enough staked GRT (1 for tests)", async function () {
+
+    });
+
+
+    it("Should emit an event", async function () {
+
+    });
+
+    it("Should push a new offer in the offers array for the concerning request Id with the correct creator", async function () {
+
+    });
+
+    it("Should push a new offer in the offers array for the concerning request Id with the correct amount proposed", async function () {
+
+    });
+
+    it("Should push a new offer in the offers array for the concerning request Id with isAccept and isPaid set both to false", async function () {
+
+    });
+
+  });
+
+
+  describe("Accept an offer", function () {
+
+
+    it("Should fail if idRequest doesn't exist", async function () {
+
+    });
+
+    it("Should fail if idOffer doesn't exist for the offer corresponding to idRequest", async function () {
+
+    });
+
+    it("Should fail if the offer has already been accepted", async function () {
+
+    });
+
+    it("Should fail if the offer has already been paid", async function () {
+
+    });
+
+  });
+
   it("Test should exchange GRT for another token without dispute on the same chain", async function () {
     // Mint withdrawal tokens for grtPool contract
 
