@@ -21,7 +21,8 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         TokenInfo deposit;
         TokenInfo request;
         bool isRequest;
-        Offer[] offers;
+        uint256 countOffers;
+        mapping(uint256 => Offer) offers;
     }
     struct Offer {
         address userAddr;
@@ -45,7 +46,6 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     event LogRequest (uint256 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
     event LogCreateOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
     event LogAcceptOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
-    event LogRejectOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
     event LogOfferPaidOnChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
     event LogOfferPaidCrossChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
 
@@ -102,14 +102,16 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     function createOffer(uint256 idRequest, uint256 amount) external {
         require(_requests[idRequest].isRequest, "GRT pool: the request for which you are trying to place an offer does not exist!");
         require(_stakes[msg.sender] > 1, "GRT pool: your stake amount is not sufficient!");
-        emit LogCreateOffer(idRequest, _requests[idRequest].offers.length);
-        _requests[idRequest].offers.push(Offer(msg.sender, amount, false, false));
+        uint256 _countOffers = _requests[idRequest].countOffers;
+        emit LogCreateOffer(idRequest, _countOffers);
+        _requests[idRequest].offers[_countOffers] = Offer(msg.sender, amount, false, false);
+        _requests[idRequest].countOffers++;
     }
 
     // User who made the request can then accept an offer associated with it
     function acceptOffer(uint256 idRequest, uint256 idOffer) external {
         require(_requests[idRequest].isRequest, "GRT pool: the request for which you are trying to place an offer does not exist!");
-        require(idOffer > 0 && idOffer < _requests[idRequest].offers.length, "GRT pool: the offer Id is invalid!");
+        require(_requests[idRequest].offers[idOffer].userAddr != address(0), "GRT pool: the offer Id is invalid!");
         require(!_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer has already been accepted!");
         require(msg.sender == _requests[idRequest].userAddr, "GRT pool: you are not authorized to accept an offer that has not been issued by you!");
         _requests[idRequest].offers[idOffer].isAccept = true;
@@ -304,9 +306,6 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         request.deposit = setTokenInfo(_addrGRT, amntDepGRT, _chainIdGRT);
         request.request = setTokenInfo(tokenRequest, amntReq, chnIdReq);
         request.isRequest = true;
-        // request.offer = initOffer();
-        request.offers.push(initOffer());
-        _requests[_countReq] = request;
 
         _countReq++;
     }
