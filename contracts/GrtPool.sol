@@ -59,12 +59,10 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // UserB must stake before submitting an offer
     function stakeGRT(uint256 amount) external returns (bool) {
-        bool success = depositGRT(amount);
-        if (success) {
-            emit LogStake(msg.sender, amount);
-            _stakes[msg.sender] += amount;
-        }
-        return success;
+        depositGRT(amount);
+        emit LogStake(msg.sender, amount);
+        _stakes[msg.sender] += amount;
+        return true;
     }
 
     // Initial user who wants to obtain some ERC20 token: he makes a GRT deposit and a request for that
@@ -286,6 +284,21 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     // Deposit GRT on the pool
     function depositGRT(uint256 amount) internal returns (bool) {
         return IERC20(_addrGRT).transferFrom(msg.sender, address(this), amount);
+    }
+
+    // Get GRT token address
+    function grtAddress() external view returns (address) {
+       return _addrGRT;
+    }
+
+    // Get GRT token address
+    function grtChainId() external view returns (uint256) {
+       return _chainIdGRT;
+    }
+
+    // Get GRT token address
+    function stakeOf(address account) external view returns (uint256) {
+       return _stakes[account];
     }
 
     // Add new request
