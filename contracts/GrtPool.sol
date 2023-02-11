@@ -73,12 +73,10 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         uint256 chnIdReq,
         address destAddr
     ) external returns (bool) {
-        bool succDep = depositGRT(amntDepGRT);
-        if (succDep) {
-            emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
-            addRequest(amntDepGRT, tokenRequest, amntReq, chnIdReq, destAddr);
-        }
-        return succDep;
+        depositGRT(amntDepGRT);
+        emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
+        addRequest(amntDepGRT, tokenRequest, amntReq, chnIdReq, destAddr);
+        return true;
     }
 
     // Initial user who wants to obtain some native token: he makes a GRT deposit and a request for that
@@ -214,35 +212,55 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     }
 
-    // Get information for a given request (deposit)
-    function getInfoDeposit(uint256 idRequest) external view returns (
-        address userAddr,
-        address addrTokenDep,
-        uint256 amntDep,
-        uint256 chainIdDep
-    ) {
-        return (
-            _requests[idRequest].userAddr,
-            _requests[idRequest].deposit.token,
-            _requests[idRequest].deposit.amount,
-            _requests[idRequest].deposit.chainId
-        );
+
+    // struct Request {
+    //     address userAddr;
+    //     address destAddr;
+    //     TokenInfo deposit;
+    //     TokenInfo request;
+    //     bool isRequest;
+    //     uint256 countOffers;
+    //     mapping(uint256 => Offer) offers;
+    // }
+
+
+
+    function getRequester(uint256 idRequest) external view returns (address) {
+        return _requests[idRequest].userAddr;
     }
 
-    // Get information for a given request (request)
-    function getInfoRequest(uint256 idRequest) external view returns (
-        address userAddr,
-        address addrTokenReq,
-        uint256 amntReq,
-        uint256 chainIdReq
-    ) {
-        return (
-            _requests[idRequest].userAddr,
-            _requests[idRequest].request.token,
-            _requests[idRequest].request.amount,
-            _requests[idRequest].request.chainId
-        );
+    function getRecipient(uint256 idRequest) external view returns (address) {
+        return _requests[idRequest].destAddr;
     }
+
+    function getDepositToken(uint256 idRequest) external view returns (address) {
+        return _requests[idRequest].deposit.token;
+    }
+
+    function getDepositAmount(uint256 idRequest) external view returns (uint256) {
+        return _requests[idRequest].deposit.amount;
+    }
+
+    function getDepositChainId(uint256 idRequest) external view returns (uint256) {
+        return _requests[idRequest].deposit.chainId;
+    }
+
+    function getRequestToken(uint256 idRequest) external view returns (address) {
+        return _requests[idRequest].request.token;
+    }
+
+    function getRequestAmount(uint256 idRequest) external view returns (uint256) {
+        return _requests[idRequest].request.amount;
+    }
+
+    function getRequestChainId(uint256 idRequest) external view returns (uint256) {
+        return _requests[idRequest].request.chainId;
+    }
+
+    function isrequest(uint256 idRequest) external view returns (bool) {
+        return _requests[idRequest].isRequest;
+    }
+
 
     // Get information for a given request (offer)
     function getInfoOffer(uint256 idRequest, uint256 idOffer) external view returns (
@@ -296,9 +314,12 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
        return _chainIdGRT;
     }
 
-    // Get GRT token address
     function stakeOf(address account) external view returns (uint256) {
        return _stakes[account];
+    }
+
+    function nbrRequest() external view returns (uint256) {
+       return _countReq;
     }
 
     // Add new request

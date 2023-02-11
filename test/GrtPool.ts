@@ -110,57 +110,104 @@ describe("Grindery Pool testings", function () {
   });
 
 
-  // describe("Deposit GRT and request ERC20 tokens", function () {
+  describe("Deposit GRT and request ERC20 tokens", function () {
 
-  //   it("GRT deposit should fail if the allowance is not high enough", async function () {
+    beforeEach(async function() {
+      await grtToken.connect(user1).mint(user1.address, 10000);
+      await grtToken.connect(user1).approve(grtPool.address, 500);
+    });
 
-  //   });
+    it("GRT deposit should fail if the allowance is not high enough", async function () {
+      await expect(
+				grtPool.connect(user1).depositGRTRequestERC20(
+          1000,
+          token.address,
+          1000,
+          6,
+          user1.address
+        )
+			).to.be.revertedWith("ERC20: insufficient allowance");
+    });
 
-  //   it("A successful GRT deposit should emit an event", async function () {
+    it("Should emit a new deposit event", async function () {
+      await expect(
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address)
+      )
+			.to.emit(grtPool, "LogDeposit")
+			.withArgs(0, grtToken.address, 10, grtChainId);
+    });
 
-  //   });
+    it("Should emit a new request event", async function () {
+      await expect(
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address)
+      )
+			.to.emit(grtPool, "LogRequest")
+			.withArgs(0, token.address, 1000, 6);
+    });
 
-  //   it("An ERC20 request should emit an event", async function () {
+    it("Should increase the request counter by one", async function () {
+      await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address);
+      expect(await grtPool.nbrRequest()).to.equal(1);
+    });
 
-  //   });
+    describe("General information", function () {
 
-  //   it("An ERC20 request should increase by one the request counter", async function () {
+      it("Should add a new item in the requests mapping with the proper requester", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address);
+        expect(await grtPool.getRequester(0)).to.equal(user1.address);
+      });
 
-  //   });
+      it("Should add a new item in the requests mapping with the proper recipient address", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.getRecipient(0)).to.equal(user2.address);
+      });
 
-  //   it("An ERC20 request should add a new item in the requests mapping with the proper requester", async function () {
+      it("Should set isRequest to true in the request mapping", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.isrequest(0)).to.equal(true);
+      });
 
-  //   });
+    });
 
-  //   it("An ERC20 request should add a new item in the requests mapping with the proper recipient address", async function () {
+    describe("Deposit information", function () {
 
-  //   });
+      it("Should provide the correct deposit token address (in the requests mapping)", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.getDepositToken(0)).to.equal(grtToken.address);
+      });
 
-  //   it("An ERC20 request should add a new item in the requests mapping with the proper deposit information (token address, amount and chain Id)", async function () {
+      it("Should provide the correct deposit token amount (in the requests mapping)", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.getDepositAmount(0)).to.equal(10);
+      });
 
-  //   });
+      it("Should provide the correct deposit chain Id (in the requests mapping)", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.getDepositChainId(0)).to.equal(grtChainId);
+      });
 
-  //   it("An ERC20 request should add a new item in the requests mapping with the proper request information (token address, amount and chain Id)", async function () {
+    });
 
-  //   });
+    describe("Request information", function () {
 
-  //   it("An ERC20 request should add a new item in the requests mapping with the isRequest item set to true", async function () {
+      it("Should provide the correct request token address (in the requests mapping)", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.getRequestToken(0)).to.equal(token.address);
+      });
 
-  //   });
+      it("Should provide the correct request token amount (in the requests mapping)", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.getRequestAmount(0)).to.equal(1000);
+      });
 
-  //   it("An ERC20 request should add a new item in the requests mapping with an empty offers array inside", async function () {
+      it("Should provide the correct request chain Id (in the requests mapping)", async function () {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
+        expect(await grtPool.getRequestChainId(0)).to.equal(6);
+      });
 
-  //   });
+    });
 
-  //   it("Should return true if the deposit is accepted", async function () {
-
-  //   });
-
-  //   it("Should return false if the deposit isn't accepted", async function () {
-
-  //   });
-
-  // });
+  });
 
 
   // describe("Deposit GRT and request native tokens", function () {
