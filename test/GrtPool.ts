@@ -6,6 +6,7 @@ import { ERC20Sample, GrtPool, RealityETH_v3_0 } from "../typechain-types";
 describe("Grindery Pool testings", function () {
 
   const grtChainId = 5;
+  const destChainId = 6;
 
   let owner: SignerWithAddress,
       user1: SignerWithAddress,
@@ -112,6 +113,8 @@ describe("Grindery Pool testings", function () {
 
   describe("Deposit GRT and request ERC20 tokens", function () {
 
+    const nbrRequest = 4;
+
     beforeEach(async function() {
       await grtToken.connect(user1).mint(user1.address, 10000);
       await grtToken.connect(user1).approve(grtPool.address, 500);
@@ -123,7 +126,7 @@ describe("Grindery Pool testings", function () {
           1000,
           token.address,
           1000,
-          6,
+          destChainId,
           user1.address
         )
 			).to.be.revertedWith("ERC20: insufficient allowance");
@@ -131,7 +134,7 @@ describe("Grindery Pool testings", function () {
 
     it("Should emit a new deposit event", async function () {
       await expect(
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address)
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user1.address)
       )
 			.to.emit(grtPool, "LogDeposit")
 			.withArgs(0, grtToken.address, 10, grtChainId);
@@ -139,32 +142,40 @@ describe("Grindery Pool testings", function () {
 
     it("Should emit a new request event", async function () {
       await expect(
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address)
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user1.address)
       )
 			.to.emit(grtPool, "LogRequest")
-			.withArgs(0, token.address, 1000, 6);
+			.withArgs(0, token.address, 1000, destChainId);
     });
 
     it("Should increase the request counter by one", async function () {
-      await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address);
-      expect(await grtPool.nbrRequest()).to.equal(1);
+      for (let i = 0; i < nbrRequest; i++) {
+        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user1.address);
+        expect(await grtPool.nbrRequest()).to.equal(i+1);
+      }
     });
 
     describe("General information", function () {
 
       it("Should add a new item in the requests mapping with the proper requester", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user1.address);
-        expect(await grtPool.getRequester(0)).to.equal(user1.address);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user1.address);
+          expect(await grtPool.getRequester(i)).to.equal(user1.address);
+        }
       });
 
       it("Should add a new item in the requests mapping with the proper recipient address", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.getRecipient(0)).to.equal(user2.address);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+          expect(await grtPool.getRecipient(i)).to.equal(user2.address);
+        }
       });
 
       it("Should set isRequest to true in the request mapping", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.isrequest(0)).to.equal(true);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+          expect(await grtPool.isrequest(i)).to.equal(true);
+        }
       });
 
     });
@@ -172,18 +183,24 @@ describe("Grindery Pool testings", function () {
     describe("Deposit information", function () {
 
       it("Should provide the correct deposit token address (in the requests mapping)", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.getDepositToken(0)).to.equal(grtToken.address);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+          expect(await grtPool.getDepositToken(i)).to.equal(grtToken.address);
+        }
       });
 
       it("Should provide the correct deposit token amount (in the requests mapping)", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.getDepositAmount(0)).to.equal(10);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+          expect(await grtPool.getDepositAmount(i)).to.equal(10);
+        }
       });
 
       it("Should provide the correct deposit chain Id (in the requests mapping)", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.getDepositChainId(0)).to.equal(grtChainId);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+         expect(await grtPool.getDepositChainId(i)).to.equal(grtChainId);
+        }
       });
 
     });
@@ -191,18 +208,144 @@ describe("Grindery Pool testings", function () {
     describe("Request information", function () {
 
       it("Should provide the correct request token address (in the requests mapping)", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.getRequestToken(0)).to.equal(token.address);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+          expect(await grtPool.getRequestToken(i)).to.equal(token.address);
+        }
       });
 
       it("Should provide the correct request token amount (in the requests mapping)", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.getRequestAmount(0)).to.equal(1000);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+          expect(await grtPool.getRequestAmount(i)).to.equal(1000);
+        }
       });
 
       it("Should provide the correct request chain Id (in the requests mapping)", async function () {
-        await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, 6, user2.address);
-        expect(await grtPool.getRequestChainId(0)).to.equal(6);
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestERC20(10, token.address, 1000, destChainId, user2.address);
+          expect(await grtPool.getRequestChainId(i)).to.equal(destChainId);
+        }
+      });
+
+    });
+
+  });
+
+  describe("Deposit GRT and request native tokens", function () {
+
+    const nbrRequest = 4;
+
+    beforeEach(async function() {
+      await grtToken.connect(user1).mint(user1.address, 10000);
+      await grtToken.connect(user1).approve(grtPool.address, 500);
+    });
+
+    it("GRT deposit should fail if the allowance is not high enough", async function () {
+      await expect(
+				grtPool.connect(user1).depositGRTRequestNative(
+          1000,
+          1000,
+          destChainId,
+          user1.address
+        )
+			).to.be.revertedWith("ERC20: insufficient allowance");
+    });
+
+    it("Should emit a new deposit event", async function () {
+      await expect(
+        await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user1.address)
+      )
+			.to.emit(grtPool, "LogDeposit")
+			.withArgs(0, grtToken.address, 10, grtChainId);
+    });
+
+    it("Should emit a new request event", async function () {
+      await expect(
+        await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user1.address)
+      )
+			.to.emit(grtPool, "LogRequest")
+			.withArgs(0, ethers.constants.AddressZero, 1000, destChainId);
+    });
+
+    it("Should increase the request counter by one", async function () {
+      for (let i = 0; i < nbrRequest; i++) {
+        await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user1.address);
+        expect(await grtPool.nbrRequest()).to.equal(i+1);
+      }
+    });
+
+    describe("General information", function () {
+
+      it("Should add a new item in the requests mapping with the proper requester", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user1.address);
+          expect(await grtPool.getRequester(i)).to.equal(user1.address);
+        }
+      });
+
+      it("Should add a new item in the requests mapping with the proper recipient address", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+          expect(await grtPool.getRecipient(i)).to.equal(user2.address);
+        }
+      });
+
+      it("Should set isRequest to true in the request mapping", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+          expect(await grtPool.isrequest(i)).to.equal(true);
+        }
+      });
+
+    });
+
+    describe("Deposit information", function () {
+
+      it("Should provide the correct deposit token address (in the requests mapping)", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+          expect(await grtPool.getDepositToken(i)).to.equal(grtToken.address);
+        }
+      });
+
+      it("Should provide the correct deposit token amount (in the requests mapping)", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+          expect(await grtPool.getDepositAmount(i)).to.equal(10);
+        }
+      });
+
+      it("Should provide the correct deposit chain Id (in the requests mapping)", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+         expect(await grtPool.getDepositChainId(i)).to.equal(grtChainId);
+        }
+      });
+
+    });
+
+    describe("Request information", function () {
+
+      it("Should provide the correct request token address (zero address in the requests mapping)", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+          expect(await grtPool.getRequestToken(i)).to.equal(ethers.constants.AddressZero);
+        }
+      });
+
+      it("Should provide the correct request token amount (in the requests mapping)", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+          expect(await grtPool.getRequestAmount(i)).to.equal(1000);
+        }
+      });
+
+      it("Should provide the correct request chain Id (in the requests mapping)", async function () {
+        for (let i = 0; i < nbrRequest; i++) {
+          await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
+          expect(await grtPool.getRequestChainId(i)).to.equal(destChainId);
+        }
       });
 
     });
@@ -210,57 +353,16 @@ describe("Grindery Pool testings", function () {
   });
 
 
-  // describe("Deposit GRT and request native tokens", function () {
 
-  //   it("GRT deposit should fail if the allowance is not high enough", async function () {
 
-  //   });
 
-  //   it("A successful GRT deposit should emit an event", async function () {
 
-  //   });
 
-  //   it("A native token request should emit an event", async function () {
 
-  //   });
 
-  //   it("A native token request should increase by one the request counter", async function () {
 
-  //   });
 
-  //   it("A native token request should add a new item in the requests mapping with the proper requester", async function () {
 
-  //   });
-
-  //   it("A native token request should add a new item in the requests mapping with the proper recipient address", async function () {
-
-  //   });
-
-  //   it("A native token request should add a new item in the requests mapping with the proper deposit information (token address, amount and chain Id)", async function () {
-
-  //   });
-
-  //   it("A native token request should add a new item in the requests mapping with the proper request information (zero address for the token address, amount and chain Id)", async function () {
-
-  //   });
-
-  //   it("A native token request should add a new item in the requests mapping with the isRequest item set to true", async function () {
-
-  //   });
-
-  //   it("A native token request should add a new item in the requests mapping with an empty offers array inside", async function () {
-
-  //   });
-
-  //   it("Should return true if the deposit is accepted", async function () {
-
-  //   });
-
-  //   it("Should return false if the deposit isn't accepted", async function () {
-
-  //   });
-
-  // });
 
 
   // describe("Create an offer", function () {
@@ -905,7 +1007,7 @@ describe("Grindery Pool testings", function () {
   //   const questionId = _questionId?.events[2]?.args[1];
 
   //   const getHistoryHash = await grtPool.getHistoryHash(questionId);
-  //   //answering the question posted by user3 by users 4 and 5
+  //   //answering the question posted by user3 by users nbrRequest and 5
   //   await grtPool
   //     .connect(user4)
   //     .answerQuestion('true', questionId, 0, {
