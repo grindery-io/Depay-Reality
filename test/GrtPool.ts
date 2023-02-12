@@ -7,6 +7,8 @@ describe("Grindery Pool testings", function () {
 
   const grtChainId = 5;
   const destChainId = 6;
+  const nbrRequest = 4;
+  const nbrOffer = 4;
 
   let owner: SignerWithAddress,
       user1: SignerWithAddress,
@@ -234,8 +236,6 @@ describe("Grindery Pool testings", function () {
 
   describe("Deposit GRT and request native tokens", function () {
 
-    const nbrRequest = 4;
-
     beforeEach(async function() {
       await grtToken.connect(user1).mint(user1.address, 10000);
       await grtToken.connect(user1).approve(grtPool.address, 500);
@@ -352,90 +352,145 @@ describe("Grindery Pool testings", function () {
 
   });
 
+  describe("Create an offer", function () {
 
+    beforeEach(async function() {
+      await grtToken.connect(user1).mint(user1.address, 10000);
+      await grtToken.connect(user1).approve(grtPool.address, 500);
+      await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
 
+      await grtToken.connect(user2).mint(user2.address, 40000);
+      await grtToken.connect(user2).approve(grtPool.address, 2000);
+      await grtPool.connect(user2).stakeGRT(2);
+    });
 
+    it("Should fail if there is no request for the provided request Id", async function () {
+      await expect(
+				grtPool.connect(user1).createOffer(2, 1000)
+			).to.be.revertedWith("GRT pool: the request does not exist!");
+    });
 
+    it("Should fail if the user has not enough staked GRT (1 for tests)", async function () {
+      await expect(
+				grtPool.connect(user3).createOffer(0, 1000)
+			).to.be.revertedWith("GRT pool: your stake amount is not sufficient!");
+    });
 
+    it("Should emit a new offer event", async function () {
+      await expect(await grtPool.connect(user2).createOffer(0, 1000))
+			.to.emit(grtPool, "LogCreateOffer")
+			.withArgs(0, 0);
+    });
 
+    it("Should increase the number of offers", async function () {
+      for (let i = 0; i < nbrOffer; i++) {
+        await grtPool.connect(user2).createOffer(0, 1000);
+        expect(await grtPool.nbrOffersRequest(0)).to.equal(i+1);
+      }
+    });
 
+    describe("Mapping details", function () {
 
+      it("Should create a new offer with the correct creator", async function () {
+        for (let i = 0; i < nbrOffer; i++) {
+          await grtPool.connect(user2).createOffer(0, 1000);
+          expect(await grtPool.getOfferCreator(0, i)).to.equal(user2.address);
+        }
+      });
 
+      it("Should create a new offer with the correct amount", async function () {
+        for (let i = 0; i < nbrOffer; i++) {
+          await grtPool.connect(user2).createOffer(0, 1000);
+          expect(await grtPool.getOfferAmount(0, i)).to.equal(1000);
+        }
+      });
 
+      it("Should create a new offer with isAccept set to false", async function () {
+        for (let i = 0; i < nbrOffer; i++) {
+          await grtPool.connect(user2).createOffer(0, 1000);
+          expect(await grtPool.isOfferAccepted(0, i)).to.equal(false);
+        }
+      });
 
+      it("Should create a new offer with isPaid set to false", async function () {
+        for (let i = 0; i < nbrOffer; i++) {
+          await grtPool.connect(user2).createOffer(0, 1000);
+          expect(await grtPool.isOfferPaid(0, i)).to.equal(false);
+        }
+      });
 
+    });
 
-  // describe("Create an offer", function () {
+  });
 
-  //   it("Should fail if there is no request for the provided Id", async function () {
+  describe("Accept an offer", function () {
 
-  //   });
+    beforeEach(async function() {
 
+      await grtToken.connect(user1).mint(user1.address, 10000);
+      await grtToken.connect(user1).approve(grtPool.address, 500);
+      await grtPool.connect(user1).depositGRTRequestNative(10, 1000, destChainId, user2.address);
 
-  //   it("Should fail if the user has not enough staked GRT (1 for tests)", async function () {
+      await grtToken.connect(user2).mint(user2.address, 40000);
+      await grtToken.connect(user2).approve(grtPool.address, 2000);
+      await grtPool.connect(user2).stakeGRT(2);
+      await grtPool.connect(user2).createOffer(0, 1000);
 
-  //   });
+    });
 
+    it("Should fail if idRequest doesn't exist", async function () {
+      await expect(
+				grtPool.connect(user1).acceptOffer(1, 0)
+			).to.be.revertedWith("GRT pool: the request does not exist!");
+    });
 
-  //   it("Should emit an event", async function () {
+    it("Should fail if idOffer doesn't exist for the offer corresponding to idRequest", async function () {
+      await expect(
+				grtPool.connect(user1).acceptOffer(0, 1)
+			).to.be.revertedWith("GRT pool: the offer does not exist!");
+    });
 
-  //   });
+    it("Should fail if the offer has already been accepted", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await expect(
+				grtPool.connect(user1).acceptOffer(0, 0)
+			).to.be.revertedWith("GRT pool: the offer has already been accepted!");
+    });
 
-  //   it("Should push a new offer in the offers array for the concerning request Id with the correct creator", async function () {
+    it("Should fail if the transaction signer is not the requester", async function () {
+      await expect(
+				grtPool.connect(user3).acceptOffer(0, 0)
+			).to.be.revertedWith("GRT pool: you are not the requester!");
+    });
 
-  //   });
+    it("Should fail if there is already an accepted offer for this request", async function () {
+      for (let i = 0; i < nbrOffer; i++) {
+        await grtPool.connect(user2).createOffer(0, 1000);
+      }
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await expect(
+				grtPool.connect(user1).acceptOffer(0, 2)
+			).to.be.revertedWith("GRT pool: there is already an accepted offer for this request!");
 
-  //   it("Should push a new offer in the offers array for the concerning request Id with the correct amount proposed", async function () {
+    });
 
-  //   });
+    it("Should set isAccept to true for the corresponding request Id and offer Id", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      expect(await grtPool.isOfferAccepted(0, 0)).to.equal(true);
+    });
 
-  //   it("Should push a new offer in the offers array for the concerning request Id with isAccept and isPaid set both to false", async function () {
+    it("Should emit an event for offer acceptance", async function () {
+      await expect(await grtPool.connect(user1).acceptOffer(0, 0))
+			.to.emit(grtPool, "LogAcceptOffer")
+			.withArgs(0, 0);
+    });
 
-  //   });
+    it("Should set isAccept as true for the corresponding request Id and offer Id", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      expect(await grtPool.isOfferAccepted(0, 0)).to.equal(true);
+    });
 
-  // });
-
-
-  // describe("Accept an offer", function () {
-
-
-  //   it("Should fail if idRequest doesn't exist", async function () {
-
-  //   });
-
-  //   it("Should fail if idOffer doesn't exist for the offer corresponding to idRequest", async function () {
-
-  //   });
-
-  //   it("Should fail if the offer has already been accepted", async function () {
-
-  //   });
-
-  //   it("Should fail if the offer has already been paid", async function () {
-
-  //   });
-
-  //   it("Should fail if the transaction signer is not the requester", async function () {
-
-  //   });
-
-  //   it("Should set isAccept to true for the corresponding request Id and offer Id", async function () {
-
-  //   });
-
-  //   it("Should emit an event for offer acceptance", async function () {
-
-  //   });
-
-  //   it("Should set isPaid as true for the corresponding request Id and offer Id", async function () {
-
-  //   });
-
-  //   it("Should return true for successHndOffer and true for successGRTReward", async function () {
-
-  //   });
-
-  // });
+  });
 
 
   // describe("Pay an offer on chain with an ERC20 token", function () {

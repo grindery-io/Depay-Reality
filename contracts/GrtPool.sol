@@ -86,32 +86,37 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         uint256 chnIdReq,
         address destAddr
     ) external returns (bool) {
-        bool succDep = depositGRT(amntDepGRT);
-        if (succDep) {
-            emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
-            addRequest(amntDepGRT, address(0), amntReq, chnIdReq, destAddr);
-        }
-        return succDep;
+        depositGRT(amntDepGRT);
+        emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
+        addRequest(amntDepGRT, address(0), amntReq, chnIdReq, destAddr);
+        return true;
     }
 
     // User can make an offer as a response to another user request
-    function createOffer(uint256 idRequest, uint256 amount) external {
-        require(_requests[idRequest].isRequest, "GRT pool: the request for which you are trying to place an offer does not exist!");
+    function createOffer(uint256 idRequest, uint256 amount) external returns (bool) {
+        require(_requests[idRequest].isRequest, "GRT pool: the request does not exist!");
         require(_stakes[msg.sender] > 1, "GRT pool: your stake amount is not sufficient!");
         uint256 _countOffers = _requests[idRequest].countOffers;
         emit LogCreateOffer(idRequest, _countOffers);
         _requests[idRequest].offers[_countOffers] = Offer(msg.sender, amount, false, false);
         _requests[idRequest].countOffers++;
+        return true;
     }
 
     // User who made the request can then accept an offer associated with it
-    function acceptOffer(uint256 idRequest, uint256 idOffer) external {
-        require(_requests[idRequest].isRequest, "GRT pool: the request for which you are trying to place an offer does not exist!");
-        require(_requests[idRequest].offers[idOffer].userAddr != address(0), "GRT pool: the offer Id is invalid!");
+    function acceptOffer(uint256 idRequest, uint256 idOffer) external returns (bool) {
+        require(_requests[idRequest].isRequest, "GRT pool: the request does not exist!");
+        require(_requests[idRequest].offers[idOffer].userAddr != address(0), "GRT pool: the offer does not exist!");
         require(!_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer has already been accepted!");
-        require(msg.sender == _requests[idRequest].userAddr, "GRT pool: you are not authorized to accept an offer that has not been issued by you!");
+        require(msg.sender == _requests[idRequest].userAddr, "GRT pool: you are not the requester!");
+        for (uint i = 0; i < _requests[idRequest].countOffers; i++) {
+            if (_requests[idRequest].offers[i].isAccept) {
+                revert("GRT pool: there is already an accepted offer for this request!");
+            }
+        }
         _requests[idRequest].offers[idOffer].isAccept = true;
         emit LogAcceptOffer(idRequest, idOffer);
+        return true;
     }
 
     // Honour the offer on the same chain as the request has been made
@@ -212,19 +217,6 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     }
 
-
-    // struct Request {
-    //     address userAddr;
-    //     address destAddr;
-    //     TokenInfo deposit;
-    //     TokenInfo request;
-    //     bool isRequest;
-    //     uint256 countOffers;
-    //     mapping(uint256 => Offer) offers;
-    // }
-
-
-
     function getRequester(uint256 idRequest) external view returns (address) {
         return _requests[idRequest].userAddr;
     }
@@ -261,22 +253,24 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         return _requests[idRequest].isRequest;
     }
 
+    function getOfferCreator(uint256 idRequest, uint256 idOffer) external view returns (address) {
+        return _requests[idRequest].offers[idOffer].userAddr;
+    }
 
-    // Get information for a given request (offer)
-    function getInfoOffer(uint256 idRequest, uint256 idOffer) external view returns (
-        address userAddr,
-        bool isOffr,
-        address offrUserAdrr,
-        bool isOfferAccepted,
-        bool isOfferHnd
-    ) {
-        return (
-            _requests[idRequest].userAddr,
-            _requests[idRequest].isRequest,
-            _requests[idRequest].offers[idOffer].userAddr,
-            _requests[idRequest].offers[idOffer].isAccept,
-            _requests[idRequest].offers[idOffer].isPaid
-        );
+    function getOfferAmount(uint256 idRequest, uint256 idOffer) external view returns (uint256) {
+        return _requests[idRequest].offers[idOffer].amount;
+    }
+
+    function isOfferAccepted(uint256 idRequest, uint256 idOffer) external view returns (bool) {
+        return _requests[idRequest].offers[idOffer].isAccept;
+    }
+
+    function isOfferPaid(uint256 idRequest, uint256 idOffer) external view returns (bool) {
+        return _requests[idRequest].offers[idOffer].isPaid;
+    }
+
+    function nbrOffersRequest(uint256 idRequest) external view returns (uint256) {
+        return _requests[idRequest].countOffers;
     }
 
     // Initialize a new offer
