@@ -98,8 +98,7 @@ contract GrtDispute is OwnableUpgradeable {
        _addrReality = addr;
     }
 
-    // Get GRT token address
-    function realityAddress() external view returns (address) {
-       return _addrReality;
+    function getAddrReality () external view returns (address) {
+        return _addrReality;
     }
 }
