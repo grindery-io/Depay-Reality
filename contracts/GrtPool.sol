@@ -7,6 +7,8 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./reality/IRealityETH.sol";
 import "./GrtDispute.sol";
 
+import "hardhat/console.sol";
+
 contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // State variables
@@ -46,6 +48,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     event LogRequest (uint256 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
     event LogCreateOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
     event LogAcceptOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
+    event LogRejectOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
     event LogOfferPaidOnChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
     event LogOfferPaidCrossChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
 
@@ -119,33 +122,35 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         return true;
     }
 
+    function rejectOffer(uint256 idRequest, uint256 idOffer) public returns (bool) {
+        require(_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer is not accepted yet!");
+        require(!_requests[idRequest].offers[idOffer].isPaid, "GRT pool: the offer has already been paid!");
+        require(msg.sender == _requests[idRequest].userAddr, "GRT pool: you are not the requester!");
+        _requests[idRequest].offers[idOffer].isAccept = false;
+        emit LogRejectOffer(idRequest, idOffer);
+        return true;
+    }
+
     // Honour the offer on the same chain as the request has been made
     function payOfferOnChainERC20(
         uint256 idRequest,
-        uint256 idOffer,
-        address token,
-        uint256 amount
-    ) external returns (bool HndOffer, bool GRTReward) {
+        uint256 idOffer
+    ) external returns (bool) {
 
-        require(_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer you are trying to pay has not been accepted yet!");
-        require(!_requests[idRequest].offers[idOffer].isPaid, "GRT pool: the offer you are trying to pay has already been paid!");
+        require(_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer has not been accepted yet!");
+        require(!_requests[idRequest].offers[idOffer].isPaid, "GRT pool: the offer has already been paid!");
         require(block.chainid == _requests[idRequest].request.chainId, "GRT pool: the offer should not be paid on this chain!");
-        require(amount == _requests[idRequest].request.amount, "GRT pool: the amount you entered does not match the offer you made!");
-        require(msg.sender == _requests[idRequest].offers[idOffer].userAddr, "GRT pool: you are not allowed to honour this offer!");
-        require(token == _requests[idRequest].request.token, "GRT pool: the token you wish to propose is not the one expected!");
+        require(msg.sender == _requests[idRequest].offers[idOffer].userAddr, "GRT pool: you are not allowed to pay this offer!");
 
-        bool successHndOffer = IERC20(token).transferFrom(msg.sender, _requests[idRequest].destAddr, amount);
-        bool successGRTReward;
-
-        if (successHndOffer) {
-            successGRTReward = IERC20(_addrGRT).transfer(msg.sender, _requests[idRequest].deposit.amount);
-            if (successGRTReward) {
-                emit LogOfferPaidOnChain(idRequest, idOffer);
-                _requests[idRequest].offers[idOffer].isPaid = true;
-            }
-        }
-
-        return (successHndOffer, successGRTReward);
+        IERC20(_requests[idRequest].request.token).transferFrom(
+            msg.sender,
+            _requests[idRequest].destAddr,
+            _requests[idRequest].request.amount
+        );
+        IERC20(_addrGRT).transfer(msg.sender, _requests[idRequest].deposit.amount);
+        emit LogOfferPaidOnChain(idRequest, idOffer);
+        _requests[idRequest].offers[idOffer].isPaid = true;
+        return true;
     }
 
     // Honour the offer on the same chain as the request has been made
