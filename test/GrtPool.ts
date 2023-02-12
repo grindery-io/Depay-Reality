@@ -585,39 +585,39 @@ describe("Grindery Pool testings", function () {
 
     it("Should increase the token amount of the recipient", async function () {
       const recipient = await grtPool.getRecipient(0);
-      const balanceRecipientTokenInit = await token.balanceOf(recipient);
+      const expectedTokenBalanceRecipient = await token.balanceOf(recipient);
       await grtPool.connect(user1).acceptOffer(0, 0);
       await grtPool.connect(user2).payOfferOnChainERC20(0, 0);
       expect(
         await token.balanceOf(recipient)
-      ).to.equal(balanceRecipientTokenInit.add(ethers.BigNumber.from(1000)));
+      ).to.equal(expectedTokenBalanceRecipient.add(ethers.BigNumber.from(1000)));
     });
 
     it("Should decrease the token amount of the seller", async function () {
-      const balanceSellerTokenInit = await token.balanceOf(user2.address);
+      const expectedGRTBalanceSeller = await token.balanceOf(user2.address);
       await grtPool.connect(user1).acceptOffer(0, 0);
       await grtPool.connect(user2).payOfferOnChainERC20(0, 0);
       expect(
         await token.balanceOf(user2.address)
-      ).to.equal(balanceSellerTokenInit.sub(ethers.BigNumber.from(1000)));
+      ).to.equal(expectedGRTBalanceSeller.sub(ethers.BigNumber.from(1000)));
     });
 
     it("Should generate a reward in GRT for the seller", async function () {
-      const balanceSellerGRTInit = await grtToken.balanceOf(user2.address);
+      const expectedGRTBalanceSeller = await grtToken.balanceOf(user2.address);
       await grtPool.connect(user1).acceptOffer(0, 0);
       await grtPool.connect(user2).payOfferOnChainERC20(0, 0);
       expect(
         await grtToken.balanceOf(user2.address)
-      ).to.equal(balanceSellerGRTInit.add(ethers.BigNumber.from(10)));
+      ).to.equal(expectedGRTBalanceSeller.add(ethers.BigNumber.from(10)));
     });
 
     it("Should decrease the GRT balance of the GRT pool", async function () {
-      const balanceGRTPool = await grtToken.balanceOf(grtPool.address);
+      const expectedGRTBalancePool = await grtToken.balanceOf(grtPool.address);
       await grtPool.connect(user1).acceptOffer(0, 0);
       await grtPool.connect(user2).payOfferOnChainERC20(0, 0);
       expect(
         await grtToken.balanceOf(grtPool.address)
-      ).to.equal(balanceGRTPool.sub(ethers.BigNumber.from(10)));
+      ).to.equal(expectedGRTBalancePool.sub(ethers.BigNumber.from(10)));
     });
 
     it("Should emit an event to declare the paid offer", async function () {
@@ -635,49 +635,115 @@ describe("Grindery Pool testings", function () {
 
   });
 
-  // describe("Pay an offer on chain with a native token", function () {
+  describe("Pay an offer on chain with native token", function () {
 
-  //   it("Should fail if the offer is not accepted yet", async function () {
+    beforeEach(async function() {
 
-  //   });
+      await grtToken.connect(user1).mint(user1.address, 10000);
+      await grtToken.connect(user1).approve(grtPool.address, 500);
+      await grtPool.connect(user1).depositGRTRequestNative(10, ethers.utils.parseEther("2"), onChainId?onChainId:0, user1.address);
 
-  //   it("Should fail if the offer has already been paid", async function () {
+      await grtToken.connect(user2).mint(user2.address, 40000);
+      await grtToken.connect(user2).approve(grtPool.address, 2000);
+      await grtPool.connect(user2).stakeGRT(2);
+      await grtPool.connect(user2).createOffer(0, ethers.utils.parseEther("2"));
 
-  //   });
+    });
 
-  //   it("Should fail if the chain Id mentionned in the corresponding offer is not the actual chain Id", async function () {
+    it("Should fail if the offer is not accepted yet", async function () {
+      await expect(
+        grtPool.connect(user1).payOfferOnChainNative(0, 0)
+      ).to.be.revertedWith("GRT pool: the offer has not been accepted yet!");
+    });
 
-  //   });
+    it("Should fail if the offer has already been paid", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") });
+      await expect(
+        grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") })
+      ).to.be.revertedWith("GRT pool: the offer has already been paid!");
+    });
 
-  //   it("Should fail if the amount doesn't correspond to the offer", async function () {
+    it("Should fail if the chain Id mentionned in the corresponding offer is not the actual chain Id", async function () {
+      await grtPool.connect(user1).depositGRTRequestNative(10, ethers.utils.parseEther("2"), 155, user2.address);
+      await grtPool.connect(user2).createOffer(1, ethers.utils.parseEther("2"));
+      await grtPool.connect(user1).acceptOffer(1, 0);
+      await expect(
+        grtPool.connect(user2).payOfferOnChainNative(1, 0)
+      ).to.be.revertedWith("GRT pool: the offer should not be paid on this chain!");
+    });
 
-  //   });
 
-  //   it("Should fail if the transaction signer is not the address which made the offer", async function () {
+    it("Should fail if msg.value is not the promised amount", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await expect(
+        grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("1") })
+      ).to.be.revertedWith("GRT pool: the amount does not match the offer!");
+    });
 
-  //   });
+    it("Should fail if the transaction signer is not the one who made the offer", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await expect(
+        grtPool.connect(user3).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") })
+      ).to.be.revertedWith("GRT pool: you are not allowed to pay this offer!");
+    });
 
-  //   it("Should fail if the proposed ERC20 token is not the one requested", async function () {
+    it("Should increase the native token balance of the recipient", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      const recipient = await grtPool.getRecipient(0);
+      const expectedRecipientBalance = await ethers.provider.getBalance(recipient);
+      await grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") });
+      expect(
+        await ethers.provider.getBalance(recipient)
+      ).to.equal(expectedRecipientBalance.add(ethers.BigNumber.from(ethers.utils.parseEther("2"))));
+    });
 
-  //   });
+    it("Should decrease the native token balance of the seller", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      let expectedUser2Balance = await ethers.provider.getBalance(user2.address);
+      const tx = await grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") });
+      const receipt = await tx.wait();
+      const gasCostForTxn = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+      expectedUser2Balance = expectedUser2Balance.sub(gasCostForTxn);
+      expect(
+        await ethers.provider.getBalance(user2.address)
+      ).to.equal(expectedUser2Balance.sub(ethers.BigNumber.from(ethers.utils.parseEther("2"))));
+    });
 
-  //   it("Should fail if allowance for the correspoànding ERC20 token is not high enough for the transfer", async function () {
+    it("Should generate a reward in GRT for the seller", async function () {
+      const expectedGRTBalanceSeller = await grtToken.balanceOf(user2.address);
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") });
+      expect(
+        await grtToken.balanceOf(user2.address)
+      ).to.equal(expectedGRTBalanceSeller.add(ethers.BigNumber.from(10)));
+    });
 
-  //   });
+    it("Should decrease the GRT balance of the GRT pool", async function () {
+      const expectedGRTBalancePool = await grtToken.balanceOf(grtPool.address);
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") });
+      expect(
+        await grtToken.balanceOf(grtPool.address)
+      ).to.equal(expectedGRTBalancePool.sub(ethers.BigNumber.from(10)));
+    });
 
-  //   it("Should increase the token amount of the recipient with the correct amount", async function () {
+    it("Should emit an event to declare the paid offer", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await expect(
+        await grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") })
+      )
+			.to.emit(grtPool, "LogOfferPaidOnChain")
+			.withArgs(0, 0);
+    });
 
-  //   });
+    it("Should set isPaid as true", async function () {
+      await grtPool.connect(user1).acceptOffer(0, 0);
+      await grtPool.connect(user2).payOfferOnChainNative(0, 0, { value: ethers.utils.parseEther("2") });
+      expect(await grtPool.isOfferPaid(0, 0)).to.equal(true);
+    });
 
-  //   it("A successful payment should generate a GRT reward for the transaction signer corresponding to the initial deposit for this request", async function () {
-
-  //   });
-
-  //   it("A successful payment and reward transfer should emit and event", async function () {
-
-  //   });
-
-  // });
+  });
 
 
   // describe("Claim GRT with dispute", function () {
