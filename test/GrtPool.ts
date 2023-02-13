@@ -17,11 +17,11 @@ describe("Grindery Pool testings", function () {
       user3: SignerWithAddress,
       user4: SignerWithAddress,
       user5: SignerWithAddress,
-      grtPool: GrtPool,
+      grtPool: any,
       realityEth: RealityETH_v3_0,
       grtToken: ERC20Sample,
       token: ERC20Sample,
-      grtSatellite: GrtSatellite;
+      grtSatellite: any;
 
   beforeEach(async function() {
 
@@ -759,14 +759,14 @@ describe("Grindery Pool testings", function () {
 
       it("Should fail if the request doesn't exist", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         await expect(
           grtPool.connect(user2).claimGRTWithoutDispute(4, 0)
         ).to.be.revertedWith("GRT pool: the request does not exist!");
       });
 
       it("Should fail if the offer has not yet been accepted", async function () {
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         grtPool.claimGRTWithoutDispute(0, 0);
         await expect(
           grtPool.connect(user2).claimGRTWithoutDispute(0, 0)
@@ -775,7 +775,7 @@ describe("Grindery Pool testings", function () {
 
       it("Should fail if the offer has already been paid", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         grtPool.connect(user2).claimGRTWithoutDispute(0, 0);
         await expect(
           grtPool.connect(user2).claimGRTWithoutDispute(0, 0)
@@ -784,7 +784,7 @@ describe("Grindery Pool testings", function () {
 
       it("Should fail if the transaction signer is not the one who made the corresponding offer", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         await expect(
           grtPool.connect(user3).claimGRTWithoutDispute(0, 0)
         ).to.be.revertedWith("GRT pool: you are not allowed to make this claim!");
@@ -793,7 +793,7 @@ describe("Grindery Pool testings", function () {
       it("Should generate a GRT reward for the transaction signer", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
         const expectedGRTBalanceSeller = await grtToken.balanceOf(user2.address);
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         await grtPool.connect(user2).claimGRTWithoutDispute(0, 0);
         expect(await grtToken.balanceOf(user2.address)).to.equal(expectedGRTBalanceSeller.add(ethers.BigNumber.from(10)));
       });
@@ -801,7 +801,7 @@ describe("Grindery Pool testings", function () {
       it("Should decrease the GRT balance for the GRT pool", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
         const expectedGRTBalancePool = await grtToken.balanceOf(grtPool.address);
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         await grtPool.connect(user2).claimGRTWithoutDispute(0, 0);
         expect(await grtToken.balanceOf(grtPool.address))
         .to.equal(expectedGRTBalancePool.sub(ethers.BigNumber.from(10)));
@@ -809,7 +809,7 @@ describe("Grindery Pool testings", function () {
 
       it("A successful GRT reward for the transaction signer should emit an event", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         await expect(await grtPool.connect(user2).claimGRTWithoutDispute(0, 0))
         .to.emit(grtPool, "LogOfferPaidCrossChain")
         .withArgs(0, 0);
@@ -817,7 +817,7 @@ describe("Grindery Pool testings", function () {
 
       it("Should set isPaid as true", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+        grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
         await grtPool.connect(user2).claimGRTWithoutDispute(0, 0)
         expect(await grtPool.isOfferPaid(0, 0)).to.equal(true);
       });
@@ -828,14 +828,14 @@ describe("Grindery Pool testings", function () {
 
       it("Should fail if the request doesn't exist", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         await expect(
           grtPool.connect(user2).claimGRTWithoutDispute(4, 0)
         ).to.be.revertedWith("GRT pool: the request does not exist!");
       });
 
       it("Should fail if the offer has not yet been accepted", async function () {
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         grtPool.claimGRTWithoutDispute(0, 0);
         await expect(
           grtPool.connect(user2).claimGRTWithoutDispute(0, 0)
@@ -844,7 +844,7 @@ describe("Grindery Pool testings", function () {
 
       it("Should fail if the offer has already been paid", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         grtPool.connect(user2).claimGRTWithoutDispute(0, 0);
         await expect(
           grtPool.connect(user2).claimGRTWithoutDispute(0, 0)
@@ -853,7 +853,7 @@ describe("Grindery Pool testings", function () {
 
       it("Should fail if the transaction signer is not the one who made the corresponding offer", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         await expect(
           grtPool.connect(user3).claimGRTWithoutDispute(0, 0)
         ).to.be.revertedWith("GRT pool: you are not allowed to make this claim!");
@@ -862,7 +862,7 @@ describe("Grindery Pool testings", function () {
       it("Should generate a GRT reward for the transaction signer", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
         const expectedGRTBalanceSeller = await grtToken.balanceOf(user2.address);
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         await grtPool.connect(user2).claimGRTWithoutDispute(0, 0);
         expect(await grtToken.balanceOf(user2.address)).to.equal(expectedGRTBalanceSeller.add(ethers.BigNumber.from(10)));
       });
@@ -870,7 +870,7 @@ describe("Grindery Pool testings", function () {
       it("Should decrease the GRT balance for the GRT pool", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
         const expectedGRTBalancePool = await grtToken.balanceOf(grtPool.address);
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         await grtPool.connect(user2).claimGRTWithoutDispute(0, 0);
         expect(await grtToken.balanceOf(grtPool.address))
         .to.equal(expectedGRTBalancePool.sub(ethers.BigNumber.from(10)));
@@ -878,7 +878,7 @@ describe("Grindery Pool testings", function () {
 
       it("A successful GRT reward for the transaction signer should emit an event", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         await expect(await grtPool.connect(user2).claimGRTWithoutDispute(0, 0))
         .to.emit(grtPool, "LogOfferPaidCrossChain")
         .withArgs(0, 0);
@@ -886,7 +886,7 @@ describe("Grindery Pool testings", function () {
 
       it("Should set isPaid as true", async function () {
         await grtPool.connect(user1).acceptOffer(0, 0);
-        grtSatellite.connect(user2).PayOfferCrossChainERC20(token.address, user1.address, 1000);
+        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 1000);
         await grtPool.connect(user2).claimGRTWithoutDispute(0, 0)
         expect(await grtPool.isOfferPaid(0, 0)).to.equal(true);
       });

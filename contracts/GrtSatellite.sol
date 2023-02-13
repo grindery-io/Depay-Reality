@@ -18,33 +18,24 @@ contract GrtSatellite is OwnableUpgradeable {
         __Ownable_init();
     }
 
-    // Native token to do
-
     // Pay the offer cross chain (ERC20 token)
-    function PayOfferCrossChainERC20(
+    function payOfferCrossChainERC20(
         address token,
         address to,
         uint amount
     ) external returns (bool) {
-        bool success = IERC20(token).transferFrom(msg.sender, to, amount);
-        if (success) {
-            emit LogOfferPaidSatelliteCrossChain(msg.sender, to, token, amount);
-        }
-        return success;
+        IERC20(token).transferFrom(msg.sender, to, amount);
+        emit LogOfferPaidSatelliteCrossChain(msg.sender, to, token, amount);
+        return true;
     }
 
     // Pay the offer cross chain (Native token)
-    function PayOfferCrossChainNative(address to) external payable returns (bool) {
+    function payOfferCrossChainNative(address to) external payable returns (bool) {
         (bool success, ) = to.call{value: msg.value}("");
         if (success) {
             emit LogOfferPaidSatelliteCrossChain(msg.sender, to, address(0), msg.value);
         }
         return success;
     }
-
-    function test() external {
-        console.log(block.chainid);
-    }
-
 
 }
