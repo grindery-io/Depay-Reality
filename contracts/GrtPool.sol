@@ -206,15 +206,15 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     // Claim GRT without dispute
     function claimGRTWithoutDispute (uint256 idRequest, uint256 idOffer) external returns (bool) {
 
+        require(_requests[idRequest].isRequest, "GRT pool: the request does not exist!");
+        require(_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer has not been accepted yet!");
         require(!_requests[idRequest].offers[idOffer].isPaid, "GRT pool: the offer has already been paid!");
-        require(msg.sender == _requests[idRequest].offers[idOffer].userAddr , "GRT pool: you have not made an offer for this request and therefore you are not entitled to make this request!");
+        require(msg.sender == _requests[idRequest].offers[idOffer].userAddr , "GRT pool: you are not allowed to make this claim!");
 
-        bool success = IERC20(_addrGRT).transfer(_requests[idRequest].offers[idOffer].userAddr, _requests[idRequest].deposit.amount);
-        if (success) {
-            emit LogOfferPaidCrossChain(idRequest, idOffer);
-            _requests[idRequest].offers[idOffer].isPaid = true;
-        }
-        return success;
+        IERC20(_addrGRT).transfer(_requests[idRequest].offers[idOffer].userAddr, _requests[idRequest].deposit.amount);
+        emit LogOfferPaidCrossChain(idRequest, idOffer);
+        _requests[idRequest].offers[idOffer].isPaid = true;
+        return true;
 
     }
 

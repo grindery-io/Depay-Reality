@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./reality/IRealityETH.sol";
 
+import "hardhat/console.sol";
+
 contract GrtSatellite is OwnableUpgradeable {
 
     // Event declarations
@@ -38,6 +40,10 @@ contract GrtSatellite is OwnableUpgradeable {
             emit LogOfferPaidSatelliteCrossChain(msg.sender, to, address(0), msg.value);
         }
         return success;
+    }
+
+    function test() external {
+        console.log(block.chainid);
     }
 
 

@@ -10,6 +10,10 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 31337,
       allowUnlimitedContractSize: true
+    },
+    localhost: {
+      chainId: 10,
+      allowUnlimitedContractSize: true
     }
   }
 };
