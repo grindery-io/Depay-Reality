@@ -23,7 +23,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         TokenInfo deposit;
         TokenInfo request;
         bool isRequest;
-        uint256 countOffers;
+        uint256 nonceOffers;
         mapping(uint256 => Offer) offers;
     }
     struct Offer {
@@ -71,17 +71,21 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // Initial user who wants to obtain some ERC20 token: he makes a GRT deposit and a request for that
     function depositGRTRequestERC20(
+        uint256 nonce,
         uint256 amntDepGRT,
         address tokenRequest,
         uint256 amntReq,
         uint256 chnIdReq,
         address destAddr
     ) external returns (bool) {
+        require(nonce == _nonces[msg.sender], "GRT pool: this nonce has already been submitted!");
         depositGRT(amntDepGRT);
         bytes32 idRequest = keccak256(abi.encodePacked(
-            _nonces[msg.sender],
+            nonce,
             msg.sender,
+            _addrGRT,
             amntDepGRT,
+            _chainIdGRT,
             tokenRequest,
             amntReq,
             chnIdReq,
@@ -94,16 +98,20 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // Initial user who wants to obtain some native token: he makes a GRT deposit and a request for that
     function depositGRTRequestNative(
+        uint256 nonce,
         uint256 amntDepGRT,
         uint256 amntReq,
         uint256 chnIdReq,
         address destAddr
     ) external returns (bool) {
+        require(nonce == _nonces[msg.sender], "GRT pool: this nonce has already been submitted!");
         depositGRT(amntDepGRT);
         bytes32 idRequest = keccak256(abi.encodePacked(
-            _nonces[msg.sender],
+            nonce,
             msg.sender,
+            _addrGRT,
             amntDepGRT,
+            _chainIdGRT,
             address(0),
             amntReq,
             chnIdReq,
@@ -118,10 +126,10 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     function createOffer(bytes32 idRequest, uint256 amount) external returns (bool) {
         require(_requests[idRequest].isRequest, "GRT pool: the request does not exist!");
         require(_stakes[msg.sender] > 1, "GRT pool: your stake amount is not sufficient!");
-        uint256 _countOffers = _requests[idRequest].countOffers;
+        uint256 _countOffers = _requests[idRequest].nonceOffers;
         emit LogCreateOffer(idRequest, _countOffers);
         _requests[idRequest].offers[_countOffers] = Offer(msg.sender, amount, false, false);
-        _requests[idRequest].countOffers++;
+        _requests[idRequest].nonceOffers++;
         return true;
     }
 
@@ -131,7 +139,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         require(_requests[idRequest].offers[idOffer].userAddr != address(0), "GRT pool: the offer does not exist!");
         require(!_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer has already been accepted!");
         require(msg.sender == _requests[idRequest].userAddr, "GRT pool: you are not the requester!");
-        for (uint i = 0; i < _requests[idRequest].countOffers; i++) {
+        for (uint i = 0; i < _requests[idRequest].nonceOffers; i++) {
             if (_requests[idRequest].offers[i].isAccept) {
                 revert("GRT pool: there is already an accepted offer for this request!");
             }
@@ -237,6 +245,24 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     }
 
+    function getOfferId(bytes32 idRequest) internal view returns (bytes32) {
+        return keccak256(abi.encodePacked(
+            _requests[idRequest].nonceOffers,
+            msg.sender,
+            _requests[idRequest].deposit.token,
+            _requests[idRequest].deposit.amount,
+            _requests[idRequest].deposit.chainId,
+            _requests[idRequest].request.token,
+            _requests[idRequest].request.amount,
+            _requests[idRequest].request.chainId,
+            _requests[idRequest].destAddr
+        ));
+    }
+
+    function getNonce(address user) external view returns (uint256) {
+        return _nonces[user];
+    }
+
     function getRequester(bytes32 idRequest) external view returns (address) {
         return _requests[idRequest].userAddr;
     }
@@ -290,7 +316,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     function nbrOffersRequest(bytes32 idRequest) external view returns (uint256) {
-        return _requests[idRequest].countOffers;
+        return _requests[idRequest].nonceOffers;
     }
 
     // Initialize a new offer
