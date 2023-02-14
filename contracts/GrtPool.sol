@@ -80,6 +80,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         depositGRT(amntDepGRT);
         bytes32 idRequest = keccak256(abi.encodePacked(
             _nonces[msg.sender],
+            msg.sender,
             amntDepGRT,
             tokenRequest,
             amntReq,
@@ -101,6 +102,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         depositGRT(amntDepGRT);
         bytes32 idRequest = keccak256(abi.encodePacked(
             _nonces[msg.sender],
+            msg.sender,
             amntDepGRT,
             address(0),
             amntReq,
