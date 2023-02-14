@@ -12,7 +12,7 @@ import "hardhat/console.sol";
 contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // State variables
-    uint256 internal _countReq;
+    // uint256 internal _countReq;
     address internal _addrGRT;
     uint256 internal _chainIdGRT;
 
@@ -39,18 +39,19 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // Mapping declarations
-    mapping(uint256 => Request) internal _requests;
+    mapping(bytes32 => Request) internal _requests;
     mapping(address => uint256) internal _stakes;
+    mapping(address => uint256) internal _nonces;
 
     // Event declarations
     event LogStake (address indexed _user, uint256 indexed _amount);
-    event LogDeposit (uint256 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
-    event LogRequest (uint256 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
-    event LogCreateOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
-    event LogAcceptOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
-    event LogRejectOffer (uint256 indexed _idRequest, uint256 indexed _idOffer);
-    event LogOfferPaidOnChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
-    event LogOfferPaidCrossChain (uint256 indexed _idRequest, uint256 indexed _idOffer);
+    event LogDeposit (bytes32 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
+    event LogRequest (bytes32 indexed _idRequest, address indexed _token, uint256 indexed _amount, uint256 _chainId);
+    event LogCreateOffer (bytes32 indexed _idRequest, uint256 indexed _idOffer);
+    event LogAcceptOffer (bytes32 indexed _idRequest, uint256 indexed _idOffer);
+    event LogRejectOffer (bytes32 indexed _idRequest, uint256 indexed _idOffer);
+    event LogOfferPaidOnChain (bytes32 indexed _idRequest, uint256 indexed _idOffer);
+    event LogOfferPaidCrossChain (bytes32 indexed _idRequest, uint256 indexed _idOffer);
 
     // Initialize
     function initializePool(address addrGRT, uint256 chainIdGRT, address addrReality) external initializer {
@@ -77,8 +78,16 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         address destAddr
     ) external returns (bool) {
         depositGRT(amntDepGRT);
-        emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
-        addRequest(amntDepGRT, tokenRequest, amntReq, chnIdReq, destAddr);
+        bytes32 idRequest = keccak256(abi.encodePacked(
+            _nonces[msg.sender],
+            amntDepGRT,
+            tokenRequest,
+            amntReq,
+            chnIdReq,
+            destAddr
+        ));
+        emit LogDeposit(idRequest, _addrGRT, amntDepGRT, _chainIdGRT);
+        addRequest(idRequest, amntDepGRT, tokenRequest, amntReq, chnIdReq, destAddr);
         return true;
     }
 
@@ -90,13 +99,21 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         address destAddr
     ) external returns (bool) {
         depositGRT(amntDepGRT);
-        emit LogDeposit(_countReq, _addrGRT, amntDepGRT, _chainIdGRT);
-        addRequest(amntDepGRT, address(0), amntReq, chnIdReq, destAddr);
+        bytes32 idRequest = keccak256(abi.encodePacked(
+            _nonces[msg.sender],
+            amntDepGRT,
+            address(0),
+            amntReq,
+            chnIdReq,
+            destAddr
+        ));
+        emit LogDeposit(idRequest, _addrGRT, amntDepGRT, _chainIdGRT);
+        addRequest(idRequest, amntDepGRT, address(0), amntReq, chnIdReq, destAddr);
         return true;
     }
 
     // User can make an offer as a response to another user request
-    function createOffer(uint256 idRequest, uint256 amount) external returns (bool) {
+    function createOffer(bytes32 idRequest, uint256 amount) external returns (bool) {
         require(_requests[idRequest].isRequest, "GRT pool: the request does not exist!");
         require(_stakes[msg.sender] > 1, "GRT pool: your stake amount is not sufficient!");
         uint256 _countOffers = _requests[idRequest].countOffers;
@@ -107,7 +124,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // User who made the request can then accept an offer associated with it
-    function acceptOffer(uint256 idRequest, uint256 idOffer) external returns (bool) {
+    function acceptOffer(bytes32 idRequest, uint256 idOffer) external returns (bool) {
         require(_requests[idRequest].isRequest, "GRT pool: the request does not exist!");
         require(_requests[idRequest].offers[idOffer].userAddr != address(0), "GRT pool: the offer does not exist!");
         require(!_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer has already been accepted!");
@@ -122,7 +139,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         return true;
     }
 
-    function rejectOffer(uint256 idRequest, uint256 idOffer) public returns (bool) {
+    function rejectOffer(bytes32 idRequest, uint256 idOffer) public returns (bool) {
         require(_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer is not accepted yet!");
         require(!_requests[idRequest].offers[idOffer].isPaid, "GRT pool: the offer has already been paid!");
         require(msg.sender == _requests[idRequest].userAddr, "GRT pool: you are not the requester!");
@@ -133,7 +150,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // Honour the offer on the same chain as the request has been made
     function payOfferOnChainERC20(
-        uint256 idRequest,
+        bytes32 idRequest,
         uint256 idOffer
     ) external returns (bool) {
 
@@ -155,7 +172,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // Honour the offer on the same chain as the request has been made
     function payOfferOnChainNative(
-        uint256 idRequest,
+        bytes32 idRequest,
         uint256 idOffer
     ) external payable returns (bool) {
 
@@ -177,7 +194,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     // Claim GRT after dispute
     function claimGRTWithDispute (
-        uint256 idRequest,
+        bytes32 idRequest,
         uint256 idOffer,
         bytes32 questionId,
         bytes32[] memory history_hashes,
@@ -204,7 +221,7 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
     }
 
     // Claim GRT without dispute
-    function claimGRTWithoutDispute (uint256 idRequest, uint256 idOffer) external returns (bool) {
+    function claimGRTWithoutDispute (bytes32 idRequest, uint256 idOffer) external returns (bool) {
 
         require(_requests[idRequest].isRequest, "GRT pool: the request does not exist!");
         require(_requests[idRequest].offers[idOffer].isAccept, "GRT pool: the offer has not been accepted yet!");
@@ -218,59 +235,59 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
 
     }
 
-    function getRequester(uint256 idRequest) external view returns (address) {
+    function getRequester(bytes32 idRequest) external view returns (address) {
         return _requests[idRequest].userAddr;
     }
 
-    function getRecipient(uint256 idRequest) external view returns (address) {
+    function getRecipient(bytes32 idRequest) external view returns (address) {
         return _requests[idRequest].destAddr;
     }
 
-    function getDepositToken(uint256 idRequest) external view returns (address) {
+    function getDepositToken(bytes32 idRequest) external view returns (address) {
         return _requests[idRequest].deposit.token;
     }
 
-    function getDepositAmount(uint256 idRequest) external view returns (uint256) {
+    function getDepositAmount(bytes32 idRequest) external view returns (uint256) {
         return _requests[idRequest].deposit.amount;
     }
 
-    function getDepositChainId(uint256 idRequest) external view returns (uint256) {
+    function getDepositChainId(bytes32 idRequest) external view returns (uint256) {
         return _requests[idRequest].deposit.chainId;
     }
 
-    function getRequestToken(uint256 idRequest) external view returns (address) {
+    function getRequestToken(bytes32 idRequest) external view returns (address) {
         return _requests[idRequest].request.token;
     }
 
-    function getRequestAmount(uint256 idRequest) external view returns (uint256) {
+    function getRequestAmount(bytes32 idRequest) external view returns (uint256) {
         return _requests[idRequest].request.amount;
     }
 
-    function getRequestChainId(uint256 idRequest) external view returns (uint256) {
+    function getRequestChainId(bytes32 idRequest) external view returns (uint256) {
         return _requests[idRequest].request.chainId;
     }
 
-    function isrequest(uint256 idRequest) external view returns (bool) {
+    function isrequest(bytes32 idRequest) external view returns (bool) {
         return _requests[idRequest].isRequest;
     }
 
-    function getOfferCreator(uint256 idRequest, uint256 idOffer) external view returns (address) {
+    function getOfferCreator(bytes32 idRequest, uint256 idOffer) external view returns (address) {
         return _requests[idRequest].offers[idOffer].userAddr;
     }
 
-    function getOfferAmount(uint256 idRequest, uint256 idOffer) external view returns (uint256) {
+    function getOfferAmount(bytes32 idRequest, uint256 idOffer) external view returns (uint256) {
         return _requests[idRequest].offers[idOffer].amount;
     }
 
-    function isOfferAccepted(uint256 idRequest, uint256 idOffer) external view returns (bool) {
+    function isOfferAccepted(bytes32 idRequest, uint256 idOffer) external view returns (bool) {
         return _requests[idRequest].offers[idOffer].isAccept;
     }
 
-    function isOfferPaid(uint256 idRequest, uint256 idOffer) external view returns (bool) {
+    function isOfferPaid(bytes32 idRequest, uint256 idOffer) external view returns (bool) {
         return _requests[idRequest].offers[idOffer].isPaid;
     }
 
-    function nbrOffersRequest(uint256 idRequest) external view returns (uint256) {
+    function nbrOffersRequest(bytes32 idRequest) external view returns (uint256) {
         return _requests[idRequest].countOffers;
     }
 
@@ -313,12 +330,13 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
        return _stakes[account];
     }
 
-    function nbrRequest() external view returns (uint256) {
-       return _countReq;
-    }
+    // function nbrRequest() external view returns (uint256) {
+    //    return _countReq;
+    // }
 
     // Add new request
     function addRequest(
+        bytes32 idRequest,
         uint256 amntDepGRT,
         address tokenRequest,
         uint256 amntReq,
@@ -326,9 +344,9 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         address recipient
     ) internal {
 
-        emit LogRequest(_countReq, tokenRequest, amntReq, chnIdReq);
+        emit LogRequest(idRequest, tokenRequest, amntReq, chnIdReq);
 
-        Request storage request = _requests[_countReq];
+        Request storage request = _requests[idRequest];
 
         request.userAddr = msg.sender;
         request.destAddr = recipient;
@@ -336,7 +354,9 @@ contract GrtPool is OwnableUpgradeable, GrtDispute {
         request.request = setTokenInfo(tokenRequest, amntReq, chnIdReq);
         request.isRequest = true;
 
-        _countReq++;
+        _nonces[msg.sender]++;
+
+        // _countReq++;
     }
 
 }
