@@ -4,7 +4,8 @@ import "@openzeppelin/hardhat-upgrades";
 import "@nomiclabs/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "hardhat-deploy";
-import { ALCHEMY_API_KEY, OWNER_KEY } from "./secrets";
+import "@nomiclabs/hardhat-etherscan";
+import { ALCHEMY_API_KEY, OWNER_KEY, ETHERSCAN_KEY } from "./secrets";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -77,7 +78,12 @@ const config: HardhatUserConfig = {
       url: `https://evm.cronos.org`,
       accounts: [OWNER_KEY],
     },
-  }
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: ETHERSCAN_KEY
+  },
 };
 
 export default config;
