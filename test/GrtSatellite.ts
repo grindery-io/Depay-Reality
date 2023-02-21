@@ -14,7 +14,10 @@ describe("Grindery Satellite testings", function () {
       realityEth: RealityETH_v3_0,
       grtToken: ERC20Sample,
       token: ERC20Sample,
-      grtSatellite: any;
+      grtSatellite: any,
+      idRequest: string,
+      idOffer: number,
+      chainIdDeposit: number;
 
   beforeEach(async function() {
 
@@ -35,6 +38,10 @@ describe("Grindery Satellite testings", function () {
     // initialize contract
     await grtSatellite.initializeSatellite();
 
+    idRequest = "0xd2b8dbec86dba5f9b5c34f84d0dc19bf715f984e3c78051e5ffa813a1d29dd73";
+    idOffer = 0;
+    chainIdDeposit = 5;
+
   });
 
   describe("GRT satellite initialisation", function () {
@@ -49,21 +56,42 @@ describe("Grindery Satellite testings", function () {
 
     it("Should fail if the allowance is not high enough", async function () {
       await expect(
-        grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 100)
+        grtSatellite.connect(user2).payOfferCrossChainERC20(
+          idRequest,
+          idOffer,
+          chainIdDeposit,
+          token.address,
+          user1.address,
+          100
+        )
       ).to.be.revertedWith("ERC20: insufficient allowance");
     });
 
     it("Should decrease the token balance of the transaction signer", async function () {
       await token.connect(user2).mint(user2.address, 1000);
       await token.connect(user2).approve(grtSatellite.address, 500);
-      await grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 100);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
       expect(await token.balanceOf(user2.address)).to.equal(1000-100);
     });
 
     it("Should increase the token balance of the recipient", async function () {
       await token.connect(user2).mint(user2.address, 1000);
       await token.connect(user2).approve(grtSatellite.address, 500);
-      await grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 100);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
       expect(await token.balanceOf(user1.address)).to.equal(100);
     });
 
@@ -71,10 +99,89 @@ describe("Grindery Satellite testings", function () {
       await token.connect(user2).mint(user2.address, 1000);
       await token.connect(user2).approve(grtSatellite.address, 500);
       await expect(
-        await grtSatellite.connect(user2).payOfferCrossChainERC20(token.address, user1.address, 100)
+        await grtSatellite.connect(user2).payOfferCrossChainERC20(
+          idRequest,
+          idOffer,
+          chainIdDeposit,
+          token.address,
+          user1.address,
+          100
+        )
       )
 			.to.emit(grtSatellite, "LogOfferPaidSatelliteCrossChain")
-			.withArgs(user2.address, user1.address, token.address, 100);
+			.withArgs(idRequest, idOffer, chainIdDeposit);
+    });
+
+    it("Should add the token address in the payment mapping", async function () {
+      await token.connect(user2).mint(user2.address, 1000);
+      await token.connect(user2).approve(grtSatellite.address, 500);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
+      expect(await grtSatellite.getTokenPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(token.address);
+    });
+
+    it("Should add the sender address in the payment mapping", async function () {
+      await token.connect(user2).mint(user2.address, 1000);
+      await token.connect(user2).approve(grtSatellite.address, 500);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
+      expect(await grtSatellite.getSenderPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(user2.address);
+    });
+
+    it("Should add the receiver address in the payment mapping", async function () {
+      await token.connect(user2).mint(user2.address, 1000);
+      await token.connect(user2).approve(grtSatellite.address, 500);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
+      expect(await grtSatellite.getReceiverPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(user1.address);
+    });
+
+    it("Should add the payment amount in the payment mapping", async function () {
+      await token.connect(user2).mint(user2.address, 1000);
+      await token.connect(user2).approve(grtSatellite.address, 500);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
+      expect(await grtSatellite.getAmountPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(100);
     });
 
   });
@@ -83,7 +190,13 @@ describe("Grindery Satellite testings", function () {
 
     it("Should decrease the native token balance of the transaction signer", async function () {
       let expectedUser2Balance = await ethers.provider.getBalance(user2.address);
-      const tx = await grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+      const tx = await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
       const receipt = await tx.wait();
       const gasCostForTxn = receipt.gasUsed.mul(receipt.effectiveGasPrice);
       expectedUser2Balance = expectedUser2Balance.sub(gasCostForTxn);
@@ -94,7 +207,13 @@ describe("Grindery Satellite testings", function () {
 
     it("Should increase the native token amount of the recipient if payment is a success", async function () {
       let expectedUser1Balance = await ethers.provider.getBalance(user1.address);
-      await grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
       expect(
         await ethers.provider.getBalance(user1.address)
       ).to.equal(expectedUser1Balance.add(ethers.BigNumber.from(ethers.utils.parseEther("2"))));
@@ -102,15 +221,76 @@ describe("Grindery Satellite testings", function () {
 
     it("Should emit an event if payment is a success", async function () {
       await expect(
-        await grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") })
+        await grtSatellite.connect(user2).payOfferCrossChainNative(
+          idRequest,
+          idOffer,
+          chainIdDeposit,
+          user1.address,
+          { value: ethers.utils.parseEther("2") }
+        )
       )
 			.to.emit(grtSatellite, "LogOfferPaidSatelliteCrossChain")
-			.withArgs(user2.address, user1.address, ethers.constants.AddressZero, ethers.utils.parseEther("2"));
+			.withArgs(idRequest, idOffer, chainIdDeposit);
     });
 
-    it("Should return true if payment is a success", async function () {
-      const tx = await grtSatellite.connect(user2).payOfferCrossChainNative(user1.address, { value: ethers.utils.parseEther("2") });
-      const receipt = await tx.wait();
+    it("Should add the zero token address in the payment mapping", async function () {
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
+      expect(await grtSatellite.getTokenPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(ethers.constants.AddressZero);
+    });
+
+    it("Should add the sender address in the payment mapping", async function () {
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
+      expect(await grtSatellite.getSenderPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(user2.address);
+    });
+
+    it("Should add the receiver address in the payment mapping", async function () {
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
+      expect(await grtSatellite.getReceiverPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(user1.address);
+    });
+
+    it("Should add the payment amount in the payment mapping", async function () {
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
+      expect(await grtSatellite.getAmountPayment(
+        idRequest,
+        idOffer,
+        chainIdDeposit
+      )).to.equal(ethers.utils.parseEther("2"));
     });
 
   });
