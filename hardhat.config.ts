@@ -5,7 +5,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "hardhat-deploy";
 import "@nomiclabs/hardhat-etherscan";
-import { ALCHEMY_API_KEY, OWNER_KEY, ETHERSCAN_KEY } from "./secrets";
+import { ALCHEMY_API_KEY, OWNER_KEY, ETHERSCAN_KEY, BSCSCAN_KEY } from "./secrets";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -62,7 +62,7 @@ const config: HardhatUserConfig = {
       url: `https://rpc.ankr.com/bsc`,
       accounts: [OWNER_KEY],
     },
-    bsctestnet: {
+    bscTestnet: {
       url: `https://rpc.ankr.com/bsc_testnet_chapel`,
       accounts: [OWNER_KEY],
     },
@@ -82,7 +82,10 @@ const config: HardhatUserConfig = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: ETHERSCAN_KEY
+    apiKey: {
+      goerli: ETHERSCAN_KEY!,
+      bscTestnet: BSCSCAN_KEY!
+    }
   },
 };
 
