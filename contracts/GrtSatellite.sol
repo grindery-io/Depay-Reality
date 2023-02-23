@@ -15,6 +15,9 @@ contract GrtSatellite is OwnableUpgradeable {
         address from;
         address to;
         uint256 amount;
+        uint256 chainIdDeposit;
+        bytes32 requestId;
+        uint256 offerId;
     }
 
     mapping(bytes32 => PaymentInfo) internal _payments;
@@ -22,7 +25,7 @@ contract GrtSatellite is OwnableUpgradeable {
     // Event declarations
     // event LogOfferPaidSatelliteCrossChain(address indexed _from, address indexed _to, address indexed _token, uint _amount);
 
-    event LogOfferPaidSatelliteCrossChain(bytes32 indexed _idRequest, uint256 indexed _idOffer, uint256 indexed _chainId);
+    event LogOfferPaidSatelliteCrossChain(bytes32 indexed _idRequest, uint256 indexed _idOffer, bytes32 indexed _paymentId);
 
     // Initialize
     function initializeSatellite() external initializer {
@@ -39,10 +42,17 @@ contract GrtSatellite is OwnableUpgradeable {
         uint amount
     ) external returns (bool) {
         IERC20(token).transferFrom(msg.sender, to, amount);
-        emit LogOfferPaidSatelliteCrossChain(idRequest, idOffer, chainIdDeposit);
-        _payments[
-            keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit))
-        ] = PaymentInfo(token, msg.sender, to, amount);
+        bytes32 paymentId = keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit));
+        emit LogOfferPaidSatelliteCrossChain(idRequest, idOffer, paymentId);
+        _payments[paymentId] = PaymentInfo(
+            token,
+            msg.sender,
+            to,
+            amount,
+            chainIdDeposit,
+            idRequest,
+            idOffer
+        );
         return true;
     }
 
@@ -50,36 +60,47 @@ contract GrtSatellite is OwnableUpgradeable {
     function payOfferCrossChainNative(bytes32 idRequest, uint256 idOffer, uint256 chainIdDeposit, address to) external payable returns (bool) {
         (bool success, ) = to.call{value: msg.value}("");
         if (success) {
-            emit LogOfferPaidSatelliteCrossChain(idRequest, idOffer, chainIdDeposit);
-            _payments[
-                keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit))
-            ] = PaymentInfo(address(0), msg.sender, to, msg.value);
+            bytes32 paymentId = keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit));
+            emit LogOfferPaidSatelliteCrossChain(idRequest, idOffer, paymentId);
+            _payments[paymentId] = PaymentInfo(
+                address(0),
+                msg.sender,
+                to,
+                msg.value,
+                chainIdDeposit,
+                idRequest,
+                idOffer
+            );
         }
         return success;
     }
 
-    function getTokenPayment(bytes32 idRequest, uint256 idOffer, uint256 chainIdDeposit) external view returns (address) {
-        return _payments[
-            keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit))
-        ].token;
+    function getTokenPayment(bytes32 paymentId) external view returns (address) {
+        return _payments[paymentId].token;
     }
 
-    function getSenderPayment(bytes32 idRequest, uint256 idOffer, uint256 chainIdDeposit) external view returns (address) {
-        return _payments[
-            keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit))
-        ].from;
+    function getSenderPayment(bytes32 paymentId) external view returns (address) {
+        return _payments[paymentId].from;
     }
 
-    function getReceiverPayment(bytes32 idRequest, uint256 idOffer, uint256 chainIdDeposit) external view returns (address) {
-        return _payments[
-            keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit))
-        ].to;
+    function getReceiverPayment(bytes32 paymentId) external view returns (address) {
+        return _payments[paymentId].to;
     }
 
-    function getAmountPayment(bytes32 idRequest, uint256 idOffer, uint256 chainIdDeposit) external view returns (uint256) {
-        return _payments[
-            keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit))
-        ].amount;
+    function getAmountPayment(bytes32 paymentId) external view returns (uint256) {
+        return _payments[paymentId].amount;
+    }
+
+    function getChainIdDeposit(bytes32 paymentId) external view returns (uint256) {
+        return _payments[paymentId].chainIdDeposit;
+    }
+
+    function getRequestId(bytes32 paymentId) external view returns (bytes32) {
+        return _payments[paymentId].requestId;
+    }
+
+    function getOfferId(bytes32 paymentId) external view returns (uint256) {
+        return _payments[paymentId].offerId;
     }
 
 }

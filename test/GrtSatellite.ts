@@ -17,7 +17,8 @@ describe("Grindery Satellite testings", function () {
       grtSatellite: any,
       idRequest: string,
       idOffer: number,
-      chainIdDeposit: number;
+      chainIdDeposit: number,
+      paymentId: string;
 
   beforeEach(async function() {
 
@@ -41,6 +42,13 @@ describe("Grindery Satellite testings", function () {
     idRequest = "0xd2b8dbec86dba5f9b5c34f84d0dc19bf715f984e3c78051e5ffa813a1d29dd73";
     idOffer = 0;
     chainIdDeposit = 5;
+
+    const encodePacked =  ethers.utils.solidityPack(
+      ["bytes32", "uint256", "uint256"],
+      [idRequest, idOffer, chainIdDeposit]
+    );
+
+    paymentId = ethers.utils.keccak256(encodePacked);
 
   });
 
@@ -98,6 +106,8 @@ describe("Grindery Satellite testings", function () {
     it("Should emit a paid offer event", async function () {
       await token.connect(user2).mint(user2.address, 1000);
       await token.connect(user2).approve(grtSatellite.address, 500);
+
+
       await expect(
         await grtSatellite.connect(user2).payOfferCrossChainERC20(
           idRequest,
@@ -109,7 +119,7 @@ describe("Grindery Satellite testings", function () {
         )
       )
 			.to.emit(grtSatellite, "LogOfferPaidSatelliteCrossChain")
-			.withArgs(idRequest, idOffer, chainIdDeposit);
+			.withArgs(idRequest, idOffer, paymentId);
     });
 
     it("Should add the token address in the payment mapping", async function () {
@@ -123,11 +133,7 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         100
       );
-      expect(await grtSatellite.getTokenPayment(
-        idRequest,
-        idOffer,
-        chainIdDeposit
-      )).to.equal(token.address);
+      expect(await grtSatellite.getTokenPayment(paymentId)).to.equal(token.address);
     });
 
     it("Should add the sender address in the payment mapping", async function () {
@@ -141,11 +147,7 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         100
       );
-      expect(await grtSatellite.getSenderPayment(
-        idRequest,
-        idOffer,
-        chainIdDeposit
-      )).to.equal(user2.address);
+      expect(await grtSatellite.getSenderPayment(paymentId)).to.equal(user2.address);
     });
 
     it("Should add the receiver address in the payment mapping", async function () {
@@ -159,11 +161,7 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         100
       );
-      expect(await grtSatellite.getReceiverPayment(
-        idRequest,
-        idOffer,
-        chainIdDeposit
-      )).to.equal(user1.address);
+      expect(await grtSatellite.getReceiverPayment(paymentId)).to.equal(user1.address);
     });
 
     it("Should add the payment amount in the payment mapping", async function () {
@@ -177,11 +175,49 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         100
       );
-      expect(await grtSatellite.getAmountPayment(
+      expect(await grtSatellite.getAmountPayment(paymentId)).to.equal(100);
+    });
+
+    it("Should add the chain ID (deposit chain) in the payment mapping", async function () {
+      await token.connect(user2).mint(user2.address, 1000);
+      await token.connect(user2).approve(grtSatellite.address, 500);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
         idRequest,
         idOffer,
-        chainIdDeposit
-      )).to.equal(100);
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
+      expect(await grtSatellite.getChainIdDeposit(paymentId)).to.equal(chainIdDeposit);
+    });
+
+    it("Should add the request ID in the payment mapping", async function () {
+      await token.connect(user2).mint(user2.address, 1000);
+      await token.connect(user2).approve(grtSatellite.address, 500);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
+      expect(await grtSatellite.getRequestId(paymentId)).to.equal(idRequest);
+    });
+
+    it("Should add the offer ID in the payment mapping", async function () {
+      await token.connect(user2).mint(user2.address, 1000);
+      await token.connect(user2).approve(grtSatellite.address, 500);
+      await grtSatellite.connect(user2).payOfferCrossChainERC20(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        token.address,
+        user1.address,
+        100
+      );
+      expect(await grtSatellite.getOfferId(paymentId)).to.equal(idOffer);
     });
 
   });
@@ -230,7 +266,7 @@ describe("Grindery Satellite testings", function () {
         )
       )
 			.to.emit(grtSatellite, "LogOfferPaidSatelliteCrossChain")
-			.withArgs(idRequest, idOffer, chainIdDeposit);
+			.withArgs(idRequest, idOffer, paymentId);
     });
 
     it("Should add the zero token address in the payment mapping", async function () {
@@ -241,11 +277,7 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         { value: ethers.utils.parseEther("2") }
       );
-      expect(await grtSatellite.getTokenPayment(
-        idRequest,
-        idOffer,
-        chainIdDeposit
-      )).to.equal(ethers.constants.AddressZero);
+      expect(await grtSatellite.getTokenPayment(paymentId)).to.equal(ethers.constants.AddressZero);
     });
 
     it("Should add the sender address in the payment mapping", async function () {
@@ -256,11 +288,7 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         { value: ethers.utils.parseEther("2") }
       );
-      expect(await grtSatellite.getSenderPayment(
-        idRequest,
-        idOffer,
-        chainIdDeposit
-      )).to.equal(user2.address);
+      expect(await grtSatellite.getSenderPayment(paymentId)).to.equal(user2.address);
     });
 
     it("Should add the receiver address in the payment mapping", async function () {
@@ -271,11 +299,7 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         { value: ethers.utils.parseEther("2") }
       );
-      expect(await grtSatellite.getReceiverPayment(
-        idRequest,
-        idOffer,
-        chainIdDeposit
-      )).to.equal(user1.address);
+      expect(await grtSatellite.getReceiverPayment(paymentId)).to.equal(user1.address);
     });
 
     it("Should add the payment amount in the payment mapping", async function () {
@@ -286,11 +310,40 @@ describe("Grindery Satellite testings", function () {
         user1.address,
         { value: ethers.utils.parseEther("2") }
       );
-      expect(await grtSatellite.getAmountPayment(
+      expect(await grtSatellite.getAmountPayment(paymentId)).to.equal(ethers.utils.parseEther("2"));
+    });
+
+    it("Should add the chain ID (deposit chain) in the payment mapping", async function () {
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
         idRequest,
         idOffer,
-        chainIdDeposit
-      )).to.equal(ethers.utils.parseEther("2"));
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
+      expect(await grtSatellite.getChainIdDeposit(paymentId)).to.equal(chainIdDeposit);
+    });
+
+    it("Should add the request ID in the payment mapping", async function () {
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
+      expect(await grtSatellite.getRequestId(paymentId)).to.equal(idRequest);
+    });
+
+    it("Should add the offer ID in the payment mapping", async function () {
+      await grtSatellite.connect(user2).payOfferCrossChainNative(
+        idRequest,
+        idOffer,
+        chainIdDeposit,
+        user1.address,
+        { value: ethers.utils.parseEther("2") }
+      );
+      expect(await grtSatellite.getOfferId(paymentId)).to.equal(idOffer);
     });
 
   });
