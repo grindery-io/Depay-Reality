@@ -2,7 +2,7 @@
   "manifestVersion": "3.2",
   "admin": {
     "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "txHash": "0x398e636b788f0f70d46df44be8b89e268c772c490d6fbb6614bd3fd44d93eda2"
+    "txHash": "0x92831c3dae1e74a9c7fd1125d0b20c967a2fe097c71bda0ec7539cb464eccdce"
   },
   "proxies": [
     {
@@ -1496,16 +1496,6 @@
       "kind": "transparent"
     },
     {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0xc1bc7c7ff6b8dd8e7d7c8456f25902ec3a9452aeb77384acea78360e6b9cf375",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-      "txHash": "0xf127211ebdfba040dbf0a34f4aa50086eb3a1044666843f4b125f71538b55493",
-      "kind": "transparent"
-    },
-    {
       "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
       "txHash": "0xdccd53578893184d44fa2d8c09c32529839cd93e82eccb5e83fc4df0be43736a",
       "kind": "transparent"
@@ -1528,11 +1518,6 @@
     {
       "address": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
       "txHash": "0x34231c48f4a15f8a94a6dc2453e9fe8386c8c51d812ba5781f8328f9e3c1c8db",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xf5059a5D33d5853360D16C683c16e67980206f36",
-      "txHash": "0x8eee64dc35b760b4bc2b1e702724dc1601265e24ef22b792fbd680e29080ac49",
       "kind": "transparent"
     },
     {
@@ -1603,6 +1588,46 @@
     {
       "address": "0xc0F115A19107322cFBf1cDBC7ea011C19EbDB4F8",
       "txHash": "0x6a1a67b53876f2b61bee873573608b93a507f040c9face2996fd84dcde4c905d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "txHash": "0x724493653382301c362ceb770a3f870064acd214231f5ab2b19666a42dfbfbfe",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
+      "txHash": "0x07005f536fc250a041d6e72f44d1d7bc8a1f8bf7e6cb8307a9055c8785c0d707",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+      "txHash": "0x7b6d72182e5df7157e730c9a88f072a517bcafc0ad5f9bbf8ea5c96c1a816fd3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
+      "txHash": "0x70b2e53114f40b82aa0bd4254e267108dbb7cc9b6d689f459d749fe92d3b6901",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf5059a5D33d5853360D16C683c16e67980206f36",
+      "txHash": "0xb40f60d4f3482cd9e1efe54e5fd63246f6882fbaf0a32ea3b4c2ac7ffba3a6e2",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "txHash": "0x07fa391424b8aacf6c4a21b9655b2db3c9b3caf89e46aa3235bac57821b95979",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "txHash": "0x2f60374e5c8ddb45f53238793cbff2a2a727e1ed63641a9d120a2c671b9defcf",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0x7ff747f53c76946b0cbaaa1b427d06070be86f7a89eb12969bcce392356356f9",
       "kind": "transparent"
     }
   ],
@@ -1683,9 +1708,9 @@
         }
       }
     },
-    "b76c49da516ee2e185d0ad5dadfd0a2bb0a104c69b3008ed1fc6ec43e30427be": {
+    "15d401dc0da4a67ed0fc77b5a4ca914ae1198b68ff1067ddf2554625b9982335": {
       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "txHash": "0x530a34085e8719082adffee86128d6f0b6416013600e3a3b0da85912a05ce402",
+      "txHash": "0x43e0cbcc8533b0921363049fe667bf7571a65c7213e9d3a7e7941ab2663a0864",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -1731,12 +1756,20 @@
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
           },
           {
-            "label": "_payments",
+            "label": "_offers",
             "offset": 0,
             "slot": "101",
-            "type": "t_mapping(t_bytes32,t_struct(PaymentInfo)3024_storage)",
-            "contract": "GrtSatellite",
-            "src": "contracts/GrtSatellite.sol:23"
+            "type": "t_mapping(t_bytes32,t_struct(Offer)690_storage)",
+            "contract": "GrtOffer",
+            "src": "contracts/GrtOffer.sol:20"
+          },
+          {
+            "label": "_nonces",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "GrtOffer",
+            "src": "contracts/GrtOffer.sol:21"
           }
         ],
         "types": {
@@ -1760,57 +1793,49 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(PaymentInfo)3024_storage)": {
-            "label": "mapping(bytes32 => struct GrtSatellite.PaymentInfo)",
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
             "numberOfBytes": "32"
           },
-          "t_struct(PaymentInfo)3024_storage": {
-            "label": "struct GrtSatellite.PaymentInfo",
+          "t_mapping(t_bytes32,t_struct(Offer)690_storage)": {
+            "label": "mapping(bytes32 => struct GrtOffer.Offer)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Offer)690_storage": {
+            "label": "struct GrtOffer.Offer",
             "members": [
               {
-                "label": "token",
-                "type": "t_address",
+                "label": "chainId",
+                "type": "t_uint256",
                 "offset": 0,
                 "slot": "0"
               },
               {
-                "label": "from",
+                "label": "token",
                 "type": "t_address",
                 "offset": 0,
                 "slot": "1"
               },
               {
-                "label": "to",
+                "label": "priceAddress",
                 "type": "t_address",
                 "offset": 0,
                 "slot": "2"
               },
               {
-                "label": "amount",
-                "type": "t_uint256",
+                "label": "fnUpperLimit",
+                "type": "t_bytes32",
                 "offset": 0,
                 "slot": "3"
               },
               {
-                "label": "chainIdDeposit",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "4"
-              },
-              {
-                "label": "requestId",
+                "label": "fnLowerLimit",
                 "type": "t_bytes32",
                 "offset": 0,
-                "slot": "5"
-              },
-              {
-                "label": "offerId",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "6"
+                "slot": "4"
               }
             ],
-            "numberOfBytes": "224"
+            "numberOfBytes": "160"
           },
           "t_uint256": {
             "label": "uint256",
