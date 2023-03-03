@@ -1,0 +1,44 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ChainlinkTest",
+  "sourceName": "contracts/v0.2.0/priceUpdate/ChainlinkTest.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "latestRoundData",
+      "outputs": [
+        {
+          "internalType": "uint80",
+          "name": "roundId",
+          "type": "uint80"
+        },
+        {
+          "internalType": "int256",
+          "name": "answer",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint80",
+          "name": "answeredInRound",
+          "type": "uint80"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b5060928061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063feaf968c14602d575b600080fd5b60408051600a815260146020820152601e81830152600560608201526043608082015290519081900360a00190f3fea26469706673582212207e193816bb654259f2a76c87b6c0b8aaa4d07f3109d3426849fe99efe1db24b364736f6c63430008110033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063feaf968c14602d575b600080fd5b60408051600a815260146020820152601e81830152600560608201526043608082015290519081900360a00190f3fea26469706673582212207e193816bb654259f2a76c87b6c0b8aaa4d07f3109d3426849fe99efe1db24b364736f6c63430008110033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
