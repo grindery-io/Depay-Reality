@@ -126,3 +126,4 @@ cache
 /.openzeppelin
 /.deps
 notes.txt
+/artifacts
