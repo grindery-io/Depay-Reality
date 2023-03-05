@@ -4,11 +4,15 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "hardhat/console.sol";
 
 contract GrtOffer is OwnableUpgradeable {
 
+    address internal _addrGRT;
+
     struct Offer {
+        address user;
         uint256 chainId;
         address token;
         address priceAddress;
@@ -19,12 +23,30 @@ contract GrtOffer is OwnableUpgradeable {
     // Mapping declarations
     mapping(bytes32 => Offer) internal _offers;
     mapping(address => uint256) internal _nonces;
+    mapping(address => uint256) internal _stakes;
+
 
     event LogNewOffer(bytes32 indexed _idOffer, address indexed _contractAddress, address indexed _token, uint256 _chainId);
+    event LogStake (address indexed _user, uint256 indexed _amount);
+
 
     // Initialize
-    function initializeGrtOffer() external initializer {
+    function initializeGrtOffer(address addrGRT) external initializer {
         __Ownable_init();
+        _addrGRT = addrGRT;
+    }
+
+    // UserB must stake before submitting an offer
+    function stakeGRT(uint256 amount) external returns (bool) {
+        depositGRT(amount);
+        emit LogStake(msg.sender, amount);
+        _stakes[msg.sender] += amount;
+        return true;
+    }
+
+    // Deposit GRT on the pool
+    function depositGRT(uint256 amount) internal returns (bool) {
+        return IERC20(_addrGRT).transferFrom(msg.sender, address(this), amount);
     }
 
     function decodeBytes(bytes memory data) internal pure returns (bytes32) {
@@ -82,6 +104,7 @@ contract GrtOffer is OwnableUpgradeable {
             _nonces[msg.sender],
             block.chainid
         ));
+        _offers[idOffer].user = msg.sender;
         _offers[idOffer].chainId = block.chainid;
         _offers[idOffer].token = token;
         _offers[idOffer].lowerLimitFn = keccak256(abi.encodePacked(lowerLimitFn));
@@ -107,6 +130,7 @@ contract GrtOffer is OwnableUpgradeable {
             _nonces[msg.sender],
             block.chainid
         ));
+        _offers[idOffer].user = msg.sender;
         _offers[idOffer].chainId = block.chainid;
         _offers[idOffer].token = token;
         _offers[idOffer].priceAddress = priceAddress;
