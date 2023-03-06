@@ -37,6 +37,10 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
         bytes32 indexed _idOffer,
         bytes32 indexed _upperLimitFn
     );
+    event LogSetStatusOffer(
+        bytes32 indexed _idOffer,
+        bool indexed _isActive
+    );
 
     function setChainIdOffer(
         bytes32 idOffer,
@@ -44,6 +48,7 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     ) external {
         require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
         _offers[idOffer].chainId = chainId;
+        emit LogSetChainIdOffer(idOffer, chainId);
     }
 
     function setTokenOffer(
@@ -52,6 +57,7 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     ) external {
         require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
         _offers[idOffer].token = token;
+        emit LogSetTokenOffer(idOffer, token);
     }
 
     function setPriceContractAddressOffer(
@@ -60,22 +66,27 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     ) external {
         require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
         _offers[idOffer].priceContractAddress = priceContractAddress;
+        emit LogSetPriceContractAddressOffer(idOffer, priceContractAddress);
     }
 
     function setLowerLimitOffer(
         bytes32 idOffer,
-        bytes calldata lowerLimitFn
+        bytes calldata args
     ) external {
         require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
-        _offers[idOffer].lowerLimitFn = keccak256(abi.encodePacked(lowerLimitFn));
+        bytes32 h = keccak256(abi.encodePacked(args));
+        _offers[idOffer].lowerLimitFn = h;
+        emit LogSetLowerLimitOffer(idOffer, h);
     }
 
     function setUpperLimitOffer(
         bytes32 idOffer,
-        bytes calldata upperLimitFn
+        bytes calldata args
     ) external {
         require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
-        _offers[idOffer].upperLimitFn = keccak256(abi.encodePacked(upperLimitFn));
+        bytes32 h = keccak256(abi.encodePacked(args));
+        _offers[idOffer].upperLimitFn = h;
+        emit LogSetUpperLimitOffer(idOffer, h);
     }
 
     function setIsActive(
@@ -84,6 +95,7 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     ) external {
         require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
         _offers[idOffer].isActive = isActive;
+        emit LogSetStatusOffer(idOffer, isActive);
     }
 
     function setOffer(

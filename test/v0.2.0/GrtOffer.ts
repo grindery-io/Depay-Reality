@@ -18,6 +18,7 @@ describe("Grindery Offer testings", function () {
         grtOffer: Contract,
         grtToken: Contract,
         token: Contract,
+        token1: Contract,
         lowerLimitOffer: string,
         upperLimitOffer: string,
         idOffer: string;
@@ -36,6 +37,9 @@ describe("Grindery Offer testings", function () {
 
         token = await (await ethers.getContractFactory("ERC20Sample")).deploy();
         await token.deployed();
+
+        token1 = await (await ethers.getContractFactory("ERC20Sample")).deploy();
+        await token1.deployed();
 
         // initialize contract
         await grtOffer.initializePool(grtToken.address);
@@ -217,12 +221,14 @@ describe("Grindery Offer testings", function () {
                 )
                 expect(
                     await grtOffer.getLowerLimitFnHashOffer(idOffer)
-                ).to.equal(ethers.utils.keccak256(
-                    ethers.utils.solidityPack(
-                        ["bytes"],
-                        [lowerLimitOffer]
+                ).to.equal(
+                    ethers.utils.keccak256(
+                        ethers.utils.solidityPack(
+                            ["bytes"],
+                            [lowerLimitOffer]
+                        )
                     )
-                ))
+                )
             });
 
             it("Should set the hash for the upper price limit", async function () {
@@ -457,6 +463,232 @@ describe("Grindery Offer testings", function () {
                     lowerLimitOffer
                 )
             });
+
+            describe("Modify chainId offer", function () {
+
+                it("Should fail if the sender is not the creator of the offer", async function () {
+                    await expect(
+                        grtOffer.connect(user2).setChainIdOffer(idOffer, 34)
+                    ).to.be.revertedWith("you are not allowed to modify this offer");
+                });
+
+                it("Should modify the chainID", async function () {
+                    await grtOffer.connect(user1).setChainIdOffer(idOffer, 34);
+                    expect(
+                        await grtOffer.getChainIdOffer(idOffer)
+                    ).to.equal(34);
+                });
+
+                it("Should emit an event", async function () {
+                    await expect(
+                        await grtOffer.connect(user1).setChainIdOffer(idOffer, 34)
+                    ).to.emit(grtOffer, "LogSetChainIdOffer").withArgs(idOffer, 34);
+                });
+
+            });
+
+            describe("Modify token address offer", function () {
+
+                it("Should fail if the sender is not the creator of the offer", async function () {
+                    await expect(
+                        grtOffer.connect(user2).setTokenOffer(idOffer, token1.address)
+                    ).to.be.revertedWith("you are not allowed to modify this offer");
+                });
+
+                it("Should modify the token address", async function () {
+                    await grtOffer.connect(user1).setTokenOffer(idOffer, token1.address);
+                    expect(
+                        await grtOffer.getTokenOffer(idOffer)
+                    ).to.equal(token1.address);
+                });
+
+                it("Should emit an event", async function () {
+                    await expect(
+                        await grtOffer.connect(user1).setTokenOffer(idOffer, token1.address)
+                    ).to.emit(grtOffer, "LogSetTokenOffer").withArgs(idOffer, token1.address);
+                });
+
+            });
+
+            describe("Modify price contract address offer", function () {
+
+                it("Should fail if the sender is not the creator of the offer", async function () {
+                    await expect(
+                        grtOffer.connect(user2).setPriceContractAddressOffer(idOffer, token1.address)
+                    ).to.be.revertedWith("you are not allowed to modify this offer");
+                });
+
+                it("Should modify the price contract address", async function () {
+                    await grtOffer.connect(user1).setPriceContractAddressOffer(idOffer, token1.address);
+                    expect(
+                        await grtOffer.getAddressPriceContractOffer(idOffer)
+                    ).to.equal(token1.address);
+                });
+
+                it("Should emit an event", async function () {
+                    await expect(
+                        await grtOffer.connect(user1).setPriceContractAddressOffer(idOffer, token1.address)
+                    ).to.emit(grtOffer, "LogSetPriceContractAddressOffer").withArgs(idOffer, token1.address);
+                });
+
+            });
+
+            describe("Modify lower limit offer", function () {
+
+                it("Should fail if the sender is not the creator of the offer", async function () {
+                    await expect(
+                        grtOffer.connect(user2).setLowerLimitOffer(
+                            idOffer,
+                            ethers.utils.defaultAbiCoder.encode(
+                                ["string", "uint256"],
+                                ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                            )
+                        )
+                    ).to.be.revertedWith("you are not allowed to modify this offer");
+                });
+
+                it("Should modify the lower limit options", async function () {
+                    await grtOffer.connect(user1).setLowerLimitOffer(
+                        idOffer,
+                        ethers.utils.defaultAbiCoder.encode(
+                            ["string", "uint256"],
+                            ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                        )
+                    );
+                    expect(
+                        await grtOffer.getLowerLimitFnHashOffer(idOffer)
+                    ).to.equal(
+                        ethers.utils.keccak256(
+                            ethers.utils.solidityPack(
+                                ["bytes"],
+                                [
+                                    ethers.utils.defaultAbiCoder.encode(
+                                        ["string", "uint256"],
+                                        ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                                    )
+                                ]
+                            )
+                        )
+                    );
+                });
+
+                it("Should emit an event", async function () {
+                    await expect(
+                        await grtOffer.connect(user1).setLowerLimitOffer(
+                            idOffer,
+                            ethers.utils.defaultAbiCoder.encode(
+                                ["string", "uint256"],
+                                ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                            )
+                        )
+                    ).to.emit(grtOffer, "LogSetLowerLimitOffer").withArgs(
+                        idOffer,
+                        ethers.utils.keccak256(
+                            ethers.utils.solidityPack(
+                                ["bytes"],
+                                [
+                                    ethers.utils.defaultAbiCoder.encode(
+                                        ["string", "uint256"],
+                                        ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                                    )
+                                ]
+                            )
+                        )
+                    );
+                });
+
+            });
+
+            describe("Modify upper limit offer", function () {
+
+                it("Should fail if the sender is not the creator of the offer", async function () {
+                    await expect(
+                        grtOffer.connect(user2).setUpperLimitOffer(
+                            idOffer,
+                            ethers.utils.defaultAbiCoder.encode(
+                                ["string", "uint256"],
+                                ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                            )
+                        )
+                    ).to.be.revertedWith("you are not allowed to modify this offer");
+                });
+
+                it("Should modify the upper limit options", async function () {
+                    await grtOffer.connect(user1).setUpperLimitOffer(
+                        idOffer,
+                        ethers.utils.defaultAbiCoder.encode(
+                            ["string", "uint256"],
+                            ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                        )
+                    );
+                    expect(
+                        await grtOffer.getUpperLimitFnHashOffer(idOffer)
+                    ).to.equal(
+                        ethers.utils.keccak256(
+                            ethers.utils.solidityPack(
+                                ["bytes"],
+                                [
+                                    ethers.utils.defaultAbiCoder.encode(
+                                        ["string", "uint256"],
+                                        ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                                    )
+                                ]
+                            )
+                        )
+                    );
+                });
+
+                it("Should emit an event", async function () {
+                    await expect(
+                        await grtOffer.connect(user1).setUpperLimitOffer(
+                            idOffer,
+                            ethers.utils.defaultAbiCoder.encode(
+                                ["string", "uint256"],
+                                ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                            )
+                        )
+                    ).to.emit(grtOffer, "LogSetUpperLimitOffer").withArgs(
+                        idOffer,
+                        ethers.utils.keccak256(
+                            ethers.utils.solidityPack(
+                                ["bytes"],
+                                [
+                                    ethers.utils.defaultAbiCoder.encode(
+                                        ["string", "uint256"],
+                                        ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                                    )
+                                ]
+                            )
+                        )
+                    );
+                });
+
+            });
+
+            describe("Modify status offer", function () {
+
+                it("Should fail if the sender is not the creator of the offer", async function () {
+                    await expect(
+                        grtOffer.connect(user2).setIsActive(idOffer, false)
+                    ).to.be.revertedWith("you are not allowed to modify this offer");
+                });
+
+                it("Should modify the status", async function () {
+                    await grtOffer.connect(user1).setIsActive(idOffer, false);
+                    expect(
+                        await grtOffer.getStatusOffer(idOffer)
+                    ).to.equal(false);
+                });
+
+                it("Should emit an event", async function () {
+                    await expect(
+                        await grtOffer.connect(user1).setIsActive(idOffer, false)
+                    ).to.emit(grtOffer, "LogSetStatusOffer").withArgs(idOffer, false);
+                });
+
+            });
+
+
 
 
 

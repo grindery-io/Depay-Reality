@@ -129,6 +129,17 @@ describe("Grindery Offer testings", function () {
             ).to.be.revertedWith("ERC20: insufficient allowance");
         });
 
+        it("Should fail if the offer is inactive", async function () {
+            await grtPool.connect(user1).setIsActive(idOffer, false);
+            await expect(
+                grtPool.connect(user3).depositGRTWithOffer(
+                    100,
+                    idOffer,
+                    user2.address
+                )
+            ).to.be.revertedWith("the offer is inactive");
+        });
+
         it("Should emit a new trade event", async function () {
             await expect(
                 await grtPool.connect(user2).depositGRTWithOffer(
