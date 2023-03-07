@@ -42,8 +42,8 @@ describe("Grindery Liquidity Wallet", () => {
         await grtToken.connect(user1).mint(user1.address, 1000);
     });
 
-    describe("Deposit GRT tokens", async () => {
-        it("Should have funds after deposit ", async () => {
+    describe("Deposit funds in Liquidity Wallet", async () => {
+        it("Liquidity Wallet should have funds after deposit ", async () => {
             await grtToken.connect(user1).approve(liquidityWallet.address, 100);
             await liquidityWallet.connect(user1).deposit(100);
 
@@ -62,8 +62,60 @@ describe("Grindery Liquidity Wallet", () => {
         });
     });
 
-    describe("Pay an offer", async () => {
+    describe("Withdraw funds from Liquidity Wallet", async () => {
+        it("Should fail if user balance is less than given amount", async () => {
+            await grtToken.connect(user1).approve(liquidityWallet.address, 100);
+            await liquidityWallet.connect(user1).deposit(100);
 
+            await expect(
+                liquidityWallet.connect(user1).withdraw(200)
+            ).to.be.revertedWith("Insufficient balance")
+        });
+
+        it("Should pass if user balance is equal given amount", async () => {
+            await grtToken.connect(user1).approve(liquidityWallet.address, 100);
+            await liquidityWallet.connect(user1).deposit(100);
+
+            liquidityWallet.connect(user1).withdraw(100)
+
+            expect(
+                await grtToken.connect(user1).balanceOf(liquidityWallet.address)
+            ).to.equal(0)
+        });
+
+        it("Should pass if user balance is greater than given amount", async () => {
+            await grtToken.connect(user1).approve(liquidityWallet.address, 200);
+            await liquidityWallet.connect(user1).deposit(200);
+
+            liquidityWallet.connect(user1).withdraw(100)
+
+            expect(
+                await grtToken.connect(user1).balanceOf(liquidityWallet.address)
+            ).to.equal(200-100)
+        });
+        
+        it("User should have funds after withdraw", async () => {
+            await grtToken.connect(user1).approve(liquidityWallet.address, 100);
+            await liquidityWallet.connect(user1).deposit(100);
+            await liquidityWallet.connect(user1).withdraw(10);
+
+            expect(
+                await grtToken.connect(user1).balanceOf(liquidityWallet.address)
+            ).to.equal(100-10);
+        });
+
+        it("Should decrease user balance", async () => {
+            await grtToken.connect(user1).approve(liquidityWallet.address, 100);
+            await liquidityWallet.connect(user1).deposit(100);
+            await liquidityWallet.connect(user1).withdraw(10);
+
+            expect(
+                await liquidityWallet.connect(user1).getBalance()
+            ).to.equal(100-10)
+        })
+    });
+
+    describe("Pay an offer", async () => {
         beforeEach(async function() {
             upperLimitOffer = ethers.utils.defaultAbiCoder.encode(
                 ["string", "uint256"],
