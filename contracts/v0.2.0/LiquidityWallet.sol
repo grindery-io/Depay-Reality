@@ -25,8 +25,15 @@ contract LiquidityWallet is Ownable {
     }
 
     function deposit(uint256 amount) external onlyOwner {
-        require(IERC20(_addrGrtToken).transferFrom(msg.sender, address(this), amount), "Transaction Failed");
         _balances[msg.sender] += amount;
+        require(IERC20(_addrGrtToken).transferFrom(msg.sender, address(this), amount), "Transaction Failed");
+    }
+
+    function withdraw(uint256 amount) external onlyOwner {
+        require(_balances[msg.sender] >= amount, "Insufficient balance");
+        _balances[msg.sender] -= amount;
+         
+        require(IERC20(_addrGrtToken).transfer(msg.sender, amount), "Transaction Failed");
     }
 
     function payOffer(bytes32 idOffer, uint256 amount) external onlyOwner { 
