@@ -76,44 +76,93 @@ describe("Grindery Offer testings", function () {
 
     });
 
-    describe("GRT staking", function () {
+    describe("GRT staking and unstaking", function () {
 
         beforeEach(async function() {
             await grtToken.connect(user1).mint(user1.address, 10000);
             await grtToken.connect(user1).approve(grtOffer.address, 500);
         });
 
-        it("Should fail if the allowance is not high enough", async function () {
-            await expect(
-                grtOffer.connect(user1).stakeGRT(1000)
-            ).to.be.revertedWith("ERC20: insufficient allowance");
+        describe("GRT staking", function () {
+
+            it("Should fail if the allowance is not high enough", async function () {
+                await expect(
+                    grtOffer.connect(user1).stakeGRT(1000, chainId)
+                ).to.be.revertedWith("ERC20: insufficient allowance");
+            });
+
+            it("Should decrease the GRT token balance of the user", async function () {
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
+                expect(
+                await grtToken.connect(user1).balanceOf(user1.address)
+                ).to.equal(10000-10);
+            });
+
+            it("Should increase the GRT token balance of the GRT pool", async function () {
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
+                expect(
+                await grtToken.connect(user1).balanceOf(grtOffer.address)
+                ).to.equal(10);
+            });
+
+            it("Should increase the GRT staked amount for the user for the given chainId", async function () {
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
+                expect(
+                await grtOffer.stakeOf(user1.address, chainId)
+                ).to.equal(10);
+            });
+
+            it("Staking GRT should emit an event", async function () {
+                await expect(await grtOffer.connect(user1).stakeGRT(10, chainId))
+                    .to.emit(grtOffer, "LogStake")
+                    .withArgs(user1.address, chainId, 10);
+            });
+
         });
 
-        it("Should decrease the GRT token balance of the user", async function () {
-            await grtOffer.connect(user1).stakeGRT(10);
-            expect(
-              await grtToken.connect(user1).balanceOf(user1.address)
-            ).to.equal(10000-10);
-        });
+        describe("GRT unstaking", function () {
 
-        it("Should increase the GRT token balance of the GRT pool", async function () {
-            await grtOffer.connect(user1).stakeGRT(10);
-            expect(
-              await grtToken.connect(user1).balanceOf(grtOffer.address)
-            ).to.equal(10);
-        });
+            it("Should fail if the staked amount is not high enough", async function () {
+                await expect(
+                    grtOffer.connect(user1).unstakeGRT(1000, chainId)
+                ).to.be.revertedWith("not enough staked GRT");
+            });
 
-        it("Should increase the GRT staked amount for the user", async function () {
-            await grtOffer.connect(user1).stakeGRT(10);
-            expect(
-              await grtOffer.stakeOf(user1.address)
-            ).to.equal(10);
-        });
+            it("Should increase the GRT token balance of the user", async function () {
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
+                await grtOffer.connect(user1).unstakeGRT(5, chainId);
+                expect(
+                await grtToken.connect(user1).balanceOf(user1.address)
+                ).to.equal(10000-10+5);
+            });
 
-        it("Staking GRT should emit an event", async function () {
-            await expect(await grtOffer.connect(user1).stakeGRT(10))
-                .to.emit(grtOffer, "LogStake")
-                .withArgs(user1.address, 10);
+            it("Should decrease the GRT token balance of the GRT pool", async function () {
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
+                await grtOffer.connect(user1).unstakeGRT(5, chainId);
+                expect(
+                await grtToken.connect(user1).balanceOf(grtOffer.address)
+                ).to.equal(10-5);
+            });
+
+            it("Should decrease the GRT staked amount for the user for the given chainId", async function () {
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
+                await grtOffer.connect(user1).unstakeGRT(5, chainId);
+                expect(
+                await grtOffer.stakeOf(user1.address, chainId)
+                ).to.equal(10-5);
+            });
+
+            it("Should emit an event", async function () {
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
+                await expect(
+                    await grtOffer.connect(user1).unstakeGRT(5, chainId)
+                ).to.emit(grtOffer, "LogUnStake").withArgs(
+                    user1.address,
+                    chainId,
+                    5
+                );
+            });
+
         });
 
     });
@@ -155,7 +204,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should set the user address for the offerer", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -169,7 +218,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should set the chainId for the offer", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -183,7 +232,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should set the token address for the offer", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -197,7 +246,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should set the zero address for the external contract used to update the price", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -211,7 +260,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should set the hash for the lower price limit", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -232,7 +281,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should set the hash for the upper price limit", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -251,7 +300,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should emit an event", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await expect(
                     await grtOffer.connect(user1).setOffer(
                         token.address,
@@ -271,7 +320,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should increase the user nonce by one", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -285,7 +334,7 @@ describe("Grindery Offer testings", function () {
             });
 
             it("Should set isActive as true", async function () {
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,
@@ -301,7 +350,7 @@ describe("Grindery Offer testings", function () {
             describe("Lower limit verification", function () {
 
                 it("Lower limit verification should return false if contract address is not correct", async function () {
-                    await grtOffer.connect(user1).stakeGRT(10);
+                    await grtOffer.connect(user1).stakeGRT(10, chainId);
                     await grtOffer.connect(user1).setOffer(
                         token.address,
                         chainId,
@@ -322,7 +371,7 @@ describe("Grindery Offer testings", function () {
                 });
 
                 it("Lower limit verification should return false if parameters are not correct", async function () {
-                    await grtOffer.connect(user1).stakeGRT(10);
+                    await grtOffer.connect(user1).stakeGRT(10, chainId);
                     await grtOffer.connect(user1).setOffer(
                         token.address,
                         chainId,
@@ -343,7 +392,7 @@ describe("Grindery Offer testings", function () {
                 });
 
                 it("Lower limit verification should return true if parameters are correct", async function () {
-                    await grtOffer.connect(user1).stakeGRT(10);
+                    await grtOffer.connect(user1).stakeGRT(10, chainId);
                     await grtOffer.connect(user1).setOffer(
                         token.address,
                         chainId,
@@ -368,7 +417,7 @@ describe("Grindery Offer testings", function () {
             describe("Upper limit verification", function () {
 
                 it("Upper limit verification should return false if contract address is not correct", async function () {
-                    await grtOffer.connect(user1).stakeGRT(10);
+                    await grtOffer.connect(user1).stakeGRT(10, chainId);
                     await grtOffer.connect(user1).setOffer(
                         token.address,
                         chainId,
@@ -389,7 +438,7 @@ describe("Grindery Offer testings", function () {
                 });
 
                 it("Upper limit verification should return false if parameters are not correct", async function () {
-                    await grtOffer.connect(user1).stakeGRT(10);
+                    await grtOffer.connect(user1).stakeGRT(10, chainId);
                     await grtOffer.connect(user1).setOffer(
                         token.address,
                         chainId,
@@ -410,7 +459,7 @@ describe("Grindery Offer testings", function () {
                 });
 
                 it("Upper limit verification should return true if parameters are correct", async function () {
-                    await grtOffer.connect(user1).stakeGRT(10);
+                    await grtOffer.connect(user1).stakeGRT(10, chainId);
                     await grtOffer.connect(user1).setOffer(
                         token.address,
                         chainId,
@@ -454,7 +503,7 @@ describe("Grindery Offer testings", function () {
                     )
                 )
 
-                await grtOffer.connect(user1).stakeGRT(10);
+                await grtOffer.connect(user1).stakeGRT(10, chainId);
                 await grtOffer.connect(user1).setOffer(
                     token.address,
                     chainId,

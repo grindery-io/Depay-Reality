@@ -109,7 +109,7 @@ describe("Grindery Offer testings", function () {
                     [user1.address, 0]
                 )
             );
-            await grtPool.connect(user1).stakeGRT(10);
+            await grtPool.connect(user1).stakeGRT(10, chainId);
             await grtPool.connect(user1).setOffer(
                 token.address,
                 chainId,

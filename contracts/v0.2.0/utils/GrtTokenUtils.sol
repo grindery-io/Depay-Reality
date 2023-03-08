@@ -10,10 +10,16 @@ contract GrtTokenUtils {
 
     address internal _addrGRT;
 
-    mapping(address => uint256) internal _stakes;
+    mapping(address => mapping(uint256 => uint256)) internal _stakes;
 
     event LogStake(
         address indexed _user,
+        uint256 indexed _chainId,
+        uint256 indexed _amount
+    );
+    event LogUnStake(
+        address indexed _user,
+        uint256 indexed _chainId,
         uint256 indexed _amount
     );
 
@@ -22,10 +28,24 @@ contract GrtTokenUtils {
         _addrGRT = addrGRT;
     }
 
-    function stakeGRT(uint256 amount) external returns (bool) {
+    function stakeGRT(
+        uint256 amount,
+        uint256 chainId
+    ) external returns (bool) {
         depositGRT(amount);
-        emit LogStake(msg.sender, amount);
-        _stakes[msg.sender] += amount;
+        emit LogStake(msg.sender, chainId, amount);
+        _stakes[msg.sender][chainId] += amount;
+        return true;
+    }
+
+    function unstakeGRT(
+        uint256 amount,
+        uint256 chainId
+    ) external returns (bool) {
+        require(_stakes[msg.sender][chainId] > amount, "not enough staked GRT");
+        IERC20(_addrGRT).transfer(msg.sender, amount);
+        emit LogUnStake(msg.sender, chainId, amount);
+        _stakes[msg.sender][chainId] -= amount;
         return true;
     }
 
@@ -37,8 +57,11 @@ contract GrtTokenUtils {
         return _addrGRT;
     }
 
-    function stakeOf(address account) external view returns (uint256) {
-       return _stakes[account];
+    function stakeOf(
+        address account,
+        uint256 chainId
+    ) external view returns (uint256) {
+       return _stakes[account][chainId];
     }
 
 }
