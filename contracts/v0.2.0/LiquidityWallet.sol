@@ -4,44 +4,25 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
-import "./IGrtPool.sol";
-import "./IGrtSatellite.sol";
 
 contract LiquidityWallet is Ownable {
-    address _addrGrtPool;
-    address _addrGrtToken;
-    address _addrGrtSatellite;
+    receive() external payable  {}
 
-    mapping(address => uint256) _balances;
-
-    constructor(address addrGrtPool, address addrGrtToken, address addrGrtSatellite) {
-        _addrGrtPool = addrGrtPool;
-        _addrGrtToken = addrGrtToken;
-        _addrGrtSatellite = addrGrtSatellite;
-    }
-
-    function getBalance() external view onlyOwner returns (uint256) {
-        return _balances[msg.sender];
-    }
-
-    function deposit(uint256 amount) external onlyOwner {
-        _balances[msg.sender] += amount;
-        require(IERC20(_addrGrtToken).transferFrom(msg.sender, address(this), amount), "Transaction Failed");
-    }
-
-    function withdraw(uint256 amount) external onlyOwner {
-        require(_balances[msg.sender] >= amount, "Insufficient balance");
-        _balances[msg.sender] -= amount;
-         
+    function withdraw(address _addrGrtToken, uint256 amount) external onlyOwner {
+        uint256 balance = IERC20(_addrGrtToken).balanceOf(address(this));
+        require(balance >= amount, "Insufficient balance");
+      
         require(IERC20(_addrGrtToken).transfer(msg.sender, amount), "Transaction Failed");
     }
 
-    function payOffer(bytes32 idOffer, uint256 amount) external onlyOwner { 
-        require(IGrtPool(_addrGrtPool).getStatusOffer(idOffer), "Offer is not active");
-        address offerer = IGrtPool(_addrGrtPool).getOfferer(idOffer);
-        _balances[msg.sender] -= amount;
-        IERC20(_addrGrtToken).transfer(offerer, amount);
-        IERC20(_addrGrtToken).approve(_addrGrtSatellite, 1);
-        IGrtSatellite(_addrGrtSatellite).rewardOffer(idOffer, 1);      
+    function payOffer(address addrToken, address addrOfferer, uint256 amount) external onlyOwner { 
+        require(IERC20(addrToken).transfer(addrOfferer, amount), "Transaction Failed");
+    }
+
+    function payOfferWithZapier(address addrToken, address addrZapier, address addrOfferer, uint256 amount) external {
+        uint256 allowance = IERC20(addrToken).allowance(addrZapier, address(this));
+        require(allowance >= amount, "Allowance is insufficient");
+
+        IERC20(addrToken).transferFrom(addrZapier, addrOfferer, amount);
     }
 }
