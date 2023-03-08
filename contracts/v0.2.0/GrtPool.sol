@@ -46,6 +46,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer {
         bytes32 idOffer,
         address destAddr
     ) external returns (bool) {
+        require(destAddr != address(0), "zero address as destination address");
         require(_offers[idOffer].isActive, "the offer is inactive");
         depositGRT(amntDepGRT);
         bytes32 idTrade = keccak256(abi.encodePacked(

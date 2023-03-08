@@ -4,12 +4,10 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "../reality/IRealityETH.sol";
 
 import "hardhat/console.sol";
 
 contract GrtSatellite is OwnableUpgradeable {
-
 
     address internal _addrGRT;
 
@@ -19,7 +17,7 @@ contract GrtSatellite is OwnableUpgradeable {
         uint256 indexed _amount
     );
 
-    function initializeGrtOffer(address addrGRT) external initializer {
+    function initializeGrtSatellite(address addrGRT) external initializer {
         __Ownable_init();
         _addrGRT = addrGRT;
     }
@@ -33,5 +31,8 @@ contract GrtSatellite is OwnableUpgradeable {
         return true;
     }
 
+    function getGrtAddress() external view returns (address) {
+        return _addrGRT;
+    }
 
 }

@@ -105,6 +105,7 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
         bytes calldata upperLimitFn,
         bytes calldata lowerLimitFn
     ) external returns (bytes32) {
+        require(msg.sender != address(0), "setOffer from zero address is not allowed");
         require(_stakes[msg.sender][chainId] > 1, "Not enough staked GRT to set up an offer");
         bytes32 idOffer = keccak256(
             abi.encodePacked(
