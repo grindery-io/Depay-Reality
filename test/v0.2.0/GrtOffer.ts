@@ -3,8 +3,6 @@ import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from 'ethers';
 
-
-
 describe("Grindery Offer testings", function () {
 
     const chainId = 31337;
