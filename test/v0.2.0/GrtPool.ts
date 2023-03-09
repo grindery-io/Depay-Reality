@@ -14,19 +14,13 @@ describe("Grindery Offer testings", function () {
         user4: SignerWithAddress,
         user5: SignerWithAddress,
         grtPool: Contract,
-        priceTest: Contract,
-        realityEth: Contract,
-        chainlinkTest: Contract,
         grtToken: Contract,
         token: Contract,
         args: string,
         lowerLimitOffer: string,
         upperLimitOffer: string,
         idOffer: string,
-        nonceOffer: number,
-        fnPrice: string,
-        grtSatellite: any;
-
+        fnPrice: string
 
     beforeEach(async function() {
 
