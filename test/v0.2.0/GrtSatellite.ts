@@ -16,7 +16,7 @@ describe("Grindery Satellite testings", function () {
 
   beforeEach(async function() {
 
-    [owner, user1, user2, ] = await ethers.getSigners();
+    [owner, user1, user2] = await ethers.getSigners();
 
     grtSatellite = await upgrades.deployProxy(await ethers.getContractFactory(
       "contracts/v0.2.0/GrtSatellite.sol:GrtSatellite")

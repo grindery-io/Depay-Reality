@@ -44,5 +44,4 @@ contract GrtSatellite is OwnableUpgradeable {
     function getGrtAddress() external view returns (address) {
         return _addrGRT;
     }
-
 }
