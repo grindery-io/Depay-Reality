@@ -3,8 +3,6 @@ import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from 'ethers';
 
-
-
 describe("Grindery Offer testings", function () {
 
     const chainId = 31337;
@@ -12,9 +10,6 @@ describe("Grindery Offer testings", function () {
     let owner: SignerWithAddress,
         user1: SignerWithAddress,
         user2: SignerWithAddress,
-        user3: SignerWithAddress,
-        user4: SignerWithAddress,
-        user5: SignerWithAddress,
         grtOffer: Contract,
         grtToken: Contract,
         token: Contract,
@@ -25,7 +20,7 @@ describe("Grindery Offer testings", function () {
 
     beforeEach(async function() {
 
-        [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
+        [owner, user1, user2] = await ethers.getSigners();
 
         grtOffer = await upgrades.deployProxy(await ethers.getContractFactory(
             "contracts/v0.2.0/GrtPool.sol:GrtPool"
@@ -75,6 +70,7 @@ describe("Grindery Offer testings", function () {
         });
 
     });
+
 
     describe("GRT staking and unstaking", function () {
 
@@ -167,7 +163,7 @@ describe("Grindery Offer testings", function () {
 
     });
 
-
+    
     describe("Set up an offer", function () {
 
         beforeEach(async function() {
@@ -736,11 +732,6 @@ describe("Grindery Offer testings", function () {
                 });
 
             });
-
-
-
-
-
         });
     });
 

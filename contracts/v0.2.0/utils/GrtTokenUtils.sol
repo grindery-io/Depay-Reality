@@ -5,7 +5,6 @@ pragma solidity ^0.8.17;
 // import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 contract GrtTokenUtils {
 
     address internal _addrGRT;
