@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./GrtLiquidityWallet.sol";
 
 import "hardhat/console.sol";
 
@@ -16,10 +17,20 @@ contract GrtSatellite is OwnableUpgradeable {
         address indexed _token,
         uint256 indexed _amount
     );
+    event LogNewLiquidityContract(address indexed _LiquidityContractAddress);
 
     function initializeGrtSatellite(address addrGRT) external initializer {
         __Ownable_init();
         _addrGRT = addrGRT;
+    }
+
+    function deployLiquidityContract() public returns (address) {
+        GrtLiquidityWallet newContract = new GrtLiquidityWallet(
+            address(this),
+            msg.sender
+        );
+        emit LogNewLiquidityContract(address(newContract));
+        return address(newContract);
     }
 
     function rewardOffer(

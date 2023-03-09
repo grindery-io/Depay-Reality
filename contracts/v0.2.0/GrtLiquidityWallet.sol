@@ -3,23 +3,23 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 import "./interface/IGrtSatellite.sol";
+import "hardhat/console.sol";
 
-contract LiquidityWallet is Ownable {
+contract GrtLiquidityWallet is Ownable {
 
     address _GrtSatellite;
     address _bot;
 
     constructor(
-        address satellite, 
+        address satellite,
         address bot
     ) {
         _GrtSatellite = satellite;
         _bot = bot;
     }
 
-    receive() external payable  {}
+    receive() external payable {}
 
     function setBot(address bot) external onlyOwner {
         _bot = bot;
@@ -38,7 +38,7 @@ contract LiquidityWallet is Ownable {
     }
 
     function withdrawERC20(
-        address _addrGrtToken, 
+        address _addrGrtToken,
         uint256 amount
     ) external onlyOwner returns (bool) {
         return IERC20(_addrGrtToken).transfer(msg.sender, amount);
