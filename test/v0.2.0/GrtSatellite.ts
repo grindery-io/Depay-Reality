@@ -8,9 +8,6 @@ describe("Grindery Satellite testings", function () {
   let owner: SignerWithAddress,
       user1: SignerWithAddress,
       user2: SignerWithAddress,
-      user3: SignerWithAddress,
-      user4: SignerWithAddress,
-      user5: SignerWithAddress,
       grtToken: Contract,
       token: Contract,
       grtLiquidityWallet: Contract,
@@ -19,7 +16,7 @@ describe("Grindery Satellite testings", function () {
 
   beforeEach(async function() {
 
-    [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
+    [owner, user1, user2, ] = await ethers.getSigners();
 
     grtSatellite = await upgrades.deployProxy(await ethers.getContractFactory(
       "contracts/v0.2.0/GrtSatellite.sol:GrtSatellite")
