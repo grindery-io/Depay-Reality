@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import "../reality/IRealityETH.sol";
 import "./GrtOffer.sol";
 import "hardhat/console.sol";
 
 contract GrtPool is OwnableUpgradeable, GrtOffer {
-
     struct Trade {
         address userAddr;
         address destAddr;
@@ -32,6 +32,10 @@ contract GrtPool is OwnableUpgradeable, GrtOffer {
         bytes32 _idOffer
     );
 
+    // function initializedVersion() external view returns (uint8) {
+    //     return _getInitializedVersion();
+    // }
+
     function initializePool(address addrGRT) external initializer {
         __Ownable_init();
         initializeGrtTokenUtils(addrGRT);
@@ -49,16 +53,10 @@ contract GrtPool is OwnableUpgradeable, GrtOffer {
         require(destAddr != address(0), "zero address as destination address");
         require(_offers[idOffer].isActive, "the offer is inactive");
         depositGRT(amntDepGRT);
-        bytes32 idTrade = keccak256(abi.encodePacked(
-            msg.sender,
-            _noncesDeposit[msg.sender]
-        ));
-        emit LogTrade(
-            idTrade,
-            _addrGRT,
-            amntDepGRT,
-            idOffer
+        bytes32 idTrade = keccak256(
+            abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
         );
+        emit LogTrade(idTrade, _addrGRT, amntDepGRT, idOffer);
         Trade storage trade = _trades[idTrade];
         trade.userAddr = msg.sender;
         trade.destAddr = destAddr;
@@ -92,11 +90,19 @@ contract GrtPool is OwnableUpgradeable, GrtOffer {
         return _trades[idTrade].deposit.amount;
     }
 
-    function getDepositChainId(bytes32 idTrade) external view returns (uint256) {
+    function getDepositChainId(
+        bytes32 idTrade
+    ) external view returns (uint256) {
         return _trades[idTrade].deposit.chainId;
     }
 
-    function setTokenInfo(address token, uint256 amount, uint256 chainId) internal pure returns (TokenInfo memory) {
+    function setTokenInfo(
+        address token,
+        uint256 amount,
+        uint256 chainId
+    ) internal pure returns (TokenInfo memory) {
         return TokenInfo(token, amount, chainId);
     }
+
+    // function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 }

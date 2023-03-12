@@ -3,7 +3,9 @@ import { ethers, upgrades } from "hardhat";
 async function main() {
 
     const grtSatellite = await upgrades.deployProxy(
-        await ethers.getContractFactory("GrtSatellite")
+        await ethers.getContractFactory(
+            "contracts/v0.1.0/GrtSatellite.sol:GrtSatellite"
+        )
     );
 
     await grtSatellite.deployed();

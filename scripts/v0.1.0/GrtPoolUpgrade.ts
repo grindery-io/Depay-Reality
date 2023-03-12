@@ -1,19 +1,17 @@
 import { ethers, upgrades } from "hardhat";
 
-const GRT_ADDRESS = "0x1e3C935E9A45aBd04430236DE959d12eD9763162";
-const GRT_CHAIN_ID = 5;
-const REALITY_ADDRESS = "0x6F80C5cBCF9FbC2dA2F0675E56A5900BB70Df72f";
+const GRT_POOL_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
 async function main() {
 
-    const grtPool = await upgrades.deployProxy(
-        await ethers.getContractFactory("GrtPool")
+    const grtPool = await upgrades.upgradeProxy(
+        GRT_POOL_ADDRESS,
+        await ethers.getContractFactory(
+            "contracts/v0.1.0/GrtPool.sol:GrtPool"
+        )
     );
 
-    await grtPool.deployed();
-    await grtPool.initializePool(GRT_ADDRESS, GRT_CHAIN_ID, REALITY_ADDRESS);
-
-    console.log("GRT pool deployed to:", grtPool.address);
+    console.log("GRT pool upgraded to:", grtPool.address);
     console.log("GRT pool - owner address:", await grtPool.owner());
     console.log("GRT pool - GRT address:", await grtPool.grtAddress());
     console.log("GRT pool - GRT chain id:", await grtPool.grtChainId());

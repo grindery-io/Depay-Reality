@@ -127,3 +127,5 @@ cache
 /.deps
 notes.txt
 /artifacts
+/deployments
+/.trunk

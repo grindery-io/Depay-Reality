@@ -8,7 +8,6 @@ import "./GrtLiquidityWallet.sol";
 import "hardhat/console.sol";
 
 contract GrtSatellite is OwnableUpgradeable {
-
     address internal _addrGRT;
 
     event LogRewardOffer(

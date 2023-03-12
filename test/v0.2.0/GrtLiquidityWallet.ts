@@ -2,7 +2,6 @@ import { ethers, upgrades } from "hardhat";
 import { expect, use } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract, BigNumber } from 'ethers';
-import { token } from "../../typechain-types/@openzeppelin/contracts";
 
 describe("Grindery Liquidity Wallet", () => {
 
