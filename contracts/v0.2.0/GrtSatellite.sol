@@ -2,12 +2,13 @@
 
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./GrtLiquidityWallet.sol";
 import "hardhat/console.sol";
 
-contract GrtSatellite is OwnableUpgradeable {
+contract GrtSatellite is OwnableUpgradeable, UUPSUpgradeable {
     address internal _addrGRT;
 
     event LogRewardOffer(
@@ -16,6 +17,8 @@ contract GrtSatellite is OwnableUpgradeable {
         uint256 indexed _amount
     );
     event LogNewLiquidityContract(address indexed _LiquidityContractAddress);
+
+    function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 
     function initializeGrtSatellite(address addrGRT) external initializer {
         __Ownable_init();

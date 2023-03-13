@@ -9,7 +9,7 @@ import "../reality/IRealityETH.sol";
 import "./GrtOffer.sol";
 import "hardhat/console.sol";
 
-contract GrtPool is OwnableUpgradeable, GrtOffer {
+contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     struct Trade {
         address userAddr;
         address destAddr;
@@ -40,6 +40,8 @@ contract GrtPool is OwnableUpgradeable, GrtOffer {
         __Ownable_init();
         initializeGrtTokenUtils(addrGRT);
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 
     function setGrtAddress(address grt) external onlyOwner {
         _addrGRT = grt;
@@ -104,5 +106,4 @@ contract GrtPool is OwnableUpgradeable, GrtOffer {
         return TokenInfo(token, amount, chainId);
     }
 
-    // function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 }

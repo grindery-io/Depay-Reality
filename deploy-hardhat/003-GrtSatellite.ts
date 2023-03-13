@@ -38,8 +38,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`
     )
   ).attach(result.address);
-  console.log("GRT Pool contract address:", result.address);
-  console.log("Owner GRT Pool contract:", await GrtSatellite.owner());
+  console.log("GRT Satellite contract address:", result.address);
+  console.log("Owner GRT Satellite contract:", await GrtSatellite.owner());
   console.log("Owner hardhat", owner);
   console.log("Address of GRT Token:", await GrtSatellite.getGrtAddress());
   console.log("---------------------------------------------------");

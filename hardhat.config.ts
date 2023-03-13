@@ -10,15 +10,19 @@ import {
   ALCHEMY_API_KEY,
   OWNER_KEY,
   ETHERSCAN_KEY,
-  BSCSCAN_KEY
+  BSCSCAN_KEY,
+  CRONOS_SCAN_KEY
 } from "./secrets";
+import { signerAddress, contractAddress } from "./lib/deterministicDeployment";
+import "@cronos-labs/hardhat-cronoscan";
+
 
 let protocolVersion = "0.2.0";
 
 function getGrtAddress(network: string) {
   if (network === "goerli") {
     return "0x1e3C935E9A45aBd04430236DE959d12eD9763162";
-  } else if (network == "cronostestnet") {
+  } else if (network == "cronosTestnet") {
     return "0xa6Ec5790C26102018b07817fd464E2673a5e2B8D"
   } else if (network == "bscTestnet") {
     return "0x3b369B27c641637e5EE7FF9cF516Cb9F8F60cC85";
@@ -101,7 +105,7 @@ const config: HardhatUserConfig = {
       url: `https://evm.cronos.org`,
       accounts: [OWNER_KEY],
     },
-    cronostestnet: {
+    cronosTestnet: {
       url: `https://evm-t3.cronos.org/`,
       accounts: [OWNER_KEY],
     },
@@ -111,8 +115,19 @@ const config: HardhatUserConfig = {
     // Obtain one at https://etherscan.io/
     apiKey: {
       goerli: ETHERSCAN_KEY!,
-      bscTestnet: BSCSCAN_KEY!
-    }
+      bscTestnet: BSCSCAN_KEY!,
+      cronosTestnet: CRONOS_SCAN_KEY!
+    },
+    // customChains: [
+    //   {
+    //     network: "cronosTestnet",
+    //     chainId: 338,
+    //     urls: {
+    //       apiURL: "https://cronos.org/explorer/api",
+    //       browserURL: "https://testnet.cronoscan.com/"
+    //     }
+    //   }
+    // ]
   },
   namedAccounts: {
     owner: {
@@ -123,11 +138,20 @@ const config: HardhatUserConfig = {
   deterministicDeployment: {
     "338": {
       factory: "0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7",
-      deployer: "0xE1CB04A0fA36DdD16a06ea828007E35e1a3cBC37",
+      deployer: OWNER_ADDRESS,
       funding: "0",
-      signedTx: "0xf8a8808609184e72a000830186a08080b853604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf38202c8a0749cead18bfc5151c8414fab334577f8c56120de5cda871c2237c855962184b3a042f0b6ed04459c15e37381167292f965a93f63e399f99b3c4f0f504b5b934dbb",
+      signedTx: "0x",
     }
   }
+
+  // deterministicDeployment: () => {
+  //   return {
+  //     factory: contractAddress,
+  //     deployer: signerAddress,
+  //     funding: "0",
+  //     signedTx: "0x0", // We will deploy from our own script
+  //   };
+  // },
 
 };
 

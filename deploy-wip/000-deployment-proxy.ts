@@ -3,6 +3,8 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { ensureDeploymentProxy, contractAddress } from "../lib/deterministicDeployment";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+
+  console.log("--------------------- DeterministicDeploymentProxy ---------------------");
   const { getNamedAccounts, deployments } = hre;
   const { owner } = await getNamedAccounts();
   await ensureDeploymentProxy(await hre.ethers.getSigner(owner));
@@ -10,6 +12,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     abi: [],
     address: contractAddress,
   });
+  console.log("-----------------------------------------------------------------");
   // return true;
 };
 // func.id = "DeterministicDeploymentProxy";

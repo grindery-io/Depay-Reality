@@ -5,10 +5,11 @@ import { getGasConfiguration } from "../lib/gas";
 import { protocolVersion, getGrtAddress } from "../hardhat.config";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+
+  console.log("--------------------- GRT Pool - upgrade ---------------------");
   const { deployments, getNamedAccounts } = hre;
-  const { operator } = await getNamedAccounts();
-  const impl = await deployments.get("GrtPoolImpl");
-  const proxy = await deployments.get("GrtPool");
+  const impl = await deployments.get("GrtPool_GrtPoolImpl");
+  const proxy = await deployments.get("GrtPool_GrtPool");
   const factory = await ethers.getContractFactory(
     `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`
   );
@@ -29,14 +30,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ).eq(impl.address)
   ) {
     console.log(`Upgrading implementation of GrtPool (${GrtPool.address}) to ${impl.address}`);
-    await GrtPool.upgradeTo(impl.address, await getGasConfiguration(hre.ethers.provider)).then((x) =>
+    await GrtPool.upgradeTo(
+      impl.address,
+      await getGasConfiguration(hre.ethers.provider)
+    ).then((x) =>
       x.wait()
     );
     await hre.upgrades.forceImport(GrtPool.address, factory, {
       kind: "uups",
     });
   }
+  console.log("-----------------------------------------------------------------");
 };
-func.tags = ["upgrade-GrtPool"];
-func.dependencies = ["GrtPool", "GrtPoolImpl"];
+func.tags = ["GrtPool_upgrade-GrtPool"];
+func.dependencies = ["GrtPool_GrtPool", "GrtPool_GrtPoolImpl"];
 export default func;
