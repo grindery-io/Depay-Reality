@@ -14,7 +14,7 @@ import {
   CRONOS_SCAN_KEY
 } from "./secrets";
 import { signerAddress, contractAddress } from "./lib/deterministicDeployment";
-import "@cronos-labs/hardhat-cronoscan";
+// import "@cronos-labs/hardhat-cronoscan";
 
 
 let protocolVersion = "0.2.0";
@@ -107,6 +107,7 @@ const config: HardhatUserConfig = {
     },
     cronosTestnet: {
       url: `https://evm-t3.cronos.org/`,
+      chainId: 338,
       accounts: [OWNER_KEY],
     },
   },
@@ -118,16 +119,16 @@ const config: HardhatUserConfig = {
       bscTestnet: BSCSCAN_KEY!,
       cronosTestnet: CRONOS_SCAN_KEY!
     },
-    // customChains: [
-    //   {
-    //     network: "cronosTestnet",
-    //     chainId: 338,
-    //     urls: {
-    //       apiURL: "https://cronos.org/explorer/api",
-    //       browserURL: "https://testnet.cronoscan.com/"
-    //     }
-    //   }
-    // ]
+    customChains: [
+      {
+        network: "cronosTestnet",
+        chainId: 338,
+        urls: {
+          apiURL: "https://api-testnet.cronoscan.com/api",
+          browserURL: "https://testnet.cronoscan.com/",
+        },
+      }
+    ]
   },
   namedAccounts: {
     owner: {

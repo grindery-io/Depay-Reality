@@ -24,9 +24,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     waitConfirmations: 1,
     ...(await getGasConfiguration(hre.ethers.provider)),
   });
-  await hre.run("verify:verify", {
-    address: result.address,
-  });
+  // await hre.run("verify:verify", {
+  //   address: result.address,
+  // });
   console.log("-----------------------------------------------------------------");
   // return true;
 };
