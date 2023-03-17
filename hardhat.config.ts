@@ -153,7 +153,8 @@ const config: HardhatUserConfig = {
     flat: true,
     only: [
       `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`,
-      `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`
+      `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`,
+      'ERC20Sample'
     ],
     spacing: 2,
     format: "json",
