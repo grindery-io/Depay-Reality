@@ -5,6 +5,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "hardhat-deploy";
 import "@nomiclabs/hardhat-etherscan";
+import "hardhat-abi-exporter";
 import {
   OWNER_ADDRESS,
   ALCHEMY_API_KEY,
@@ -143,6 +144,19 @@ const config: HardhatUserConfig = {
       funding: "0",
       signedTx: "0x",
     }
+  },
+  // https://github.com/ItsNickBarry/hardhat-abi-exporter
+  abiExporter: {
+    path: './abis',
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    only: [
+      `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`,
+      `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`
+    ],
+    spacing: 2,
+    format: "json",
   }
 
   // deterministicDeployment: () => {
