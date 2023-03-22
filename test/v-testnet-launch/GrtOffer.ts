@@ -3,6 +3,8 @@ import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
 
+const protocolVersion = "v-testnet-launch";
+
 describe("Grindery Offer testings", function () {
   const chainId = 31337;
 
@@ -13,15 +15,17 @@ describe("Grindery Offer testings", function () {
     grtToken: Contract,
     token: Contract,
     token1: Contract,
-    lowerLimitOffer: string,
-    upperLimitOffer: string,
+    minPriceLimit: string,
+    maxPriceLimit: string,
     offerId: string;
 
   beforeEach(async function () {
     [owner, user1, user2] = await ethers.getSigners();
 
     grtOffer = await upgrades.deployProxy(
-      await ethers.getContractFactory("contracts/v0.2.0/GrtPool.sol:GrtPool")
+      await ethers.getContractFactory(
+        `contracts/${protocolVersion}/GrtPool.sol:GrtPool`
+      )
     );
     await grtOffer.deployed();
 
@@ -35,104 +39,12 @@ describe("Grindery Offer testings", function () {
     await token1.deployed();
 
     // initialize contract
-    await grtOffer.initializePool(grtToken.address);
+    await grtOffer.initializePool();
   });
 
   describe("Initialization", function () {
     it("Should set the proper owner", async function () {
       expect(await grtOffer.owner()).to.equal(owner.address);
-    });
-
-    it("Should set the proper GRT address", async function () {
-      expect(await grtOffer.getGrtAddress()).to.equal(grtToken.address);
-    });
-
-    it("Non owner should not be able to modify the GRT address", async function () {
-      await expect(
-        grtOffer.connect(user1).setGrtAddress(token.address)
-      ).to.be.revertedWith("Ownable: caller is not the owner");
-    });
-
-    it("Owner can modify the GRT address", async function () {
-      await grtOffer.connect(owner).setGrtAddress(token.address);
-      expect(await grtOffer.getGrtAddress()).to.equal(token.address);
-    });
-  });
-
-  describe("GRT staking and unstaking", function () {
-    beforeEach(async function () {
-      await grtToken.connect(user1).mint(user1.address, 10000);
-      await grtToken.connect(user1).approve(grtOffer.address, 500);
-    });
-
-    describe("GRT staking", function () {
-      it("Should fail if the allowance is not high enough", async function () {
-        await expect(
-          grtOffer.connect(user1).stakeGRT(1000, chainId)
-        ).to.be.revertedWith("ERC20: insufficient allowance");
-      });
-
-      it("Should decrease the GRT token balance of the user", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        expect(await grtToken.connect(user1).balanceOf(user1.address)).to.equal(
-          10000 - 10
-        );
-      });
-
-      it("Should increase the GRT token balance of the GRT pool", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        expect(
-          await grtToken.connect(user1).balanceOf(grtOffer.address)
-        ).to.equal(10);
-      });
-
-      it("Should increase the GRT staked amount for the user for the given chainId", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        expect(await grtOffer.stakeOf(user1.address, chainId)).to.equal(10);
-      });
-
-      it("Staking GRT should emit an event", async function () {
-        await expect(await grtOffer.connect(user1).stakeGRT(10, chainId))
-          .to.emit(grtOffer, "LogStake")
-          .withArgs(user1.address, chainId, 10);
-      });
-    });
-
-    describe("GRT unstaking", function () {
-      it("Should fail if the staked amount is not high enough", async function () {
-        await expect(
-          grtOffer.connect(user1).unstakeGRT(1000, chainId)
-        ).to.be.revertedWith("not enough staked GRT");
-      });
-
-      it("Should increase the GRT token balance of the user", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        await grtOffer.connect(user1).unstakeGRT(5, chainId);
-        expect(await grtToken.connect(user1).balanceOf(user1.address)).to.equal(
-          10000 - 10 + 5
-        );
-      });
-
-      it("Should decrease the GRT token balance of the GRT pool", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        await grtOffer.connect(user1).unstakeGRT(5, chainId);
-        expect(
-          await grtToken.connect(user1).balanceOf(grtOffer.address)
-        ).to.equal(10 - 5);
-      });
-
-      it("Should decrease the GRT staked amount for the user for the given chainId", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        await grtOffer.connect(user1).unstakeGRT(5, chainId);
-        expect(await grtOffer.stakeOf(user1.address, chainId)).to.equal(10 - 5);
-      });
-
-      it("Should emit an event", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        await expect(await grtOffer.connect(user1).unstakeGRT(5, chainId))
-          .to.emit(grtOffer, "LogUnStake")
-          .withArgs(user1.address, chainId, 5);
-      });
     });
   });
 
@@ -140,13 +52,13 @@ describe("Grindery Offer testings", function () {
     beforeEach(async function () {
       await grtToken.connect(user1).mint(user1.address, 10000);
       await grtToken.connect(user1).approve(grtOffer.address, 500);
-      upperLimitOffer = ethers.utils.defaultAbiCoder.encode(
-        ["string", "uint256"],
-        ["https://api.coingecko.com/api/v3/coins/FIRA", 1000]
+      maxPriceLimit = ethers.utils.defaultAbiCoder.encode(
+        ["string", "string"],
+        ["FIRA", "1000"]
       );
-      lowerLimitOffer = ethers.utils.defaultAbiCoder.encode(
-        ["string", "uint256"],
-        ["https://api.coingecko.com/api/v3/coins/FIRA", 100]
+      minPriceLimit = ethers.utils.defaultAbiCoder.encode(
+        ["string", "string"],
+        ["FIRA", "100"]
       );
       offerId = ethers.utils.keccak256(
         ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
@@ -154,300 +66,123 @@ describe("Grindery Offer testings", function () {
     });
 
     describe("Set up an offer with Grindery", function () {
-      it("Should revert if the staking amount is not high enough", async function () {
-        await expect(
-          grtOffer
-            .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            )
-        ).to.be.revertedWith("Not enough staked GRT to set up an offer");
-      });
-
       it("Should set the user address for the offerer", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
         expect(await grtOffer.getOfferer(offerId)).to.equal(user1.address);
       });
 
       it("Should set the chainId for the offer", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
         expect(await grtOffer.getChainIdOffer(offerId)).to.equal(chainId);
       });
 
       it("Should set the token address for the offer", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
         expect(await grtOffer.getTokenOffer(offerId)).to.equal(token.address);
       });
 
-      it("Should set the zero address for the external contract used to update the price", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
-        await grtOffer
-          .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
-        expect(await grtOffer.getAddressPriceContractOffer(offerId)).to.equal(
-          ethers.constants.AddressZero
-        );
-      });
-
       it("Should set the hash for the lower price limit", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
-        expect(await grtOffer.getLowerLimitFnHashOffer(offerId)).to.equal(
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
+        expect(await grtOffer.getMinPriceLimitHashOffer(offerId)).to.equal(
           ethers.utils.keccak256(
-            ethers.utils.solidityPack(["bytes"], [lowerLimitOffer])
+            ethers.utils.solidityPack(["bytes"], [minPriceLimit])
           )
         );
       });
-
       it("Should set the hash for the upper price limit", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
-        expect(await grtOffer.getUpperLimitFnHashOffer(offerId)).to.equal(
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
+        expect(await grtOffer.getMaxPriceLimitHashOffer(offerId)).to.equal(
           ethers.utils.keccak256(
-            ethers.utils.solidityPack(["bytes"], [upperLimitOffer])
+            ethers.utils.solidityPack(["bytes"], [maxPriceLimit])
           )
         );
       });
-
       it("Should emit an event", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await expect(
           await grtOffer
             .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            )
+            .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit)
         )
           .to.emit(grtOffer, "LogNewOffer")
-          .withArgs(
-            offerId,
-            ethers.constants.AddressZero,
-            token.address,
-            chainId
-          );
+          .withArgs(offerId, token.address, chainId);
       });
-
       it("Should increase the user nonce by one", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
         expect(await grtOffer.getNonceOffer(user1.address)).to.equal(1);
       });
-
       it("Should set isActive as true", async function () {
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
         expect(await grtOffer.getStatusOffer(offerId)).to.equal(true);
       });
-
-      describe("Lower limit verification", function () {
-        it("Lower limit verification should return false if contract address is not correct", async function () {
-          await grtOffer.connect(user1).stakeGRT(10, chainId);
+      describe("Min price limit verification", function () {
+        it("Min price limit verification should return false if parameters are not correct", async function () {
           await grtOffer
             .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            );
+            .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
           expect(
-            await grtOffer.checkParametersLowerLimitOffer(
+            await grtOffer.checkMinPriceLimitOffer(
               offerId,
-              token.address,
               ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/FIRA", 100]
+                ["string", "string"],
+                ["bitcoin", "100"]
               )
             )
           ).to.equal(false);
         });
-
-        it("Lower limit verification should return false if parameters are not correct", async function () {
-          await grtOffer.connect(user1).stakeGRT(10, chainId);
+        it("Min price limit verification should return true if parameters are correct", async function () {
           await grtOffer
             .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            );
+            .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
           expect(
-            await grtOffer.checkParametersLowerLimitOffer(
+            await grtOffer.checkMinPriceLimitOffer(
               offerId,
-              ethers.constants.AddressZero,
               ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/bitcoin", 100]
-              )
-            )
-          ).to.equal(false);
-        });
-
-        it("Lower limit verification should return true if parameters are correct", async function () {
-          await grtOffer.connect(user1).stakeGRT(10, chainId);
-          await grtOffer
-            .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            );
-          expect(
-            await grtOffer.checkParametersLowerLimitOffer(
-              offerId,
-              ethers.constants.AddressZero,
-              ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/FIRA", 100]
+                ["string", "string"],
+                ["FIRA", "100"]
               )
             )
           ).to.equal(true);
         });
       });
-
-      describe("Upper limit verification", function () {
-        it("Upper limit verification should return false if contract address is not correct", async function () {
-          await grtOffer.connect(user1).stakeGRT(10, chainId);
+      describe("Max price limit verification", function () {
+        it("Max price limit verification should return false if parameters are not correct", async function () {
           await grtOffer
             .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            );
+            .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
           expect(
-            await grtOffer.checkParametersUpperLimitOffer(
+            await grtOffer.checkMaxPriceLimitOffer(
               offerId,
-              token.address,
               ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/FIRA", 1000]
+                ["string", "string"],
+                ["bitcoin", "1000"]
               )
             )
           ).to.equal(false);
         });
-
-        it("Upper limit verification should return false if parameters are not correct", async function () {
-          await grtOffer.connect(user1).stakeGRT(10, chainId);
+        it("Max price limit verification should return true if parameters are correct", async function () {
           await grtOffer
             .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            );
+            .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
           expect(
-            await grtOffer.checkParametersUpperLimitOffer(
+            await grtOffer.checkMaxPriceLimitOffer(
               offerId,
-              ethers.constants.AddressZero,
               ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/bitcoin", 1000]
-              )
-            )
-          ).to.equal(false);
-        });
-
-        it("Upper limit verification should return true if parameters are correct", async function () {
-          await grtOffer.connect(user1).stakeGRT(10, chainId);
-          await grtOffer
-            .connect(user1)
-            .setOffer(
-              token.address,
-              chainId,
-              ethers.constants.AddressZero,
-              upperLimitOffer,
-              lowerLimitOffer
-            );
-          expect(
-            await grtOffer.checkParametersUpperLimitOffer(
-              offerId,
-              ethers.constants.AddressZero,
-              ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/FIRA", 1000]
+                ["string", "string"],
+                ["FIRA", "1000"]
               )
             )
           ).to.equal(true);
@@ -459,35 +194,30 @@ describe("Grindery Offer testings", function () {
       beforeEach(async function () {
         await grtToken.connect(user1).mint(user1.address, 10000);
         await grtToken.connect(user1).approve(grtOffer.address, 500);
-        upperLimitOffer = ethers.utils.defaultAbiCoder.encode(
-          ["string", "uint256"],
-          ["https://api.coingecko.com/api/v3/coins/FIRA", 1000]
+        maxPriceLimit = ethers.utils.defaultAbiCoder.encode(
+          ["string", "string"],
+          ["FIRA", "1000"]
         );
-        lowerLimitOffer = ethers.utils.defaultAbiCoder.encode(
-          ["string", "uint256"],
-          ["https://api.coingecko.com/api/v3/coins/FIRA", 100]
+        minPriceLimit = ethers.utils.defaultAbiCoder.encode(
+          ["string", "string"],
+          ["FIRA", "100"]
         );
         offerId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
         );
 
-        await grtOffer.connect(user1).stakeGRT(10, chainId);
         await grtOffer
           .connect(user1)
-          .setOffer(
-            token.address,
-            chainId,
-            ethers.constants.AddressZero,
-            upperLimitOffer,
-            lowerLimitOffer
-          );
+          .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
       });
 
       describe("Modify chainId offer", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer.connect(user2).setChainIdOffer(offerId, 34)
-          ).to.be.revertedWith("you are not allowed to modify this offer");
+          ).to.be.revertedWith(
+            "Grindery offer: you are not allowed to modify this offer."
+          );
         });
 
         it("Should modify the chainID", async function () {
@@ -508,7 +238,9 @@ describe("Grindery Offer testings", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer.connect(user2).setTokenOffer(offerId, token1.address)
-          ).to.be.revertedWith("you are not allowed to modify this offer");
+          ).to.be.revertedWith(
+            "Grindery offer: you are not allowed to modify this offer."
+          );
         });
 
         it("Should modify the token address", async function () {
@@ -527,68 +259,41 @@ describe("Grindery Offer testings", function () {
         });
       });
 
-      describe("Modify price contract address offer", function () {
+      describe("Modify Min price limit offer", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer
               .connect(user2)
-              .setPriceContractAddressOffer(offerId, token1.address)
-          ).to.be.revertedWith("you are not allowed to modify this offer");
-        });
-
-        it("Should modify the price contract address", async function () {
-          await grtOffer
-            .connect(user1)
-            .setPriceContractAddressOffer(offerId, token1.address);
-          expect(await grtOffer.getAddressPriceContractOffer(offerId)).to.equal(
-            token1.address
+              .setMinPriceLimit(
+                offerId,
+                ethers.utils.defaultAbiCoder.encode(
+                  ["string", "string"],
+                  ["FIRA", "50"]
+                )
+              )
+          ).to.be.revertedWith(
+            "Grindery offer: you are not allowed to modify this offer."
           );
         });
 
-        it("Should emit an event", async function () {
-          await expect(
-            await grtOffer
-              .connect(user1)
-              .setPriceContractAddressOffer(offerId, token1.address)
-          )
-            .to.emit(grtOffer, "LogSetPriceContractAddressOffer")
-            .withArgs(offerId, token1.address);
-        });
-      });
-
-      describe("Modify lower limit offer", function () {
-        it("Should fail if the sender is not the creator of the offer", async function () {
-          await expect(
-            grtOffer
-              .connect(user2)
-              .setLowerLimitOffer(
-                offerId,
-                ethers.utils.defaultAbiCoder.encode(
-                  ["string", "uint256"],
-                  ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
-                )
-              )
-          ).to.be.revertedWith("you are not allowed to modify this offer");
-        });
-
-        it("Should modify the lower limit options", async function () {
+        it("Should modify the Min price limit options", async function () {
           await grtOffer
             .connect(user1)
-            .setLowerLimitOffer(
+            .setMinPriceLimit(
               offerId,
               ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                ["string", "string"],
+                ["FIRA", "50"]
               )
             );
-          expect(await grtOffer.getLowerLimitFnHashOffer(offerId)).to.equal(
+          expect(await grtOffer.getMinPriceLimitHashOffer(offerId)).to.equal(
             ethers.utils.keccak256(
               ethers.utils.solidityPack(
                 ["bytes"],
                 [
                   ethers.utils.defaultAbiCoder.encode(
-                    ["string", "uint256"],
-                    ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                    ["string", "string"],
+                    ["FIRA", "50"]
                   ),
                 ]
               )
@@ -600,15 +305,15 @@ describe("Grindery Offer testings", function () {
           await expect(
             await grtOffer
               .connect(user1)
-              .setLowerLimitOffer(
+              .setMinPriceLimit(
                 offerId,
                 ethers.utils.defaultAbiCoder.encode(
-                  ["string", "uint256"],
-                  ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                  ["string", "string"],
+                  ["FIRA", "50"]
                 )
               )
           )
-            .to.emit(grtOffer, "LogSetLowerLimitOffer")
+            .to.emit(grtOffer, "LogSetMinPriceLimit")
             .withArgs(
               offerId,
               ethers.utils.keccak256(
@@ -616,8 +321,8 @@ describe("Grindery Offer testings", function () {
                   ["bytes"],
                   [
                     ethers.utils.defaultAbiCoder.encode(
-                      ["string", "uint256"],
-                      ["https://api.coingecko.com/api/v3/coins/FIRA", 50]
+                      ["string", "string"],
+                      ["FIRA", "50"]
                     ),
                   ]
                 )
@@ -626,39 +331,41 @@ describe("Grindery Offer testings", function () {
         });
       });
 
-      describe("Modify upper limit offer", function () {
+      describe("Modify Max price limit offer", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer
               .connect(user2)
-              .setUpperLimitOffer(
+              .setMaxPriceLimit(
                 offerId,
                 ethers.utils.defaultAbiCoder.encode(
-                  ["string", "uint256"],
-                  ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                  ["string", "string"],
+                  ["FIRA", "2000"]
                 )
               )
-          ).to.be.revertedWith("you are not allowed to modify this offer");
+          ).to.be.revertedWith(
+            "Grindery offer: you are not allowed to modify this offer."
+          );
         });
 
-        it("Should modify the upper limit options", async function () {
+        it("Should modify the Max price limit options", async function () {
           await grtOffer
             .connect(user1)
-            .setUpperLimitOffer(
+            .setMaxPriceLimit(
               offerId,
               ethers.utils.defaultAbiCoder.encode(
-                ["string", "uint256"],
-                ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                ["string", "string"],
+                ["FIRA", "2000"]
               )
             );
-          expect(await grtOffer.getUpperLimitFnHashOffer(offerId)).to.equal(
+          expect(await grtOffer.getMaxPriceLimitHashOffer(offerId)).to.equal(
             ethers.utils.keccak256(
               ethers.utils.solidityPack(
                 ["bytes"],
                 [
                   ethers.utils.defaultAbiCoder.encode(
-                    ["string", "uint256"],
-                    ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                    ["string", "string"],
+                    ["FIRA", "2000"]
                   ),
                 ]
               )
@@ -670,15 +377,15 @@ describe("Grindery Offer testings", function () {
           await expect(
             await grtOffer
               .connect(user1)
-              .setUpperLimitOffer(
+              .setMaxPriceLimit(
                 offerId,
                 ethers.utils.defaultAbiCoder.encode(
-                  ["string", "uint256"],
-                  ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                  ["string", "string"],
+                  ["FIRA", "2000"]
                 )
               )
           )
-            .to.emit(grtOffer, "LogSetUpperLimitOffer")
+            .to.emit(grtOffer, "LogSetMaxPriceLimit")
             .withArgs(
               offerId,
               ethers.utils.keccak256(
@@ -686,8 +393,8 @@ describe("Grindery Offer testings", function () {
                   ["bytes"],
                   [
                     ethers.utils.defaultAbiCoder.encode(
-                      ["string", "uint256"],
-                      ["https://api.coingecko.com/api/v3/coins/FIRA", 2000]
+                      ["string", "string"],
+                      ["FIRA", "2000"]
                     ),
                   ]
                 )
@@ -700,7 +407,9 @@ describe("Grindery Offer testings", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer.connect(user2).setIsActive(offerId, false)
-          ).to.be.revertedWith("you are not allowed to modify this offer");
+          ).to.be.revertedWith(
+            "Grindery offer: you are not allowed to modify this offer."
+          );
         });
 
         it("Should modify the status", async function () {

@@ -19,11 +19,11 @@ contract GrtOffer is GrtOfferUtils {
         bytes32 indexed _idOffer,
         address indexed _priceContractAddress
     );
-    event LogSetLowerLimitOffer(
+    event LogSetMinPriceLimit(
         bytes32 indexed _idOffer,
         bytes32 indexed _lowerLimitFn
     );
-    event LogSetUpperLimitOffer(
+    event LogSetMaxPriceLimit(
         bytes32 indexed _idOffer,
         bytes32 indexed _upperLimitFn
     );
@@ -57,7 +57,7 @@ contract GrtOffer is GrtOfferUtils {
         );
         bytes32 priceLimit = keccak256(abi.encodePacked(minPriceLimit));
         _offers[offerId].minPriceLimit = priceLimit;
-        emit LogSetLowerLimitOffer(offerId, priceLimit);
+        emit LogSetMinPriceLimit(offerId, priceLimit);
     }
 
     function setMaxPriceLimit(
@@ -70,7 +70,7 @@ contract GrtOffer is GrtOfferUtils {
         );
         bytes32 priceLimit = keccak256(abi.encodePacked(maxPriceLimit));
         _offers[offerId].maxPriceLimit = priceLimit;
-        emit LogSetUpperLimitOffer(offerId, priceLimit);
+        emit LogSetMaxPriceLimit(offerId, priceLimit);
     }
 
     function setIsActive(bytes32 offerId, bool isActive) external {
