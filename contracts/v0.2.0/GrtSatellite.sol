@@ -30,6 +30,7 @@ contract GrtSatellite is OwnableUpgradeable, UUPSUpgradeable {
             address(this),
             msg.sender
         );
+        newContract.transferOwnership(msg.sender);
         emit LogNewLiquidityContract(address(newContract));
         return address(newContract);
     }
