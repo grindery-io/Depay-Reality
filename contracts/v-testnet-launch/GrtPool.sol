@@ -36,12 +36,13 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 
+    receive() external payable {}
+
     function depositETHAndAcceptOffer(
-        uint256 amount,
         bytes32 offerId,
         address destAddr
     ) external payable returns (bytes32) {
-        require(amount > 0, "Grindery Pool: amount must be positive.");
+        require(msg.value > 0, "Grindery Pool: amount must be positive.");
         require(
             destAddr != address(0),
             "Grindery Pool: zero address as destination address."
@@ -50,7 +51,8 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
             _offers[offerId].isActive,
             "Grindery Pool: the offer is inactive."
         );
-        (bool sent, ) = address(this).call{value: amount}("");
+
+        (bool sent, ) = address(this).call{value: msg.value}("");
         require(sent, "Grindery Pool: failed to send native tokens.");
         bytes32 tradeId = keccak256(
             abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
@@ -58,10 +60,10 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         Trade storage trade = _trades[tradeId];
         trade.userAddr = msg.sender;
         trade.destAddr = destAddr;
-        trade.deposit = setTokenInfo(address(0), amount, block.chainid);
+        trade.deposit = setTokenInfo(address(0), msg.value, block.chainid);
         trade.offerId = offerId;
         _noncesDeposit[msg.sender]++;
-        emit LogTrade(tradeId, address(0), amount, offerId);
+        emit LogTrade(tradeId, address(0), msg.value, offerId);
         return tradeId;
     }
 
