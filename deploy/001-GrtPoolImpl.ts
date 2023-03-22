@@ -5,8 +5,9 @@ import { getGasConfiguration } from "../lib/gas";
 import { protocolVersion } from "../hardhat.config";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-
-  console.log("--------------------- GRT Pool implementation ---------------------");
+  console.log(
+    "--------------------- GRT Pool implementation ---------------------"
+  );
   const { getNamedAccounts, deployments } = hre;
   const { deploy } = deployments;
   const { owner } = await getNamedAccounts();
@@ -14,7 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await ethers.getContractFactory(
       `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`
     ),
-    { kind: "uups", }
+    { kind: "uups" }
   );
   const result = await deploy("GrtPool_GrtPoolImpl", {
     contract: `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`,
@@ -23,9 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     estimateGasExtra: 10000,
     waitConfirmations: 1,
     deterministicDeployment: ethers.utils.keccak256(
-      ethers.utils.arrayify(
-        ethers.utils.toUtf8Bytes("GrtPool_GrtPoolImpl")
-      )
+      ethers.utils.arrayify(ethers.utils.toUtf8Bytes("GrtPool_GrtPoolImpl"))
     ),
     ...(await getGasConfiguration(hre.ethers.provider)),
   });
@@ -34,8 +33,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //   address: result.address,
   // });
 
-  console.log("-----------------------------------------------------------------");
-
+  console.log(
+    "-----------------------------------------------------------------"
+  );
 };
 func.tags = ["GrtPool_GrtPoolImpl"];
 // func.dependencies = ["DeterministicDeploymentProxy"];

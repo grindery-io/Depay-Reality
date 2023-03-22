@@ -12,11 +12,8 @@ import {
   OWNER_KEY,
   ETHERSCAN_KEY,
   BSCSCAN_KEY,
-  CRONOS_SCAN_KEY
+  CRONOS_SCAN_KEY,
 } from "./secrets";
-import { signerAddress, contractAddress } from "./lib/deterministicDeployment";
-// import "@cronos-labs/hardhat-cronoscan";
-
 
 let protocolVersion = "0.2.0";
 
@@ -24,14 +21,14 @@ function getGrtAddress(network: string) {
   if (network === "goerli") {
     return "0x1e3C935E9A45aBd04430236DE959d12eD9763162";
   } else if (network == "cronosTestnet") {
-    return "0xa6Ec5790C26102018b07817fd464E2673a5e2B8D"
+    return "0xa6Ec5790C26102018b07817fd464E2673a5e2B8D";
   } else if (network == "bscTestnet") {
     return "0x3b369B27c641637e5EE7FF9cF516Cb9F8F60cC85";
   }
   return "0x0000000000000000000000000000000000000000";
 }
 
-export {protocolVersion, getGrtAddress};
+export { protocolVersion, getGrtAddress };
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -46,7 +43,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       chainId: 31337,
-      allowUnlimitedContractSize: true
+      allowUnlimitedContractSize: true,
     },
     goerli: {
       url: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
@@ -118,7 +115,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       goerli: ETHERSCAN_KEY!,
       bscTestnet: BSCSCAN_KEY!,
-      cronosTestnet: CRONOS_SCAN_KEY!
+      cronosTestnet: CRONOS_SCAN_KEY!,
     },
     customChains: [
       {
@@ -128,8 +125,8 @@ const config: HardhatUserConfig = {
           apiURL: "https://api-testnet.cronoscan.com/api",
           browserURL: "https://testnet.cronoscan.com/",
         },
-      }
-    ]
+      },
+    ],
   },
   namedAccounts: {
     owner: {
@@ -143,22 +140,22 @@ const config: HardhatUserConfig = {
       deployer: OWNER_ADDRESS,
       funding: "0",
       signedTx: "0x",
-    }
+    },
   },
   // https://github.com/ItsNickBarry/hardhat-abi-exporter
   abiExporter: {
-    path: './abis',
+    path: "./abis",
     runOnCompile: true,
     clear: true,
     flat: true,
     only: [
       `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`,
       `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`,
-      'ERC20Sample'
+      "ERC20Sample",
     ],
     spacing: 2,
     format: "json",
-  }
+  },
 
   // deterministicDeployment: () => {
   //   return {
@@ -168,7 +165,6 @@ const config: HardhatUserConfig = {
   //     signedTx: "0x0", // We will deploy from our own script
   //   };
   // },
-
 };
 
 export default config;
