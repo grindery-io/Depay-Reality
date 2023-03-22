@@ -2,14 +2,11 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./utils/GrtTokenUtils.sol";
 import "./utils/GrtOfferUtils.sol";
 
-contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
+contract GrtOffer is GrtOfferUtils {
     event LogNewOffer(
         bytes32 indexed _idOffer,
-        address indexed _contractAddress,
         address indexed _token,
         uint256 _chainId
     );
@@ -35,7 +32,7 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     function setChainIdOffer(bytes32 offerId, uint256 chainId) external {
         require(
             msg.sender == _offers[offerId].user,
-            "you are not allowed to modify this offer"
+            "Grindery offer: you are not allowed to modify this offer."
         );
         _offers[offerId].chainId = chainId;
         emit LogSetChainIdOffer(offerId, chainId);
@@ -44,48 +41,42 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     function setTokenOffer(bytes32 offerId, address token) external {
         require(
             msg.sender == _offers[offerId].user,
-            "you are not allowed to modify this offer"
+            "Grindery offer: you are not allowed to modify this offer."
         );
         _offers[offerId].token = token;
         emit LogSetTokenOffer(offerId, token);
     }
 
-    function setPriceContractAddressOffer(
+    function setMinPriceLimit(
         bytes32 offerId,
-        address priceContractAddress
+        bytes calldata minPriceLimit
     ) external {
         require(
             msg.sender == _offers[offerId].user,
-            "you are not allowed to modify this offer"
+            "Grindery offer: you are not allowed to modify this offer."
         );
-        _offers[offerId].priceContractAddress = priceContractAddress;
-        emit LogSetPriceContractAddressOffer(offerId, priceContractAddress);
+        bytes32 priceLimit = keccak256(abi.encodePacked(minPriceLimit));
+        _offers[offerId].minPriceLimit = priceLimit;
+        emit LogSetLowerLimitOffer(offerId, priceLimit);
     }
 
-    function setLowerLimitOffer(bytes32 offerId, bytes calldata args) external {
+    function setMaxPriceLimit(
+        bytes32 offerId,
+        bytes calldata maxPriceLimit
+    ) external {
         require(
             msg.sender == _offers[offerId].user,
-            "you are not allowed to modify this offer"
+            "Grindery offer: you are not allowed to modify this offer."
         );
-        bytes32 h = keccak256(abi.encodePacked(args));
-        _offers[offerId].lowerLimitFn = h;
-        emit LogSetLowerLimitOffer(offerId, h);
-    }
-
-    function setUpperLimitOffer(bytes32 offerId, bytes calldata args) external {
-        require(
-            msg.sender == _offers[offerId].user,
-            "you are not allowed to modify this offer"
-        );
-        bytes32 h = keccak256(abi.encodePacked(args));
-        _offers[offerId].upperLimitFn = h;
-        emit LogSetUpperLimitOffer(offerId, h);
+        bytes32 priceLimit = keccak256(abi.encodePacked(maxPriceLimit));
+        _offers[offerId].maxPriceLimit = priceLimit;
+        emit LogSetUpperLimitOffer(offerId, priceLimit);
     }
 
     function setIsActive(bytes32 offerId, bool isActive) external {
         require(
             msg.sender == _offers[offerId].user,
-            "you are not allowed to modify this offer"
+            "Grindery offer: you are not allowed to modify this offer."
         );
         _offers[offerId].isActive = isActive;
         emit LogSetStatusOffer(offerId, isActive);
@@ -94,17 +85,12 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     function setOffer(
         address token,
         uint256 chainId,
-        address priceContractAddress,
-        bytes calldata upperLimitFn,
-        bytes calldata lowerLimitFn
-    ) external returns (bytes32) {
+        bytes calldata minPriceLimit,
+        bytes calldata maxPriceLimit
+    ) external returns (bool) {
         require(
             msg.sender != address(0),
-            "setOffer from zero address is not allowed"
-        );
-        require(
-            _stakes[msg.sender][chainId] > 1,
-            "Not enough staked GRT to set up an offer"
+            "Grindery offer: setOffer from zero address is not allowed"
         );
         bytes32 offerId = keccak256(
             abi.encodePacked(msg.sender, _noncesOffer[msg.sender])
@@ -113,84 +99,32 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
         _offers[offerId].isActive = true;
         _offers[offerId].chainId = chainId;
         _offers[offerId].token = token;
-        _offers[offerId].priceContractAddress = priceContractAddress;
-        _offers[offerId].lowerLimitFn = keccak256(
-            abi.encodePacked(lowerLimitFn)
+        _offers[offerId].minPriceLimit = keccak256(
+            abi.encodePacked(minPriceLimit)
         );
-        _offers[offerId].upperLimitFn = keccak256(
-            abi.encodePacked(upperLimitFn)
+        _offers[offerId].maxPriceLimit = keccak256(
+            abi.encodePacked(maxPriceLimit)
         );
-        emit LogNewOffer(
-            offerId,
-            _offers[offerId].priceContractAddress,
-            token,
-            chainId
-        );
+        emit LogNewOffer(offerId, token, chainId);
         _noncesOffer[msg.sender]++;
-        return offerId;
+        return true;
     }
 
-    function checkParametersLowerLimitOffer(
+    function checkMinPriceLimitOffer(
         bytes32 offerId,
-        address priceContractAddress,
-        bytes calldata args
+        bytes calldata minPriceLimit
     ) external view returns (bool) {
         return
-            keccak256(abi.encodePacked(args)) ==
-            _offers[offerId].lowerLimitFn &&
-            priceContractAddress == _offers[offerId].priceContractAddress;
+            keccak256(abi.encodePacked(minPriceLimit)) ==
+            _offers[offerId].minPriceLimit;
     }
 
-    function checkParametersUpperLimitOffer(
+    function checkMaxPriceLimitOffer(
         bytes32 offerId,
-        address priceContractAddress,
-        bytes calldata args
+        bytes calldata maxPriceLimit
     ) external view returns (bool) {
         return
-            keccak256(abi.encodePacked(args)) ==
-            _offers[offerId].upperLimitFn &&
-            priceContractAddress == _offers[offerId].priceContractAddress;
-    }
-
-    function getUpperPriceLimitFromContract(
-        bytes32 offerId,
-        bytes calldata fn
-    ) external view returns (uint256) {
-        require(
-            _offers[offerId].priceContractAddress != address(0),
-            "GRT offers: not allowed to modify the price limit via an external smart contract"
-        );
-        require(
-            keccak256(abi.encodePacked(fn)) == _offers[offerId].upperLimitFn,
-            "GRT offers: the function does not match the one entered in the offer"
-        );
-        (bool success, bytes memory result) = _offers[offerId]
-            .priceContractAddress
-            .staticcall(fn);
-        if (success) {
-            return abi.decode(result, (uint256));
-        }
-        return 0;
-    }
-
-    function getLowerPriceLimitFromContract(
-        bytes32 offerId,
-        bytes calldata fn
-    ) external view returns (uint256) {
-        require(
-            _offers[offerId].priceContractAddress != address(0),
-            "GRT offers: not allowed to modify the price limit via an external smart contract"
-        );
-        require(
-            keccak256(abi.encodePacked(fn)) == _offers[offerId].lowerLimitFn,
-            "GRT offers: the function does not match the one entered in the offer"
-        );
-        (bool success, bytes memory result) = _offers[offerId]
-            .priceContractAddress
-            .staticcall(fn);
-        if (success) {
-            return abi.decode(result, (uint256));
-        }
-        return 0;
+            keccak256(abi.encodePacked(maxPriceLimit)) ==
+            _offers[offerId].maxPriceLimit;
     }
 }

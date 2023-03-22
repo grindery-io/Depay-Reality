@@ -13,6 +13,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         TokenInfo deposit;
         bytes32 offerId;
     }
+
     struct TokenInfo {
         address token;
         uint256 amount;
@@ -50,6 +51,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
             "Grindery Pool: the offer is inactive."
         );
         (bool sent, ) = address(this).call{value: amount}("");
+        require(sent, "Grindery Pool: failed to send native tokens.");
         if (sent) {
             bytes32 tradeId = keccak256(
                 abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])

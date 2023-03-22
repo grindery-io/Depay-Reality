@@ -2,28 +2,18 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "hardhat/console.sol";
-
-contract GrtOfferUtils is OwnableUpgradeable {
+contract GrtOfferUtils {
     struct Offer {
         address user;
         bool isActive;
         uint256 chainId;
         address token;
-        address priceContractAddress;
-        bytes32 upperLimitFn;
-        bytes32 lowerLimitFn;
+        bytes32 maxPriceLimit;
+        bytes32 minPriceLimit;
     }
 
     mapping(bytes32 => Offer) internal _offers;
     mapping(address => uint256) internal _noncesOffer;
-
-    // function initializeGrtOfferUtils() internal initializer {
-    //     __Ownable_init();
-    // }
 
     function getOfferer(bytes32 offerId) external view returns (address) {
         return _offers[offerId].user;
@@ -33,22 +23,16 @@ contract GrtOfferUtils is OwnableUpgradeable {
         return _offers[offerId].isActive;
     }
 
-    function getAddressPriceContractOffer(
-        bytes32 offerId
-    ) external view returns (address) {
-        return _offers[offerId].priceContractAddress;
-    }
-
-    function getLowerLimitFnHashOffer(
+    function getMinPriceLimitHashOffer(
         bytes32 offerId
     ) external view returns (bytes32) {
-        return _offers[offerId].lowerLimitFn;
+        return _offers[offerId].minPriceLimit;
     }
 
-    function getUpperLimitFnHashOffer(
+    function getMaxPriceLimitHashOffer(
         bytes32 offerId
     ) external view returns (bytes32) {
-        return _offers[offerId].upperLimitFn;
+        return _offers[offerId].maxPriceLimit;
     }
 
     function getTokenOffer(bytes32 offerId) external view returns (address) {
