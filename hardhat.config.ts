@@ -151,6 +151,7 @@ const config: HardhatUserConfig = {
     only: [
       `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`,
       `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`,
+      `contracts/v${protocolVersion}/GrtLiquidityWallet.sol:GrtLiquidityWallet`,
       "ERC20Sample",
     ],
     spacing: 2,
