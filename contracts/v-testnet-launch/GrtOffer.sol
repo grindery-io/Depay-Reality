@@ -87,7 +87,7 @@ contract GrtOffer is GrtOfferUtils {
         uint256 chainId,
         bytes calldata minPriceLimit,
         bytes calldata maxPriceLimit
-    ) external returns (bool) {
+    ) external returns (bytes32) {
         require(
             msg.sender != address(0),
             "Grindery offer: setOffer from zero address is not allowed"
@@ -107,7 +107,7 @@ contract GrtOffer is GrtOfferUtils {
         );
         emit LogNewOffer(offerId, token, chainId);
         _noncesOffer[msg.sender]++;
-        return true;
+        return offerId;
     }
 
     function checkMinPriceLimitOffer(

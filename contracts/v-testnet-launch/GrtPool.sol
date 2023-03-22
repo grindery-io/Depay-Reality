@@ -40,7 +40,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         uint256 amount,
         bytes32 offerId,
         address destAddr
-    ) external payable returns (bool) {
+    ) external payable returns (bytes32) {
         require(amount > 0, "Grindery Pool: amount must be positive.");
         require(
             destAddr != address(0),
@@ -52,20 +52,17 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         );
         (bool sent, ) = address(this).call{value: amount}("");
         require(sent, "Grindery Pool: failed to send native tokens.");
-        if (sent) {
-            bytes32 tradeId = keccak256(
-                abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
-            );
-            Trade storage trade = _trades[tradeId];
-            trade.userAddr = msg.sender;
-            trade.destAddr = destAddr;
-            trade.deposit = setTokenInfo(address(0), amount, block.chainid);
-            trade.offerId = offerId;
-            _noncesDeposit[msg.sender]++;
-            emit LogTrade(tradeId, address(0), amount, offerId);
-            return true;
-        }
-        return false;
+        bytes32 tradeId = keccak256(
+            abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
+        );
+        Trade storage trade = _trades[tradeId];
+        trade.userAddr = msg.sender;
+        trade.destAddr = destAddr;
+        trade.deposit = setTokenInfo(address(0), amount, block.chainid);
+        trade.offerId = offerId;
+        _noncesDeposit[msg.sender]++;
+        emit LogTrade(tradeId, address(0), amount, offerId);
+        return tradeId;
     }
 
     function getNonceDeposit(address user) external view returns (uint256) {
