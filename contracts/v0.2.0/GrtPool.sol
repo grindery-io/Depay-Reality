@@ -14,7 +14,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         address userAddr;
         address destAddr;
         TokenInfo deposit;
-        bytes32 idOffer;
+        bytes32 offerId;
     }
     struct TokenInfo {
         address token;
@@ -49,53 +49,53 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function depositGRTWithOffer(
         uint256 amntDepGRT,
-        bytes32 idOffer,
+        bytes32 offerId,
         address destAddr
     ) external returns (bool) {
         require(destAddr != address(0), "zero address as destination address");
-        require(_offers[idOffer].isActive, "the offer is inactive");
+        require(_offers[offerId].isActive, "the offer is inactive");
         depositGRT(amntDepGRT);
-        bytes32 idTrade = keccak256(
+        bytes32 tradeId = keccak256(
             abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
         );
-        emit LogTrade(idTrade, _addrGRT, amntDepGRT, idOffer);
-        Trade storage trade = _trades[idTrade];
+        emit LogTrade(tradeId, _addrGRT, amntDepGRT, offerId);
+        Trade storage trade = _trades[tradeId];
         trade.userAddr = msg.sender;
         trade.destAddr = destAddr;
         trade.deposit = setTokenInfo(_addrGRT, amntDepGRT, block.chainid);
-        trade.idOffer = idOffer;
+        trade.offerId = offerId;
         _noncesDeposit[msg.sender]++;
         return true;
     }
 
-    function getIdOffer(bytes32 idTrade) external view returns (bytes32) {
-        return _trades[idTrade].idOffer;
+    function getIdOffer(bytes32 tradeId) external view returns (bytes32) {
+        return _trades[tradeId].offerId;
     }
 
     function getNonceDeposit(address user) external view returns (uint256) {
         return _noncesDeposit[user];
     }
 
-    function getRequester(bytes32 idTrade) external view returns (address) {
-        return _trades[idTrade].userAddr;
+    function getRequester(bytes32 tradeId) external view returns (address) {
+        return _trades[tradeId].userAddr;
     }
 
-    function getRecipient(bytes32 idTrade) external view returns (address) {
-        return _trades[idTrade].destAddr;
+    function getRecipient(bytes32 tradeId) external view returns (address) {
+        return _trades[tradeId].destAddr;
     }
 
-    function getDepositToken(bytes32 idTrade) external view returns (address) {
-        return _trades[idTrade].deposit.token;
+    function getDepositToken(bytes32 tradeId) external view returns (address) {
+        return _trades[tradeId].deposit.token;
     }
 
-    function getDepositAmount(bytes32 idTrade) external view returns (uint256) {
-        return _trades[idTrade].deposit.amount;
+    function getDepositAmount(bytes32 tradeId) external view returns (uint256) {
+        return _trades[tradeId].deposit.amount;
     }
 
     function getDepositChainId(
-        bytes32 idTrade
+        bytes32 tradeId
     ) external view returns (uint256) {
-        return _trades[idTrade].deposit.chainId;
+        return _trades[tradeId].deposit.chainId;
     }
 
     function setTokenInfo(
@@ -105,5 +105,4 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     ) internal pure returns (TokenInfo memory) {
         return TokenInfo(token, amount, chainId);
     }
-
 }

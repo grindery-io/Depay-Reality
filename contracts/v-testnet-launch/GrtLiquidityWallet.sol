@@ -3,22 +3,25 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "./interface/IGrtSatellite.sol";
-import "hardhat/console.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract GrtLiquidityWallet is Ownable {
-
-    address _GrtSatellite;
+contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
     address _bot;
 
-    constructor(
-        address satellite,
-        address bot
-    ) {
-        _GrtSatellite = satellite;
+    event LogOfferPaid(
+        bytes32 indexed _offerId,
+        address indexed _token,
+        address indexed _to,
+        uint256 _amount
+    );
+
+    function initializeLiquidityWallet(address bot) external initializer {
+        __Ownable_init();
         _bot = bot;
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 
     receive() external payable {}
 
@@ -26,55 +29,58 @@ contract GrtLiquidityWallet is Ownable {
         _bot = bot;
     }
 
-    function setSatellite(address satellite) external onlyOwner {
-        _GrtSatellite = satellite;
-    }
-
-    function getBot() external view onlyOwner returns(address) {
+    function getBot() external view returns (address) {
         return _bot;
     }
 
-    function getSatellite() external view onlyOwner returns(address) {
-        return _GrtSatellite;
-    }
-
     function withdrawERC20(
-        address _addrGrtToken,
+        address token,
         uint256 amount
     ) external onlyOwner returns (bool) {
-        return IERC20(_addrGrtToken).transfer(msg.sender, amount);
+        return IERC20(token).transfer(msg.sender, amount);
     }
 
-    function withdrawNative(
-        uint256 amount
-    ) external onlyOwner returns (bool) {
-        require(address(this).balance >= amount, "Insufficient balance");
+    function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
+        require(
+            address(this).balance >= amount,
+            "Grindery wallet: insufficient balance."
+        );
         (bool sent, ) = msg.sender.call{value: amount}("");
-        require(sent, "Failed to send native tokens");
-        return true;
+        require(sent, "Grindery wallet: failed to send native tokens.");
+        return sent;
     }
 
-    function payOfferERC20(
-        bytes32 idOffer,
+    function payOfferWithERC20Tokens(
+        bytes32 offerId,
         address token,
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(msg.sender == owner() || msg.sender == _bot, "Not allowed to pay the offer");
+        require(
+            msg.sender == owner() || msg.sender == _bot,
+            "Grindery wallet: not allowed to pay the offer."
+        );
         IERC20(token).transfer(to, amount);
-        return IGrtSatellite(_GrtSatellite).rewardOffer(idOffer, 1);
+        emit LogOfferPaid(offerId, token, to, amount);
+        return true;
     }
 
-    function payOfferNative(
-        bytes32 idOffer,
+    function payOfferWithNativeTokens(
+        bytes32 offerId,
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(msg.sender == owner() || msg.sender == _bot, "Not allowed to pay the offer");
-        require(address(this).balance >= amount, "Insufficient balance");
+        require(
+            msg.sender == owner() || msg.sender == _bot,
+            "Grindery wallet: not allowed to pay the offer."
+        );
+        require(
+            address(this).balance >= amount,
+            "Grindery wallet: insufficient balance."
+        );
         (bool sent, ) = to.call{value: amount}("");
-        require(sent, "Failed to send native tokens");
-        bool resp =  IGrtSatellite(_GrtSatellite).rewardOffer(idOffer, 1);
-        return resp;
+        require(sent, "Grindery wallet: failed to send native tokens.");
+        emit LogOfferPaid(offerId, address(0), to, amount);
+        return true;
     }
 }

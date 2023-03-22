@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "hardhat/console.sol";
 
 contract GrtOfferUtils is OwnableUpgradeable {
-
     struct Offer {
         address user;
         bool isActive;
@@ -26,36 +25,41 @@ contract GrtOfferUtils is OwnableUpgradeable {
     //     __Ownable_init();
     // }
 
-    function getOfferer(bytes32 idOffer) external view returns (address) {
-        return _offers[idOffer].user;
+    function getOfferer(bytes32 offerId) external view returns (address) {
+        return _offers[offerId].user;
     }
 
-    function getStatusOffer(bytes32 idOffer) external view returns (bool) {
-        return _offers[idOffer].isActive;
+    function getStatusOffer(bytes32 offerId) external view returns (bool) {
+        return _offers[offerId].isActive;
     }
 
-    function getAddressPriceContractOffer(bytes32 idOffer) external view returns (address) {
-        return _offers[idOffer].priceContractAddress;
+    function getAddressPriceContractOffer(
+        bytes32 offerId
+    ) external view returns (address) {
+        return _offers[offerId].priceContractAddress;
     }
 
-    function getLowerLimitFnHashOffer(bytes32 idOffer) external view returns (bytes32) {
-        return _offers[idOffer].lowerLimitFn;
+    function getLowerLimitFnHashOffer(
+        bytes32 offerId
+    ) external view returns (bytes32) {
+        return _offers[offerId].lowerLimitFn;
     }
 
-    function getUpperLimitFnHashOffer(bytes32 idOffer) external view returns (bytes32) {
-        return _offers[idOffer].upperLimitFn;
+    function getUpperLimitFnHashOffer(
+        bytes32 offerId
+    ) external view returns (bytes32) {
+        return _offers[offerId].upperLimitFn;
     }
 
-    function getTokenOffer(bytes32 idOffer) external view returns (address) {
-        return _offers[idOffer].token;
+    function getTokenOffer(bytes32 offerId) external view returns (address) {
+        return _offers[offerId].token;
     }
 
-    function getChainIdOffer(bytes32 idOffer) external view returns (uint256) {
-        return _offers[idOffer].chainId;
+    function getChainIdOffer(bytes32 offerId) external view returns (uint256) {
+        return _offers[offerId].chainId;
     }
 
     function getNonceOffer(address user) external view returns (uint256) {
         return _noncesOffer[user];
     }
-
 }

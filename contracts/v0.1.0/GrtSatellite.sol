@@ -9,7 +9,6 @@ import "../reality/IRealityETH.sol";
 import "hardhat/console.sol";
 
 contract GrtSatellite is OwnableUpgradeable {
-
     struct PaymentInfo {
         address token;
         address from;
@@ -25,7 +24,11 @@ contract GrtSatellite is OwnableUpgradeable {
     // Event declarations
     // event LogOfferPaidSatelliteCrossChain(address indexed _from, address indexed _to, address indexed _token, uint _amount);
 
-    event LogOfferPaidSatelliteCrossChain(bytes32 indexed _idRequest, uint256 indexed _idOffer, bytes32 indexed _paymentId);
+    event LogOfferPaidSatelliteCrossChain(
+        bytes32 indexed _idRequest,
+        uint256 indexed _idOffer,
+        bytes32 indexed _paymentId
+    );
 
     // Initialize
     function initializeSatellite() external initializer {
@@ -35,15 +38,17 @@ contract GrtSatellite is OwnableUpgradeable {
     // Pay the offer cross chain (ERC20 token)
     function payOfferCrossChainERC20(
         bytes32 idRequest,
-        uint256 idOffer,
+        uint256 offerId,
         uint256 chainIdDeposit,
         address token,
         address to,
         uint amount
     ) external returns (bool) {
         IERC20(token).transferFrom(msg.sender, to, amount);
-        bytes32 paymentId = keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit));
-        emit LogOfferPaidSatelliteCrossChain(idRequest, idOffer, paymentId);
+        bytes32 paymentId = keccak256(
+            abi.encodePacked(idRequest, offerId, chainIdDeposit)
+        );
+        emit LogOfferPaidSatelliteCrossChain(idRequest, offerId, paymentId);
         _payments[paymentId] = PaymentInfo(
             token,
             msg.sender,
@@ -51,17 +56,24 @@ contract GrtSatellite is OwnableUpgradeable {
             amount,
             chainIdDeposit,
             idRequest,
-            idOffer
+            offerId
         );
         return true;
     }
 
     // Pay the offer cross chain (Native token)
-    function payOfferCrossChainNative(bytes32 idRequest, uint256 idOffer, uint256 chainIdDeposit, address to) external payable returns (bool) {
+    function payOfferCrossChainNative(
+        bytes32 idRequest,
+        uint256 offerId,
+        uint256 chainIdDeposit,
+        address to
+    ) external payable returns (bool) {
         (bool success, ) = to.call{value: msg.value}("");
         if (success) {
-            bytes32 paymentId = keccak256(abi.encodePacked(idRequest, idOffer, chainIdDeposit));
-            emit LogOfferPaidSatelliteCrossChain(idRequest, idOffer, paymentId);
+            bytes32 paymentId = keccak256(
+                abi.encodePacked(idRequest, offerId, chainIdDeposit)
+            );
+            emit LogOfferPaidSatelliteCrossChain(idRequest, offerId, paymentId);
             _payments[paymentId] = PaymentInfo(
                 address(0),
                 msg.sender,
@@ -69,29 +81,39 @@ contract GrtSatellite is OwnableUpgradeable {
                 msg.value,
                 chainIdDeposit,
                 idRequest,
-                idOffer
+                offerId
             );
         }
         return success;
     }
 
-    function getTokenPayment(bytes32 paymentId) external view returns (address) {
+    function getTokenPayment(
+        bytes32 paymentId
+    ) external view returns (address) {
         return _payments[paymentId].token;
     }
 
-    function getSenderPayment(bytes32 paymentId) external view returns (address) {
+    function getSenderPayment(
+        bytes32 paymentId
+    ) external view returns (address) {
         return _payments[paymentId].from;
     }
 
-    function getReceiverPayment(bytes32 paymentId) external view returns (address) {
+    function getReceiverPayment(
+        bytes32 paymentId
+    ) external view returns (address) {
         return _payments[paymentId].to;
     }
 
-    function getAmountPayment(bytes32 paymentId) external view returns (uint256) {
+    function getAmountPayment(
+        bytes32 paymentId
+    ) external view returns (uint256) {
         return _payments[paymentId].amount;
     }
 
-    function getChainIdDeposit(bytes32 paymentId) external view returns (uint256) {
+    function getChainIdDeposit(
+        bytes32 paymentId
+    ) external view returns (uint256) {
         return _payments[paymentId].chainIdDeposit;
     }
 
@@ -102,5 +124,4 @@ contract GrtSatellite is OwnableUpgradeable {
     function getOfferId(bytes32 paymentId) external view returns (uint256) {
         return _payments[paymentId].offerId;
     }
-
 }

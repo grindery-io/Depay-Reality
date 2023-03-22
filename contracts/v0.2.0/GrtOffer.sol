@@ -10,7 +10,6 @@ import "./utils/GrtOfferUtils.sol";
 import "hardhat/console.sol";
 
 contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
-
     event LogNewOffer(
         bytes32 indexed _idOffer,
         address indexed _contractAddress,
@@ -21,10 +20,7 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
         bytes32 indexed _idOffer,
         uint256 indexed _chainId
     );
-    event LogSetTokenOffer(
-        bytes32 indexed _idOffer,
-        address indexed _token
-    );
+    event LogSetTokenOffer(bytes32 indexed _idOffer, address indexed _token);
     event LogSetPriceContractAddressOffer(
         bytes32 indexed _idOffer,
         address indexed _priceContractAddress
@@ -37,65 +33,65 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
         bytes32 indexed _idOffer,
         bytes32 indexed _upperLimitFn
     );
-    event LogSetStatusOffer(
-        bytes32 indexed _idOffer,
-        bool indexed _isActive
-    );
+    event LogSetStatusOffer(bytes32 indexed _idOffer, bool indexed _isActive);
 
-    function setChainIdOffer(
-        bytes32 idOffer,
-        uint256 chainId
-    ) external {
-        require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
-        _offers[idOffer].chainId = chainId;
-        emit LogSetChainIdOffer(idOffer, chainId);
+    function setChainIdOffer(bytes32 offerId, uint256 chainId) external {
+        require(
+            msg.sender == _offers[offerId].user,
+            "you are not allowed to modify this offer"
+        );
+        _offers[offerId].chainId = chainId;
+        emit LogSetChainIdOffer(offerId, chainId);
     }
 
-    function setTokenOffer(
-        bytes32 idOffer,
-        address token
-    ) external {
-        require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
-        _offers[idOffer].token = token;
-        emit LogSetTokenOffer(idOffer, token);
+    function setTokenOffer(bytes32 offerId, address token) external {
+        require(
+            msg.sender == _offers[offerId].user,
+            "you are not allowed to modify this offer"
+        );
+        _offers[offerId].token = token;
+        emit LogSetTokenOffer(offerId, token);
     }
 
     function setPriceContractAddressOffer(
-        bytes32 idOffer,
+        bytes32 offerId,
         address priceContractAddress
     ) external {
-        require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
-        _offers[idOffer].priceContractAddress = priceContractAddress;
-        emit LogSetPriceContractAddressOffer(idOffer, priceContractAddress);
+        require(
+            msg.sender == _offers[offerId].user,
+            "you are not allowed to modify this offer"
+        );
+        _offers[offerId].priceContractAddress = priceContractAddress;
+        emit LogSetPriceContractAddressOffer(offerId, priceContractAddress);
     }
 
-    function setLowerLimitOffer(
-        bytes32 idOffer,
-        bytes calldata args
-    ) external {
-        require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
+    function setLowerLimitOffer(bytes32 offerId, bytes calldata args) external {
+        require(
+            msg.sender == _offers[offerId].user,
+            "you are not allowed to modify this offer"
+        );
         bytes32 h = keccak256(abi.encodePacked(args));
-        _offers[idOffer].lowerLimitFn = h;
-        emit LogSetLowerLimitOffer(idOffer, h);
+        _offers[offerId].lowerLimitFn = h;
+        emit LogSetLowerLimitOffer(offerId, h);
     }
 
-    function setUpperLimitOffer(
-        bytes32 idOffer,
-        bytes calldata args
-    ) external {
-        require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
+    function setUpperLimitOffer(bytes32 offerId, bytes calldata args) external {
+        require(
+            msg.sender == _offers[offerId].user,
+            "you are not allowed to modify this offer"
+        );
         bytes32 h = keccak256(abi.encodePacked(args));
-        _offers[idOffer].upperLimitFn = h;
-        emit LogSetUpperLimitOffer(idOffer, h);
+        _offers[offerId].upperLimitFn = h;
+        emit LogSetUpperLimitOffer(offerId, h);
     }
 
-    function setIsActive(
-        bytes32 idOffer,
-        bool isActive
-    ) external {
-        require(msg.sender == _offers[idOffer].user, "you are not allowed to modify this offer");
-        _offers[idOffer].isActive = isActive;
-        emit LogSetStatusOffer(idOffer, isActive);
+    function setIsActive(bytes32 offerId, bool isActive) external {
+        require(
+            msg.sender == _offers[offerId].user,
+            "you are not allowed to modify this offer"
+        );
+        _offers[offerId].isActive = isActive;
+        emit LogSetStatusOffer(offerId, isActive);
     }
 
     function setOffer(
@@ -105,62 +101,75 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
         bytes calldata upperLimitFn,
         bytes calldata lowerLimitFn
     ) external returns (bytes32) {
-        require(msg.sender != address(0), "setOffer from zero address is not allowed");
-        require(_stakes[msg.sender][chainId] > 1, "Not enough staked GRT to set up an offer");
-        bytes32 idOffer = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                _noncesOffer[msg.sender]
-            )
+        require(
+            msg.sender != address(0),
+            "setOffer from zero address is not allowed"
         );
-        _offers[idOffer].user = msg.sender;
-        _offers[idOffer].isActive = true;
-        _offers[idOffer].chainId = chainId;
-        _offers[idOffer].token = token;
-        _offers[idOffer].priceContractAddress = priceContractAddress;
-        _offers[idOffer].lowerLimitFn = keccak256(abi.encodePacked(lowerLimitFn));
-        _offers[idOffer].upperLimitFn = keccak256(abi.encodePacked(upperLimitFn));
+        require(
+            _stakes[msg.sender][chainId] > 1,
+            "Not enough staked GRT to set up an offer"
+        );
+        bytes32 offerId = keccak256(
+            abi.encodePacked(msg.sender, _noncesOffer[msg.sender])
+        );
+        _offers[offerId].user = msg.sender;
+        _offers[offerId].isActive = true;
+        _offers[offerId].chainId = chainId;
+        _offers[offerId].token = token;
+        _offers[offerId].priceContractAddress = priceContractAddress;
+        _offers[offerId].lowerLimitFn = keccak256(
+            abi.encodePacked(lowerLimitFn)
+        );
+        _offers[offerId].upperLimitFn = keccak256(
+            abi.encodePacked(upperLimitFn)
+        );
         emit LogNewOffer(
-            idOffer,
-            _offers[idOffer].priceContractAddress,
+            offerId,
+            _offers[offerId].priceContractAddress,
             token,
             chainId
         );
         _noncesOffer[msg.sender]++;
-        return idOffer;
+        return offerId;
     }
 
     function checkParametersLowerLimitOffer(
-        bytes32 idOffer,
+        bytes32 offerId,
         address priceContractAddress,
         bytes calldata args
     ) external view returns (bool) {
-        return keccak256(abi.encodePacked(args)) == _offers[idOffer].lowerLimitFn
-        && priceContractAddress == _offers[idOffer].priceContractAddress;
+        return
+            keccak256(abi.encodePacked(args)) ==
+            _offers[offerId].lowerLimitFn &&
+            priceContractAddress == _offers[offerId].priceContractAddress;
     }
 
     function checkParametersUpperLimitOffer(
-        bytes32 idOffer,
+        bytes32 offerId,
         address priceContractAddress,
         bytes calldata args
     ) external view returns (bool) {
-        return keccak256(abi.encodePacked(args)) == _offers[idOffer].upperLimitFn
-        && priceContractAddress == _offers[idOffer].priceContractAddress;
+        return
+            keccak256(abi.encodePacked(args)) ==
+            _offers[offerId].upperLimitFn &&
+            priceContractAddress == _offers[offerId].priceContractAddress;
     }
 
     function getUpperPriceLimitFromContract(
-        bytes32 idOffer,
+        bytes32 offerId,
         bytes calldata fn
     ) external view returns (uint256) {
         require(
-            _offers[idOffer].priceContractAddress != address(0),
+            _offers[offerId].priceContractAddress != address(0),
             "GRT offers: not allowed to modify the price limit via an external smart contract"
         );
         require(
-            keccak256(abi.encodePacked(fn)) == _offers[idOffer].upperLimitFn,
+            keccak256(abi.encodePacked(fn)) == _offers[offerId].upperLimitFn,
             "GRT offers: the function does not match the one entered in the offer"
         );
-        (bool success, bytes memory result) = _offers[idOffer].priceContractAddress.staticcall(fn);
+        (bool success, bytes memory result) = _offers[offerId]
+            .priceContractAddress
+            .staticcall(fn);
         if (success) {
             return abi.decode(result, (uint256));
         }
@@ -168,22 +177,23 @@ contract GrtOffer is GrtTokenUtils, GrtOfferUtils {
     }
 
     function getLowerPriceLimitFromContract(
-        bytes32 idOffer,
+        bytes32 offerId,
         bytes calldata fn
     ) external view returns (uint256) {
         require(
-            _offers[idOffer].priceContractAddress != address(0),
+            _offers[offerId].priceContractAddress != address(0),
             "GRT offers: not allowed to modify the price limit via an external smart contract"
         );
         require(
-            keccak256(abi.encodePacked(fn)) == _offers[idOffer].lowerLimitFn,
+            keccak256(abi.encodePacked(fn)) == _offers[offerId].lowerLimitFn,
             "GRT offers: the function does not match the one entered in the offer"
         );
-        (bool success, bytes memory result) = _offers[idOffer].priceContractAddress.staticcall(fn);
+        (bool success, bytes memory result) = _offers[offerId]
+            .priceContractAddress
+            .staticcall(fn);
         if (success) {
             return abi.decode(result, (uint256));
         }
         return 0;
     }
-
 }

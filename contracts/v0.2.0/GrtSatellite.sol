@@ -35,11 +35,11 @@ contract GrtSatellite is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function rewardOffer(
-        bytes32 idOffer,
+        bytes32 offerId,
         uint256 amount
     ) external returns (bool) {
         IERC20(_addrGRT).transfer(msg.sender, amount);
-        emit LogRewardOffer(idOffer, _addrGRT, amount);
+        emit LogRewardOffer(offerId, _addrGRT, amount);
         return true;
     }
 

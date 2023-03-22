@@ -2,5 +2,8 @@
 pragma solidity ^0.8.17;
 
 interface IGrtSatellite {
-    function rewardOffer(bytes32 idOffer, uint256 amount) external returns (bool);
+    function rewardOffer(
+        bytes32 offerId,
+        uint256 amount
+    ) external returns (bool);
 }

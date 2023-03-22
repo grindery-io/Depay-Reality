@@ -13,7 +13,7 @@ describe("Grindery Satellite testings", function () {
     token: Contract,
     grtLiquidityWallet: Contract,
     grtSatellite: any,
-    idOffer: string;
+    offerId: string;
 
   beforeEach(async function () {
     [owner, user1, user2] = await ethers.getSigners();
@@ -41,9 +41,7 @@ describe("Grindery Satellite testings", function () {
     ).deploy(grtSatellite.address, owner.address);
     await grtLiquidityWallet.deployed();
 
-    // idOffer =
-    //   "0xd2b8dbec86dba5f9b5c34f84d0dc19bf715f984e3c78051e5ffa813a1d29dd73";
-    idOffer =
+    offerId =
       "0x784D94277B92AA7F8746A7715982F9B5022946FAEC89A8D4F8F3CECEF67B96E1";
   });
 
@@ -89,13 +87,13 @@ describe("Grindery Satellite testings", function () {
   describe("Reward for an offer", function () {
     it("Should increase the token balance of the offerer", async function () {
       await grtToken.connect(user1).mint(grtSatellite.address, 10000);
-      await grtSatellite.connect(user1).rewardOffer(idOffer, 100);
+      await grtSatellite.connect(user1).rewardOffer(offerId, 100);
       expect(await grtToken.balanceOf(user1.address)).to.equal(100);
     });
 
     it("Should decrease the token balance of the GRT satellite contract", async function () {
       await grtToken.connect(user1).mint(grtSatellite.address, 10000);
-      await grtSatellite.connect(user1).rewardOffer(idOffer, 100);
+      await grtSatellite.connect(user1).rewardOffer(offerId, 100);
       expect(await grtToken.balanceOf(grtSatellite.address)).to.equal(
         10000 - 100
       );
@@ -106,10 +104,10 @@ describe("Grindery Satellite testings", function () {
       await expect(
         await grtSatellite
           .connect(user1)
-          .rewardOffer(idOffer.toLowerCase(), 100)
+          .rewardOffer(offerId.toLowerCase(), 100)
       )
         .to.emit(grtSatellite, "LogRewardOffer")
-        .withArgs(idOffer.toLowerCase(), grtToken.address, 100);
+        .withArgs(offerId.toLowerCase(), grtToken.address, 100);
     });
   });
 });
