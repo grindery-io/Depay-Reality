@@ -82,6 +82,19 @@ describe("Grindery Satellite testings", function () {
         ).address
       );
     });
+
+    it("Should set the smart contract function caller as owner", async function () {
+      const result = await (
+        await grtSatellite.connect(user2).deployLiquidityContract()
+      ).wait();
+
+      const contract = await ethers.getContractAt(
+        "contracts/v0.2.0/GrtLiquidityWallet.sol:GrtLiquidityWallet",
+        result.logs[0].address
+      );
+
+      expect(await contract.owner()).to.equal(user2.address);
+    });
   });
 
   describe("Reward for an offer", function () {
