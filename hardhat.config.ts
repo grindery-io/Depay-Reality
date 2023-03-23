@@ -14,6 +14,8 @@ import {
   BSCSCAN_KEY,
   CRONOS_SCAN_KEY,
 } from "./secrets";
+import "./tasks/v-testnet-launch/deploy-grtPool";
+import "./tasks/v-testnet-launch/deploy-grtLiquidityWallet";
 
 let protocolVersion = "0.2.0";
 
