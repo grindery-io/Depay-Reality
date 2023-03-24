@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -30,7 +30,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         bytes32 _idOffer
     );
 
-    function initializePool() external initializer {
+    function initialize() external initializer {
         __Ownable_init();
     }
 
@@ -42,10 +42,13 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         bytes32 offerId,
         address destAddr
     ) external payable returns (bytes32) {
-        require(msg.value > 0, "Grindery Pool: amount must be positive.");
+        require(
+            msg.value > 0,
+            "Grindery Pool: transfered amount must be positive."
+        );
         require(
             destAddr != address(0),
-            "Grindery Pool: zero address as destination address."
+            "Grindery Pool: zero address as destination address is not allowed."
         );
         require(
             _offers[offerId].isActive,

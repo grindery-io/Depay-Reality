@@ -25,7 +25,8 @@ describe("Grindery Offer testings", function () {
     grtOffer = await upgrades.deployProxy(
       await ethers.getContractFactory(
         `contracts/${protocolVersion}/GrtPool.sol:GrtPool`
-      )
+      ),
+      []
     );
     await grtOffer.deployed();
 
@@ -37,9 +38,6 @@ describe("Grindery Offer testings", function () {
 
     token1 = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await token1.deployed();
-
-    // initialize contract
-    await grtOffer.initializePool();
   });
 
   describe("Initialization", function () {

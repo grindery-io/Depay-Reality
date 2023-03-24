@@ -13,11 +13,11 @@ task("deployGrtPool", "Deploy GRT Pool for testnet launch").setAction(
     const grtPool = await upgrades.deployProxy(
       await ethers.getContractFactory(
         `contracts/${version_protocol}/GrtPool.sol:GrtPool`
-      )
+      ),
+      []
     );
 
     await grtPool.deployed();
-    await grtPool.initializePool();
 
     console.log("--------------------------------------------");
     console.log("GRT pool deployed to:", grtPool.address);

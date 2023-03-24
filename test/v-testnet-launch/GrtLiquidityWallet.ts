@@ -28,11 +28,10 @@ describe("Grindery Liquidity Wallet", () => {
     grtLiquidityWallet = await upgrades.deployProxy(
       await ethers.getContractFactory(
         `contracts/${protocolVersion}/GrtLiquidityWallet.sol:GrtLiquidityWallet`
-      )
+      ),
+      [bot.address]
     );
     await grtLiquidityWallet.deployed();
-    await grtLiquidityWallet.initializeLiquidityWallet(bot.address);
-
     await grtToken.connect(owner).mint(owner.address, 1000);
     offerId =
       "0xd2b8dbec86dba5f9b5c34f84d0dc19bf715f984e3c78051e5ffa813a1d29dd73";
@@ -120,7 +119,7 @@ describe("Grindery Liquidity Wallet", () => {
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
-    it("Should withdraw ERC20 funds", async () => {
+    it("Should decrease the ERC20 balance of the liquidity wallet contract", async () => {
       await grtToken.connect(owner).transfer(grtLiquidityWallet.address, 300);
       const status = await grtLiquidityWallet
         .connect(owner)
@@ -128,6 +127,20 @@ describe("Grindery Liquidity Wallet", () => {
       expect(
         await grtToken.connect(owner).balanceOf(grtLiquidityWallet.address)
       ).to.equal(300 - 100);
+      expect(Boolean(status)).to.be.true;
+    });
+
+    it("Should increase the ERC20 balance of the user", async () => {
+      let expectedBalance = await grtToken
+        .connect(owner)
+        .balanceOf(owner.address);
+      await grtToken.connect(owner).transfer(grtLiquidityWallet.address, 300);
+      const status = await grtLiquidityWallet
+        .connect(owner)
+        .withdrawERC20(grtToken.address, 100);
+      expect(await grtToken.connect(owner).balanceOf(owner.address)).to.equal(
+        expectedBalance - 300 + 100
+      );
       expect(Boolean(status)).to.be.true;
     });
   });

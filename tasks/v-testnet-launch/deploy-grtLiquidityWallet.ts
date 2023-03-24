@@ -19,11 +19,12 @@ task(
     const grtLiquidityWallet = await upgrades.deployProxy(
       await ethers.getContractFactory(
         `contracts/${version_protocol}/GrtLiquidityWallet.sol:GrtLiquidityWallet`
-      )
+      ),
+      [taskArgs.bot]
     );
 
     await grtLiquidityWallet.deployed();
-    await grtLiquidityWallet.initializeLiquidityWallet(taskArgs.bot);
+    // await grtLiquidityWallet.initializeLiquidityWallet(taskArgs.bot);
 
     console.log("--------------------------------------------");
     console.log(

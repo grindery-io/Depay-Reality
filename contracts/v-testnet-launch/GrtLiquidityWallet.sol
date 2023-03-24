@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
+    using SafeERC20 for IERC20;
     address _bot;
 
     event LogOfferPaid(
@@ -16,7 +17,7 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         uint256 _amount
     );
 
-    function initializeLiquidityWallet(address bot) external initializer {
+    function initialize(address bot) external initializer {
         __Ownable_init();
         _bot = bot;
     }
@@ -33,11 +34,8 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         return _bot;
     }
 
-    function withdrawERC20(
-        address token,
-        uint256 amount
-    ) external onlyOwner returns (bool) {
-        return IERC20(token).transfer(msg.sender, amount);
+    function withdrawERC20(address token, uint256 amount) external onlyOwner {
+        return IERC20(token).safeTransfer(msg.sender, amount);
     }
 
     function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
@@ -60,7 +58,7 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
             msg.sender == owner() || msg.sender == _bot,
             "Grindery wallet: not allowed to pay the offer."
         );
-        IERC20(token).transfer(to, amount);
+        IERC20(token).safeTransfer(to, amount);
         emit LogOfferPaid(offerId, token, to, amount);
         return true;
     }

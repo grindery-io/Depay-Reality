@@ -25,7 +25,8 @@ describe("Grindery Offer testings", function () {
     grtPool = await upgrades.deployProxy(
       await ethers.getContractFactory(
         `contracts/${protocolVersion}/GrtPool.sol:GrtPool`
-      )
+      ),
+      []
     );
     await grtPool.deployed();
 
@@ -34,9 +35,6 @@ describe("Grindery Offer testings", function () {
 
     token = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await token.deployed();
-
-    // initialize contract
-    await grtPool.initializePool();
   });
 
   describe("Initialization", function () {
@@ -78,7 +76,9 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user3.address, {
             value: 0,
           })
-      ).to.be.revertedWith("Grindery Pool: amount must be positive.");
+      ).to.be.revertedWith(
+        "Grindery Pool: transfered amount must be positive."
+      );
     });
 
     it("Should fail if the offer is inactive", async function () {
@@ -101,7 +101,7 @@ describe("Grindery Offer testings", function () {
             value: 100,
           })
       ).to.be.revertedWith(
-        "Grindery Pool: zero address as destination address."
+        "Grindery Pool: zero address as destination address is not allowed."
       );
     });
 
