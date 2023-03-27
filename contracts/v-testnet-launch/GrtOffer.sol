@@ -15,10 +15,6 @@ contract GrtOffer is GrtOfferUtils {
         uint256 indexed _chainId
     );
     event LogSetTokenOffer(bytes32 indexed _idOffer, address indexed _token);
-    event LogSetPriceContractAddressOffer(
-        bytes32 indexed _idOffer,
-        address indexed _priceContractAddress
-    );
     event LogSetMinPriceLimit(
         bytes32 indexed _idOffer,
         bytes32 indexed _lowerLimitFn
