@@ -17,7 +17,7 @@ import {
 import "./tasks/v-testnet-launch/deploy-grtPool";
 import "./tasks/v-testnet-launch/deploy-grtLiquidityWallet";
 
-let protocolVersion = "0.2.0";
+let protocolVersion = "-testnet-launch";
 
 function getGrtAddress(network: string) {
   if (network === "goerli") {
