@@ -56,12 +56,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_contractAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "_token",
         "type": "address"
       },
@@ -106,11 +100,30 @@
       {
         "indexed": true,
         "internalType": "bytes32",
+        "name": "_upperLimitFn",
+        "type": "bytes32"
+      }
+    ],
+    "name": "LogSetMaxPriceLimit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "_idOffer",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
         "name": "_lowerLimitFn",
         "type": "bytes32"
       }
     ],
-    "name": "LogSetLowerLimitOffer",
+    "name": "LogSetMinPriceLimit",
     "type": "event"
   },
   {
@@ -176,50 +189,6 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idOffer",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "_upperLimitFn",
-        "type": "bytes32"
-      }
-    ],
-    "name": "LogSetUpperLimitOffer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_chainId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "LogStake",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
         "name": "_idTrade",
         "type": "bytes32"
       },
@@ -243,31 +212,6 @@
       }
     ],
     "name": "LogTrade",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_chainId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "LogUnStake",
     "type": "event"
   },
   {
@@ -310,17 +254,12 @@
         "type": "bytes32"
       },
       {
-        "internalType": "address",
-        "name": "priceContractAddress",
-        "type": "address"
-      },
-      {
         "internalType": "bytes",
-        "name": "args",
+        "name": "maxPriceLimit",
         "type": "bytes"
       }
     ],
-    "name": "checkParametersLowerLimitOffer",
+    "name": "checkMaxPriceLimitOffer",
     "outputs": [
       {
         "internalType": "bool",
@@ -339,17 +278,12 @@
         "type": "bytes32"
       },
       {
-        "internalType": "address",
-        "name": "priceContractAddress",
-        "type": "address"
-      },
-      {
         "internalType": "bytes",
-        "name": "args",
+        "name": "minPriceLimit",
         "type": "bytes"
       }
     ],
-    "name": "checkParametersUpperLimitOffer",
+    "name": "checkMinPriceLimitOffer",
     "outputs": [
       {
         "internalType": "bool",
@@ -362,11 +296,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amntDepGRT",
-        "type": "uint256"
-      },
       {
         "internalType": "bytes32",
         "name": "offerId",
@@ -378,34 +307,15 @@
         "type": "address"
       }
     ],
-    "name": "depositGRTWithOffer",
+    "name": "depositETHAndAcceptOffer",
     "outputs": [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
-        "name": "offerId",
+        "name": "",
         "type": "bytes32"
       }
     ],
-    "name": "getAddressPriceContractOffer",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -485,19 +395,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getGrtAddress",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -524,7 +421,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "getLowerLimitFnHashOffer",
+    "name": "getMaxPriceLimitHashOffer",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -541,19 +438,14 @@
         "internalType": "bytes32",
         "name": "offerId",
         "type": "bytes32"
-      },
-      {
-        "internalType": "bytes",
-        "name": "fn",
-        "type": "bytes"
       }
     ],
-    "name": "getLowerPriceLimitFromContract",
+    "name": "getMinPriceLimitHashOffer",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint256"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -693,57 +585,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "offerId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getUpperLimitFnHashOffer",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "offerId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes",
-        "name": "fn",
-        "type": "bytes"
-      }
-    ],
-    "name": "getUpperPriceLimitFromContract",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "addrGRT",
-        "type": "address"
-      }
-    ],
-    "name": "initializePool",
+    "inputs": [],
+    "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -802,19 +645,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "grt",
-        "type": "address"
-      }
-    ],
-    "name": "setGrtAddress",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "offerId",
         "type": "bytes32"
@@ -839,11 +669,29 @@
       },
       {
         "internalType": "bytes",
-        "name": "args",
+        "name": "maxPriceLimit",
         "type": "bytes"
       }
     ],
-    "name": "setLowerLimitOffer",
+    "name": "setMaxPriceLimit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "offerId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "minPriceLimit",
+        "type": "bytes"
+      }
+    ],
+    "name": "setMinPriceLimit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -861,18 +709,13 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "priceContractAddress",
-        "type": "address"
-      },
-      {
         "internalType": "bytes",
-        "name": "upperLimitFn",
+        "name": "minPriceLimit",
         "type": "bytes"
       },
       {
         "internalType": "bytes",
-        "name": "lowerLimitFn",
+        "name": "maxPriceLimit",
         "type": "bytes"
       }
     ],
@@ -884,24 +727,6 @@
         "type": "bytes32"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "offerId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "priceContractAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setPriceContractAddressOffer",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -926,72 +751,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "offerId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes",
-        "name": "args",
-        "type": "bytes"
-      }
-    ],
-    "name": "setUpperLimitOffer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "chainId",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakeGRT",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "chainId",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakeOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
@@ -999,30 +758,6 @@
     ],
     "name": "transferOwnership",
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "chainId",
-        "type": "uint256"
-      }
-    ],
-    "name": "unstakeGRT",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1056,5 +791,9 @@
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
