@@ -1,4 +1,13 @@
 #!/bin/bash
 
-npx hardhat deployGrtPool
-npx hardhat deployGrtLiquidityWallet --owner 0x710f35C7c7CEC6B4f80D63ED506c356160eB58d1 --bot 0x710f35C7c7CEC6B4f80D63ED506c356160eB58d1
+## Deploy GRT Pool
+# npx hardhat deployGrtPool
+
+## Update GRT Pool
+# npx hardhat updateGrtPool --address <GRT_POOL_ADDRESS>
+
+## Deploy GRT Liquidity Wallet
+# npx hardhat deployGrtLiquidityWallet --owner <OWNER_ADDRESS> --bot <BOT_ADDRESS>
+
+## Update GRT Liquidity Wallet
+# npx hardhat updateGrtLiquidityWallet --address <GRT_LIQUIDITY_WALLET_ADDRESS>

@@ -24,7 +24,6 @@ task(
     );
 
     await grtLiquidityWallet.deployed();
-    // await grtLiquidityWallet.initializeLiquidityWallet(taskArgs.bot);
 
     console.log("--------------------------------------------");
     console.log(
@@ -37,34 +36,24 @@ task(
     );
     console.log("--------------------------------------------");
 
-    const grtLiquidityWalletUpdate = await upgrades.upgradeProxy(
-      grtLiquidityWallet.address,
-      await ethers.getContractFactory(
-        `contracts/${version_protocol}/GrtLiquidityWallet.sol:GrtLiquidityWallet`
-      )
-    );
-
-    console.log("--------------------------------------------");
-    console.log(
-      "GRT Liquidity Wallet updated to:",
-      grtLiquidityWalletUpdate.address
-    );
-    console.log(
-      "GRT Liquidity Wallet updated - owner address:",
-      await grtLiquidityWalletUpdate.owner()
-    );
-    console.log("--------------------------------------------");
-
-    if ((await grtLiquidityWalletUpdate.owner()) !== taskArgs.owner) {
-      await grtLiquidityWalletUpdate
-        .connect(await ethers.getSigner(owner))
-        .transferOwnership(taskArgs.owner);
+    if ((await grtLiquidityWallet.owner()) !== taskArgs.owner) {
+      await (
+        await grtLiquidityWallet
+          .connect(await ethers.getSigner(owner))
+          .transferOwnership(taskArgs.owner)
+      ).wait();
 
       console.log("--------------------------------------------");
       console.log(
         "GRT Liquidity Wallet owner updated to:",
-        await grtLiquidityWalletUpdate.owner()
+        await grtLiquidityWallet.owner()
       );
       console.log("--------------------------------------------");
+    }
+
+    if (hre.network.name === "bscTestnet" || hre.network.name === "goerli") {
+      await hre.run("verify:verify", {
+        address: grtLiquidityWallet.address,
+      });
     }
   });

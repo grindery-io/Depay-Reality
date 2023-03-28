@@ -137,25 +137,6 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "_priceContractAddress",
-        "type": "address"
-      }
-    ],
-    "name": "LogSetPriceContractAddressOffer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "_idOffer",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "internalType": "bool",
         "name": "_isActive",
         "type": "bool"

@@ -4,8 +4,9 @@ import { ethers } from "hardhat";
 import { getGasConfiguration } from "../lib/gas";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-
-  console.log("--------------------- GRT Pool: ERC1967Stub ---------------------");
+  console.log(
+    "--------------------- GRT Pool: ERC1967Stub ---------------------"
+  );
   const { getNamedAccounts, deployments } = hre;
   const { deploy } = deployments;
   const { owner } = await getNamedAccounts();
@@ -17,9 +18,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     // estimateGasExtra: 10000,
     deterministicDeployment: ethers.utils.keccak256(
-      ethers.utils.arrayify(
-        ethers.utils.toUtf8Bytes("GrtPool_ERC1967Stub")
-      )
+      ethers.utils.arrayify(ethers.utils.toUtf8Bytes("GrtPool_ERC1967Stub"))
     ),
     waitConfirmations: 1,
     ...(await getGasConfiguration(hre.ethers.provider)),
@@ -27,7 +26,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // await hre.run("verify:verify", {
   //   address: result.address,
   // });
-  console.log("-----------------------------------------------------------------");
+  console.log(
+    "-----------------------------------------------------------------"
+  );
   // return true;
 };
 // func.id = "ERC1967Stub";

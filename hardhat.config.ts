@@ -16,6 +16,8 @@ import {
 } from "./secrets";
 import "./tasks/v-testnet-launch/deploy-grtPool";
 import "./tasks/v-testnet-launch/deploy-grtLiquidityWallet";
+import "./tasks/v-testnet-launch/update-grtLiquidityWallet";
+import "./tasks/v-testnet-launch/update-grtPool";
 
 let protocolVersion = "-testnet-launch";
 
