@@ -10,8 +10,8 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     struct Trade {
         address userAddr;
         address destAddr;
-        TokenInfo deposit;
         bytes32 offerId;
+        TokenInfo deposit;
     }
 
     struct TokenInfo {
@@ -41,7 +41,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     function depositETHAndAcceptOffer(
         bytes32 offerId,
         address destAddr
-    ) external payable returns (bytes32) {
+    ) external payable {
         require(
             msg.value > 0,
             "Grindery Pool: transfered amount must be positive."
@@ -67,8 +67,39 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         trade.offerId = offerId;
         _noncesDeposit[msg.sender]++;
         emit LogTrade(tradeId, address(0), msg.value, offerId);
-        return tradeId;
+        // return tradeId;
     }
+
+    // function depositETHAndAcceptOffer(
+    //     bytes32 offerId,
+    //     address destAddr
+    // ) external payable {
+    //     // require(
+    //     //     msg.value > 0,
+    //     //     "Grindery Pool: transfered amount must be positive."
+    //     // );
+    //     // require(
+    //     //     destAddr != address(0),
+    //     //     "Grindery Pool: zero address as destination address is not allowed."
+    //     // );
+    //     require(
+    //         _offers[offerId].isActive,
+    //         "Grindery Pool: the offer is inactive."
+    //     );
+
+    //     (bool sent, ) = address(this).call{value: msg.value}("");
+    //     require(sent, "Grindery Pool: failed to send native tokens.");
+    //     bytes32 tradeId = keccak256(
+    //         abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
+    //     );
+    //     Trade storage trade = _trades[tradeId];
+    //     // trade.userAddr = msg.sender;
+    //     // trade.destAddr = destAddr;
+    //     // trade.deposit = setTokenInfo(address(0), msg.value, block.chainid);
+    //     // trade.offerId = offerId;
+    //     // _noncesDeposit[msg.sender]++;
+    //     // emit LogTrade(tradeId, address(0), msg.value, offerId);
+    // }
 
     function getNonceDeposit(address user) external view returns (uint256) {
         return _noncesDeposit[user];
