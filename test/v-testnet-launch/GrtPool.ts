@@ -148,6 +148,7 @@ describe("Grindery Offer testings", function () {
       )
         .to.emit(grtPool, "LogTrade")
         .withArgs(
+          user1.address,
           ethers.utils.keccak256(
             ethers.utils.solidityPack(
               ["address", "uint256"],

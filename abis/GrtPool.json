@@ -169,6 +169,12 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "_offerer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "internalType": "bytes32",
         "name": "_idTrade",
         "type": "bytes32"
@@ -180,7 +186,7 @@
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"

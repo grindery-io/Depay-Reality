@@ -8,6 +8,7 @@ import "./GrtOffer.sol";
 
 contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     struct Trade {
+        bool isComplete;
         address userAddr;
         address destAddr;
         TokenInfo deposit;
@@ -24,9 +25,10 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     mapping(address => uint256) internal _noncesDeposit;
 
     event LogTrade(
+        address indexed _offerer,
         bytes32 indexed _idTrade,
         address indexed _token,
-        uint256 indexed _amount,
+        uint256 _amount,
         bytes32 _idOffer
     );
 
@@ -66,7 +68,13 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         trade.deposit = setTokenInfo(address(0), msg.value, block.chainid);
         trade.offerId = offerId;
         _noncesDeposit[msg.sender]++;
-        emit LogTrade(tradeId, address(0), msg.value, offerId);
+        emit LogTrade(
+            getOfferer(offerId),
+            tradeId,
+            address(0),
+            msg.value,
+            offerId
+        );
         return tradeId;
     }
 
