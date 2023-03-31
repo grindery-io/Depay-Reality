@@ -73,7 +73,7 @@ describe("Grindery Offer testings", function () {
       await expect(
         grtPool
           .connect(user3)
-          .depositETHAndAcceptOffer(offerId, user3.address, {
+          .depositETHAndAcceptOffer(offerId, user3.address, 10, {
             value: 0,
           })
       ).to.be.revertedWith(
@@ -86,7 +86,7 @@ describe("Grindery Offer testings", function () {
       await expect(
         grtPool
           .connect(user3)
-          .depositETHAndAcceptOffer(offerId, user3.address, {
+          .depositETHAndAcceptOffer(offerId, user3.address, 10, {
             value: 100,
           })
       ).to.be.revertedWith("Grindery Pool: the offer is inactive.");
@@ -97,7 +97,7 @@ describe("Grindery Offer testings", function () {
       await expect(
         grtPool
           .connect(user3)
-          .depositETHAndAcceptOffer(offerId, ethers.constants.AddressZero, {
+          .depositETHAndAcceptOffer(offerId, ethers.constants.AddressZero, 10, {
             value: 100,
           })
       ).to.be.revertedWith(
@@ -110,7 +110,7 @@ describe("Grindery Offer testings", function () {
       const tx = await (
         await grtPool
           .connect(user2)
-          .depositETHAndAcceptOffer(offerId, user2.address, {
+          .depositETHAndAcceptOffer(offerId, user2.address, 10, {
             value: 250,
           })
       ).wait();
@@ -128,7 +128,7 @@ describe("Grindery Offer testings", function () {
       await (
         await grtPool
           .connect(user2)
-          .depositETHAndAcceptOffer(offerId, user2.address, {
+          .depositETHAndAcceptOffer(offerId, user2.address, 10, {
             value: 250,
           })
       ).wait();
@@ -142,7 +142,7 @@ describe("Grindery Offer testings", function () {
       await expect(
         await grtPool
           .connect(user2)
-          .depositETHAndAcceptOffer(offerId, user2.address, {
+          .depositETHAndAcceptOffer(offerId, user2.address, 10, {
             value: 100,
           })
       )
@@ -164,7 +164,7 @@ describe("Grindery Offer testings", function () {
     it("Should set the deposit user", async function () {
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user2.address, {
+        .depositETHAndAcceptOffer(offerId, user2.address, 10, {
           value: 100,
         });
       expect(
@@ -182,7 +182,7 @@ describe("Grindery Offer testings", function () {
     it("Should set the destination address", async function () {
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user4.address, {
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
           value: 100,
         });
       expect(
@@ -200,7 +200,7 @@ describe("Grindery Offer testings", function () {
     it("Should set the GRT token address for the deposit", async function () {
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user4.address, {
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
           value: 100,
         });
       expect(
@@ -218,7 +218,7 @@ describe("Grindery Offer testings", function () {
     it("Should set the GRT amount for the deposit", async function () {
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user4.address, {
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
           value: 100,
         });
       expect(
@@ -233,10 +233,28 @@ describe("Grindery Offer testings", function () {
       ).to.equal(100);
     });
 
+    it("Should set the offer amount", async function () {
+      await grtPool
+        .connect(user2)
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
+          value: 100,
+        });
+      expect(
+        await grtPool.getAmountOffer(
+          ethers.utils.keccak256(
+            ethers.utils.solidityPack(
+              ["address", "uint256"],
+              [user2.address, 0]
+            )
+          )
+        )
+      ).to.equal(10);
+    });
+
     it("Should set the chainId for the deposit", async function () {
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user4.address, {
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
           value: 100,
         });
       expect(
@@ -254,7 +272,7 @@ describe("Grindery Offer testings", function () {
     it("Should set the offerId", async function () {
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user4.address, {
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
           value: 100,
         });
       expect(
@@ -272,12 +290,12 @@ describe("Grindery Offer testings", function () {
     it("Should increase the deposit nonce of the user by 1", async function () {
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user4.address, {
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
           value: 100,
         });
       await grtPool
         .connect(user2)
-        .depositETHAndAcceptOffer(offerId, user4.address, {
+        .depositETHAndAcceptOffer(offerId, user4.address, 10, {
           value: 100,
         });
       expect(await grtPool.getNonceDeposit(user2.address)).to.equal(2);

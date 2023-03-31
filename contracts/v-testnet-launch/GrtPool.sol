@@ -13,6 +13,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         address destAddr;
         TokenInfo deposit;
         bytes32 offerId;
+        uint256 amountOffer;
     }
 
     struct TokenInfo {
@@ -42,7 +43,8 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function depositETHAndAcceptOffer(
         bytes32 offerId,
-        address destAddr
+        address destAddr,
+        uint256 amountOffer
     ) external payable returns (bytes32) {
         require(
             msg.value > 0,
@@ -67,6 +69,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         trade.destAddr = destAddr;
         trade.deposit = setTokenInfo(address(0), msg.value, block.chainid);
         trade.offerId = offerId;
+        trade.amountOffer = amountOffer;
         _noncesDeposit[msg.sender]++;
         emit LogTrade(
             getOfferer(offerId),
@@ -80,6 +83,10 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function getNonceDeposit(address user) external view returns (uint256) {
         return _noncesDeposit[user];
+    }
+
+    function getAmountOffer(bytes32 tradeId) external view returns (uint256) {
+        return _trades[tradeId].amountOffer;
     }
 
     function getIdOffer(bytes32 tradeId) external view returns (bytes32) {

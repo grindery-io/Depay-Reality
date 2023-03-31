@@ -292,6 +292,11 @@
         "internalType": "address",
         "name": "destAddr",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountOffer",
+        "type": "uint256"
       }
     ],
     "name": "depositETHAndAcceptOffer",
@@ -303,6 +308,25 @@
       }
     ],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAmountOffer",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
