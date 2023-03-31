@@ -1,5 +1,25 @@
 [
   {
+    "inputs": [],
+    "name": "FailedToSendNativeTokens",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "OfferInactive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TransferedAmountMustBePositive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAddressIsNotAllowed",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {

@@ -36,34 +36,31 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 
-    receive() external payable {}
+    error TransferedAmountMustBePositive();
+    error ZeroAddressIsNotAllowed();
+    error OfferInactive();
+    error FailedToSendNativeTokens();
 
     function depositETHAndAcceptOffer(
         bytes32 offerId,
         address destAddr
     ) external payable returns (bytes32) {
-        require(
-            msg.value > 0,
-            "Grindery Pool: transfered amount must be positive."
-        );
-        require(
-            destAddr != address(0),
-            "Grindery Pool: zero address as destination address is not allowed."
-        );
-        require(
-            _offers[offerId].isActive,
-            "Grindery Pool: the offer is inactive."
-        );
-
+        if(msg.value <= 0)
+            revert TransferedAmountMustBePositive();
+        if(destAddr == address(0))
+            revert ZeroAddressIsNotAllowed();
+        if(!_offers[offerId].isActive)
+            revert OfferInactive();
         (bool sent, ) = address(this).call{value: msg.value}("");
-        require(sent, "Grindery Pool: failed to send native tokens.");
+        if(!sent)
+            revert FailedToSendNativeTokens();
         bytes32 tradeId = keccak256(
             abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
         );
         Trade storage trade = _trades[tradeId];
         trade.userAddr = msg.sender;
         trade.destAddr = destAddr;
-        trade.deposit = setTokenInfo(address(0), msg.value, block.chainid);
+        trade.deposit = TokenInfo(address(0), msg.value, block.chainid);
         trade.offerId = offerId;
         _noncesDeposit[msg.sender]++;
         emit LogTrade(tradeId, address(0), msg.value, offerId);
@@ -100,11 +97,5 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         return _trades[tradeId].deposit.chainId;
     }
 
-    function setTokenInfo(
-        address token,
-        uint256 amount,
-        uint256 chainId
-    ) internal pure returns (TokenInfo memory) {
-        return TokenInfo(token, amount, chainId);
-    }
+    receive() external payable {}
 }
