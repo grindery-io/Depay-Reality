@@ -228,7 +228,7 @@ describe("Grindery Liquidity Wallet", () => {
         grtLiquidityWallet
           .connect(owner)
           .withdrawNative(ethers.utils.parseEther("200"))
-      ).to.be.revertedWith("Grindery wallet: insufficient balance.");
+      ).to.be.revertedWithCustomError(grtLiquidityWallet, "InsufficientBalance");
     });
   });
 
@@ -243,7 +243,7 @@ describe("Grindery Liquidity Wallet", () => {
             owner.address,
             100
           )
-      ).to.be.revertedWith("Grindery wallet: not allowed to pay the offer.");
+      ).to.be.revertedWithCustomError(grtLiquidityWallet, "NotAllowedToPayTheOffer");
     });
 
     it("Should transfer ERC20 funds to user", async () => {
@@ -281,7 +281,7 @@ describe("Grindery Liquidity Wallet", () => {
         grtLiquidityWallet
           .connect(user2)
           .payOfferWithNativeTokens(offerId, owner.address, 100)
-      ).to.be.revertedWith("Grindery wallet: not allowed to pay the offer.");
+      ).to.be.revertedWithCustomError(grtLiquidityWallet, "NotAllowedToPayTheOffer");
     });
 
     it("Should transfer Native funds to user", async () => {

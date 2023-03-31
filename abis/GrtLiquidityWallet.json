@@ -1,5 +1,20 @@
 [
   {
+    "inputs": [],
+    "name": "FailedToSendNativeTokens",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotAllowedToPayTheOffer",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {

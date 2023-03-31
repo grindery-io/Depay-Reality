@@ -38,15 +38,19 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         return IERC20(token).safeTransfer(msg.sender, amount);
     }
 
+    error InsufficientBalance();
+    error FailedToSendNativeTokens();
+
     function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
+        if(address(this).balance < amount)
+            revert InsufficientBalance();
         (bool sent, ) = msg.sender.call{value: amount}("");
-        require(sent, "Grindery wallet: failed to send native tokens.");
+        if(!sent)
+            revert FailedToSendNativeTokens();
         return sent;
     }
+
+    error NotAllowedToPayTheOffer();
 
     function payOfferWithERC20Tokens(
         bytes32 offerId,
@@ -54,10 +58,8 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
-        );
+        if(msg.sender != owner() || msg.sender == _bot)
+            revert NotAllowedToPayTheOffer();
         IERC20(token).safeTransfer(to, amount);
         emit LogOfferPaid(offerId, token, to, amount);
         return true;
@@ -68,16 +70,13 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
-        );
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
+        if(msg.sender != owner() || msg.sender == _bot)
+            revert NotAllowedToPayTheOffer();
+        if(address(this).balance > amount)
+            revert InsufficientBalance();
         (bool sent, ) = to.call{value: amount}("");
-        require(sent, "Grindery wallet: failed to send native tokens.");
+        if(!sent)
+            revert FailedToSendNativeTokens();
         emit LogOfferPaid(offerId, address(0), to, amount);
         return true;
     }
