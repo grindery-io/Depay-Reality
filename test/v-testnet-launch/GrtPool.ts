@@ -161,6 +161,44 @@ describe("Grindery Offer testings", function () {
         );
     });
 
+    it("Should emit new trade event with TradeId different for each call", async function () {
+      await (
+        await grtPool
+          .connect(user2)
+          .depositETHAndAcceptOffer(offerId, user2.address, 10, {
+            value: 100,
+          })
+      ).wait();
+
+      await (
+        await grtPool
+          .connect(user2)
+          .depositETHAndAcceptOffer(offerId, user2.address, 10, {
+            value: 100,
+          })
+      ).wait();
+      await expect(
+        await grtPool
+          .connect(user2)
+          .depositETHAndAcceptOffer(offerId, user2.address, 10, {
+            value: 100,
+          })
+      )
+        .to.emit(grtPool, "LogTrade")
+        .withArgs(
+          user1.address,
+          ethers.utils.keccak256(
+            ethers.utils.solidityPack(
+              ["address", "uint256"],
+              [user2.address, 2]
+            )
+          ),
+          ethers.constants.AddressZero,
+          100,
+          offerId
+        );
+    });
+
     it("Should set the deposit user", async function () {
       await grtPool
         .connect(user2)
