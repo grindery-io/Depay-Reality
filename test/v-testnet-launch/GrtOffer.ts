@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Contract } from "ethers";
+import { Contract, constants } from "ethers";
 
 const protocolVersion = "v-testnet-launch";
 
@@ -213,8 +213,8 @@ describe("Grindery Offer testings", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer.connect(user2).setChainIdOffer(offerId, 34)
-          ).to.be.revertedWith(
-            "Grindery offer: you are not allowed to modify this offer."
+          ).to.be.revertedWithCustomError(grtOffer,
+            "NotAllowedToModifyOffer"
           );
         });
 
@@ -236,9 +236,7 @@ describe("Grindery Offer testings", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer.connect(user2).setTokenOffer(offerId, token1.address)
-          ).to.be.revertedWith(
-            "Grindery offer: you are not allowed to modify this offer."
-          );
+          ).to.be.revertedWithCustomError(grtOffer, "NotAllowedToModifyOffer")
         });
 
         it("Should modify the token address", async function () {
@@ -269,9 +267,7 @@ describe("Grindery Offer testings", function () {
                   ["FIRA", "50"]
                 )
               )
-          ).to.be.revertedWith(
-            "Grindery offer: you are not allowed to modify this offer."
-          );
+          ).to.be.revertedWithCustomError(grtOffer, "NotAllowedToModifyOffer")
         });
 
         it("Should modify the Min price limit options", async function () {
@@ -341,9 +337,7 @@ describe("Grindery Offer testings", function () {
                   ["FIRA", "2000"]
                 )
               )
-          ).to.be.revertedWith(
-            "Grindery offer: you are not allowed to modify this offer."
-          );
+          ).to.be.revertedWithCustomError(grtOffer, "NotAllowedToModifyOffer")
         });
 
         it("Should modify the Max price limit options", async function () {
@@ -405,9 +399,7 @@ describe("Grindery Offer testings", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
             grtOffer.connect(user2).setIsActive(offerId, false)
-          ).to.be.revertedWith(
-            "Grindery offer: you are not allowed to modify this offer."
-          );
+          ).to.be.revertedWithCustomError(grtOffer, "NotAllowedToModifyOffer")
         });
 
         it("Should modify the status", async function () {
