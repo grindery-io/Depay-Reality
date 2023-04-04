@@ -58,7 +58,9 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        if(msg.sender != owner() || msg.sender == _bot)
+        if(msg.sender != owner())
+            revert NotAllowedToPayTheOffer();
+        if(msg.sender == _bot)
             revert NotAllowedToPayTheOffer();
         IERC20(token).safeTransfer(to, amount);
         emit LogOfferPaid(offerId, token, to, amount);
@@ -70,7 +72,9 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        if(msg.sender != owner() || msg.sender == _bot)
+        if(msg.sender != owner())
+            revert NotAllowedToPayTheOffer();
+        if(msg.sender == _bot)
             revert NotAllowedToPayTheOffer();
         if(address(this).balance > amount)
             revert InsufficientBalance();
