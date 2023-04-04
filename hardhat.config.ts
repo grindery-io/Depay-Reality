@@ -163,11 +163,11 @@ const config: HardhatUserConfig = {
     format: "json",
   },
   gasReporter: {
-    outputFile: "gas-report.txt",
+    //outputFile: "gas-report.txt",
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
     noColors: true,
-    coinmarketcap: process.env.COIN_MARKETCAP_API_KEY || "",
+    // coinmarketcap: process.env.COIN_MARKETCAP_API_KEY || "",
     token: "ETH"
   }
   // deterministicDeployment: () => {
