@@ -18,7 +18,7 @@ import "./tasks/v-testnet-launch/deploy-grtPool";
 import "./tasks/v-testnet-launch/deploy-grtLiquidityWallet";
 import "./tasks/v-testnet-launch/update-grtLiquidityWallet";
 import "./tasks/v-testnet-launch/update-grtPool";
-require("hardhat-gas-reporter")
+import "hardhat-gas-reporter";
 
 let protocolVersion = "-testnet-launch";
 
