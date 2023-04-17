@@ -41,6 +41,8 @@ contract GrtOffer is GrtOfferUtils {
     }
 
     function setTokenOffer(bytes32 offerId, address token) external isOwner(_offers[offerId]) {
+        if(token == address(0))
+            revert ZeroAddressNotAllowed();
         Offer storage offer = _offers[offerId];
         offer.token = token;
         emit LogSetTokenOffer(offerId, token);
