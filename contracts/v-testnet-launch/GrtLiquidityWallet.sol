@@ -17,6 +17,10 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         uint256 _amount
     );
 
+    error InsufficientBalance();
+    error FailedToSendNativeTokens();
+    error NotAllowedToPayTheOffer();
+
     function initialize(address bot) external initializer {
         __Ownable_init();
         _bot = bot;
@@ -38,9 +42,6 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         return IERC20(token).safeTransfer(msg.sender, amount);
     }
 
-    error InsufficientBalance();
-    error FailedToSendNativeTokens();
-
     function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
         if(address(this).balance < amount)
             revert InsufficientBalance();
@@ -49,8 +50,6 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
             revert FailedToSendNativeTokens();
         return sent;
     }
-
-    error NotAllowedToPayTheOffer();
 
     function payOfferWithERC20Tokens(
         bytes32 offerId,
