@@ -28,18 +28,20 @@ contract GrtOffer is GrtOfferUtils {
     error NotAllowedToModifyOffer();
     error ZeroAddressNotAllowed();
 
-    function setChainIdOffer(bytes32 offerId, uint256 chainId) external {
-        Offer storage offer = _offers[offerId];
+    modifier isOwner(Offer memory offer) {
         if(msg.sender != offer.user)
             revert NotAllowedToModifyOffer();
+        _;
+    }
+
+    function setChainIdOffer(bytes32 offerId, uint256 chainId) external isOwner(_offers[offerId]) {
+        Offer storage offer = _offers[offerId];
         offer.chainId = chainId;
         emit LogSetChainIdOffer(offerId, chainId);
     }
 
-    function setTokenOffer(bytes32 offerId, address token) external {
+    function setTokenOffer(bytes32 offerId, address token) external isOwner(_offers[offerId]) {
         Offer storage offer = _offers[offerId];
-        if(msg.sender != offer.user)
-            revert NotAllowedToModifyOffer();
         offer.token = token;
         emit LogSetTokenOffer(offerId, token);
     }
@@ -47,10 +49,8 @@ contract GrtOffer is GrtOfferUtils {
     function setMinPriceLimit(
         bytes32 offerId,
         bytes calldata minPriceLimit
-    ) external {
+    ) external isOwner(_offers[offerId]) {
         Offer storage offer = _offers[offerId];
-        if(msg.sender != offer.user)
-            revert NotAllowedToModifyOffer();
         bytes32 priceLimit = keccak256(abi.encodePacked(minPriceLimit));
         offer.minPriceLimit = priceLimit;
         emit LogSetMinPriceLimit(offerId, priceLimit);
@@ -59,19 +59,15 @@ contract GrtOffer is GrtOfferUtils {
     function setMaxPriceLimit(
         bytes32 offerId,
         bytes calldata maxPriceLimit
-    ) external {
+    ) external isOwner(_offers[offerId]) {
         Offer storage offer = _offers[offerId];
-        if(msg.sender != offer.user)
-            revert NotAllowedToModifyOffer();
         bytes32 priceLimit = keccak256(abi.encodePacked(maxPriceLimit));
         offer.maxPriceLimit = priceLimit;
         emit LogSetMaxPriceLimit(offerId, priceLimit);
     }
 
-    function setIsActive(bytes32 offerId, bool isActive) external {
+    function setIsActive(bytes32 offerId, bool isActive) external isOwner(_offers[offerId]) {
         Offer storage offer = _offers[offerId];
-        if(msg.sender != offer.user)
-            revert NotAllowedToModifyOffer();
         offer.isActive = isActive;
         emit LogSetStatusOffer(offerId, isActive);
     }
