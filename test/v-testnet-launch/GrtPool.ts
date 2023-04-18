@@ -76,7 +76,7 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user3.address, {
             value: 0,
           })
-      ).to.be.revertedWithCustomError(grtPool,"TransferedAmountMustBePositive");
+      ).to.be.revertedWith("Grindery Pool: transfered amount must be positive.");
     });
 
     it("Should fail if the offer is inactive", async function () {
@@ -87,7 +87,7 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user3.address, {
             value: 100,
           })
-      ).to.be.revertedWithCustomError(grtPool, "OfferInactive");
+      ).to.be.revertedWith("Grindery Pool: the offer is inactive.");
     });
 
     it("Should fail if the destination address is the zero address", async function () {
@@ -98,9 +98,8 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, ethers.constants.AddressZero, {
             value: 100,
           })
-      ).to.be.revertedWithCustomError(
-        grtPool,
-        "ZeroAddressIsNotAllowed"
+      ).to.be.revertedWith(
+        "Grindery Pool: zero address as destination address is not allowed."
       );
     });
 

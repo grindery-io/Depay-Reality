@@ -36,24 +36,24 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
 
-    error TransferedAmountMustBePositive();
-    error ZeroAddressIsNotAllowed();
-    error OfferInactive();
-    error FailedToSendNativeTokens();
-
     function depositETHAndAcceptOffer(
         bytes32 offerId,
         address destAddr
     ) external payable returns (bytes32) {
-        if(msg.value <= 0)
-            revert TransferedAmountMustBePositive();
-        if(destAddr == address(0))
-            revert ZeroAddressIsNotAllowed();
-        if(!_offers[offerId].isActive)
-            revert OfferInactive();
+        require(
+            msg.value > 0,
+            "Grindery Pool: transfered amount must be positive."
+        );
+        require(
+            destAddr != address(0),
+            "Grindery Pool: zero address as destination address is not allowed."
+        );
+        require(
+            _offers[offerId].isActive,
+            "Grindery Pool: the offer is inactive."
+        );
         (bool sent, ) = address(this).call{value: msg.value}("");
-        if(!sent)
-            revert FailedToSendNativeTokens();
+        require(sent, "Grindery Pool: failed to send native tokens.");
         bytes32 tradeId = keccak256(
             abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
         );

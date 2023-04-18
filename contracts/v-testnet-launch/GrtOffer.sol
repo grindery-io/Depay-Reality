@@ -25,12 +25,11 @@ contract GrtOffer is GrtOfferUtils {
     );
     event LogSetStatusOffer(bytes32 indexed _idOffer, bool indexed _isActive);
 
-    error NotAllowedToModifyOffer();
-    error ZeroAddressNotAllowed();
-
     modifier isOwner(Offer memory offer) {
-        if(msg.sender != offer.user)
-            revert NotAllowedToModifyOffer();
+        require(
+            msg.sender == offer.user,
+            "Grindery offer: you are not allowed to modify this offer."
+        );
         _;
     }
 
@@ -41,8 +40,10 @@ contract GrtOffer is GrtOfferUtils {
     }
 
     function setTokenOffer(bytes32 offerId, address token) external isOwner(_offers[offerId]) {
-        if(token == address(0))
-            revert ZeroAddressNotAllowed();
+        require(
+            msg.sender == _offers[offerId].user,
+            "Grindery offer: you are not allowed to modify this offer."
+        );
         Offer storage offer = _offers[offerId];
         offer.token = token;
         emit LogSetTokenOffer(offerId, token);
@@ -80,8 +81,10 @@ contract GrtOffer is GrtOfferUtils {
         bytes calldata minPriceLimit,
         bytes calldata maxPriceLimit
     ) external returns (bytes32) {
-        if(msg.sender == address(0))
-            revert ZeroAddressNotAllowed();
+        require(
+            msg.sender != address(0),
+            "Grindery offer: setOffer from zero address is not allowed"
+        );
         bytes32 offerId = keccak256(
             abi.encodePacked(msg.sender, _noncesOffer[msg.sender])
         );
