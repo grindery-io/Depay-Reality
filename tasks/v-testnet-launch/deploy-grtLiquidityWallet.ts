@@ -34,6 +34,10 @@ task(
       "GRT Liquidity Wallet - owner address:",
       await grtLiquidityWallet.owner()
     );
+    console.log(
+      "GRT Liquidity Wallet - bot address:",
+      await grtLiquidityWallet.getBot()
+    );
     console.log("--------------------------------------------");
 
     if ((await grtLiquidityWallet.owner()) !== taskArgs.owner) {
