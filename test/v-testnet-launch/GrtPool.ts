@@ -76,9 +76,7 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user3.address, 10, {
             value: 0,
           })
-      ).to.be.revertedWith(
-        "Grindery Pool: transfered amount must be positive."
-      );
+      ).to.be.revertedWith("Grindery Pool: transfered amount must be positive.");
     });
 
     it("Should fail if the offer is inactive", async function () {

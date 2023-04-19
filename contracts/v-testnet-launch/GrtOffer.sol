@@ -25,56 +25,53 @@ contract GrtOffer is GrtOfferUtils {
     );
     event LogSetStatusOffer(bytes32 indexed _idOffer, bool indexed _isActive);
 
-    function setChainIdOffer(bytes32 offerId, uint256 chainId) external {
+    modifier isOwner(Offer memory offer) {
         require(
-            msg.sender == _offers[offerId].user,
+            msg.sender == offer.user,
             "Grindery offer: you are not allowed to modify this offer."
         );
-        _offers[offerId].chainId = chainId;
+        _;
+    }
+
+    function setChainIdOffer(bytes32 offerId, uint256 chainId) external isOwner(_offers[offerId]) {
+        Offer storage offer = _offers[offerId];
+        offer.chainId = chainId;
         emit LogSetChainIdOffer(offerId, chainId);
     }
 
-    function setTokenOffer(bytes32 offerId, address token) external {
+    function setTokenOffer(bytes32 offerId, address token) external isOwner(_offers[offerId]) {
         require(
             msg.sender == _offers[offerId].user,
             "Grindery offer: you are not allowed to modify this offer."
         );
-        _offers[offerId].token = token;
+        Offer storage offer = _offers[offerId];
+        offer.token = token;
         emit LogSetTokenOffer(offerId, token);
     }
 
     function setMinPriceLimit(
         bytes32 offerId,
         bytes calldata minPriceLimit
-    ) external {
-        require(
-            msg.sender == _offers[offerId].user,
-            "Grindery offer: you are not allowed to modify this offer."
-        );
+    ) external isOwner(_offers[offerId]) {
+        Offer storage offer = _offers[offerId];
         bytes32 priceLimit = keccak256(abi.encodePacked(minPriceLimit));
-        _offers[offerId].minPriceLimit = priceLimit;
+        offer.minPriceLimit = priceLimit;
         emit LogSetMinPriceLimit(offerId, priceLimit);
     }
 
     function setMaxPriceLimit(
         bytes32 offerId,
         bytes calldata maxPriceLimit
-    ) external {
-        require(
-            msg.sender == _offers[offerId].user,
-            "Grindery offer: you are not allowed to modify this offer."
-        );
+    ) external isOwner(_offers[offerId]) {
+        Offer storage offer = _offers[offerId];
         bytes32 priceLimit = keccak256(abi.encodePacked(maxPriceLimit));
-        _offers[offerId].maxPriceLimit = priceLimit;
+        offer.maxPriceLimit = priceLimit;
         emit LogSetMaxPriceLimit(offerId, priceLimit);
     }
 
-    function setIsActive(bytes32 offerId, bool isActive) external {
-        require(
-            msg.sender == _offers[offerId].user,
-            "Grindery offer: you are not allowed to modify this offer."
-        );
-        _offers[offerId].isActive = isActive;
+    function setIsActive(bytes32 offerId, bool isActive) external isOwner(_offers[offerId]) {
+        Offer storage offer = _offers[offerId];
+        offer.isActive = isActive;
         emit LogSetStatusOffer(offerId, isActive);
     }
 
@@ -91,14 +88,15 @@ contract GrtOffer is GrtOfferUtils {
         bytes32 offerId = keccak256(
             abi.encodePacked(msg.sender, _noncesOffer[msg.sender])
         );
-        _offers[offerId].user = msg.sender;
-        _offers[offerId].isActive = true;
-        _offers[offerId].chainId = chainId;
-        _offers[offerId].token = token;
-        _offers[offerId].minPriceLimit = keccak256(
+        Offer storage offer = _offers[offerId];      
+        offer.user = msg.sender;
+        offer.isActive = true;
+        offer.chainId = chainId;
+        offer.token = token;
+        offer.minPriceLimit = keccak256(
             abi.encodePacked(minPriceLimit)
         );
-        _offers[offerId].maxPriceLimit = keccak256(
+        offer.maxPriceLimit = keccak256(
             abi.encodePacked(maxPriceLimit)
         );
         emit LogNewOffer(offerId, token, chainId);
