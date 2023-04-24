@@ -2,11 +2,13 @@
 
 pragma solidity 0.8.17;
 
+import "@opengsn/contracts/src/ERC2771Recipient.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./GrtOffer.sol";
 
-contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
+// OwnableUpgradeable,
+contract GrtPoolGSN is GrtOffer, UUPSUpgradeable, ERC2771Recipient {
     struct Trade {
         bool isComplete;
         address userAddr;
@@ -33,21 +35,19 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         bytes32 _idOffer
     );
 
-    function initialize() external initializer {
-        __Ownable_init();
+    function initialize(address forwarder) external initializer {
+        _setTrustedForwarder(forwarder);
+        // __Ownable_init();
     }
 
-    function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
+    function _authorizeUpgrade(address) internal override onlyProxy {}
 
     receive() external payable {}
 
-    function withdraw(uint256 amount) external onlyOwner {
-        require(
-            amount <= address(this).balance,
-            "Grindery Pool: insufficient balance."
-        );
-        (bool success, ) = owner().call{value: amount}("");
-        require(success, "Grindery Pool: withdraw failed.");
+    address private testAddress;
+
+    function setAddress(address addr) external {
+        testAddress = addr;
     }
 
     function depositETHAndAcceptOffer(

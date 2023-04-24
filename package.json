@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "run-with-hardhat-node --port 8544 'hardhat test test/v-testnet-launch/GrtPoolGSN.ts' "
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-ganache": "^2.0.1",
     "@typechain/ethers-v5": "^10.2.0",
     "@typechain/hardhat": "^6.1.5",
     "@types/jest": "^29.4.0",
@@ -31,14 +32,20 @@
     "solidity-coverage": "^0.8.2",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.1",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "run-with-hardhat-node": "^0.4.3"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.6.1",
+    "@opengsn/cli": "^3.0.0-beta.6",
+    "@opengsn/contracts": "^3.0.0-beta.6",
+    "@opengsn/dev": "^3.0.0-beta.6",
+    "@opengsn/provider": "^3.0.0-beta.6",
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "dotenv": "^16.0.3",
-    "wagmi": "^0.7.0"
+    "wagmi": "^0.7.0",
+    "web3-providers-http": "^1.9.0"
   }
 }

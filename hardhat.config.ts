@@ -6,6 +6,7 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import "hardhat-deploy";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-abi-exporter";
+import "@nomiclabs/hardhat-ganache";
 import {
   OWNER_ADDRESS,
   ALCHEMY_API_KEY,
