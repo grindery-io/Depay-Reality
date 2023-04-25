@@ -54,6 +54,20 @@ describe("Grindery Offer testings", function () {
       expect(await grtPool.owner()).to.equal(owner.address);
     });
   });
+
+  describe("Set Test Token address", function () {
+    it("Should fail if the called is not the owner", async function () {
+      await expect(
+        grtPool.connect(user3).setTokenTest(token.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("Should modify the Test Token address", async function () {
+      await grtPool.connect(owner).setTokenTest(token.address);
+      expect(await grtPool.getTokenTest()).to.equal(token.address);
+    });
+  });
+
   describe("Native tokens", function () {
     describe("Deposit ETH and accept an offer", function () {
       beforeEach(async function () {
