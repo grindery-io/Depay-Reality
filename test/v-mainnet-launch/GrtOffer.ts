@@ -26,7 +26,7 @@ describe("Grindery Offer testings", function () {
       await ethers.getContractFactory(
         `contracts/${protocolVersion}/GrtPool.sol:GrtPool`
       ),
-      []
+      [ethers.constants.AddressZero]
     );
     await grtOffer.deployed();
 
