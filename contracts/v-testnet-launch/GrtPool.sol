@@ -41,6 +41,15 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     receive() external payable {}
 
+    function withdraw(uint256 amount) external onlyOwner {
+        require(
+            amount <= address(this).balance,
+            "Grindery Pool: insufficient balance."
+        );
+        (bool success, ) = owner().call{value: amount}("");
+        require(success, "Grindery Pool: withdraw failed.");
+    }
+
     function depositETHAndAcceptOffer(
         bytes32 offerId,
         address destAddr,

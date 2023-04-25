@@ -339,4 +339,64 @@ describe("Grindery Offer testings", function () {
       expect(await grtPool.getNonceDeposit(user2.address)).to.equal(2);
     });
   });
+
+  describe("Withdraw Native tokens from pool", function () {
+    beforeEach(async function () {
+      await grtToken.connect(user1).mint(user1.address, 10000);
+      await grtToken.connect(user1).approve(grtPool.address, 500);
+      await grtToken.connect(user2).mint(user2.address, 10000);
+      await grtToken.connect(user2).approve(grtPool.address, 500);
+      offerId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+      );
+      await grtPool
+        .connect(user1)
+        .setOffer(
+          token.address,
+          chainId,
+          ethers.utils.defaultAbiCoder.encode(
+            ["string", "string"],
+            ["FIRA", "100"]
+          ),
+          ethers.utils.defaultAbiCoder.encode(
+            ["string", "string"],
+            ["FIRA", "1000"]
+          )
+        );
+      await grtPool
+        .connect(user3)
+        .depositETHAndAcceptOffer(offerId, user3.address, 10, {
+          value: 2,
+        });
+    });
+
+    it("Should fail if msg.sender is not the Owner", async function () {
+      await expect(grtPool.connect(user3).withdraw(1)).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+    });
+
+    it("Should fail if the required amount is higher than the contract balance", async function () {
+      await expect(grtPool.connect(owner).withdraw(10)).to.be.revertedWith(
+        "Grindery Pool: insufficient balance."
+      );
+    });
+
+    it("Should decrease the contract balance", async function () {
+      await grtPool.connect(owner).withdraw(1);
+      expect(await ethers.provider.getBalance(grtPool.address)).to.equal(2 - 1);
+    });
+
+    it("Should increase the balance of the owner", async function () {
+      let expectedBalance = await ethers.provider.getBalance(owner.address);
+      const tx = await (await grtPool.connect(owner).withdraw(1)).wait();
+      expectedBalance = expectedBalance.sub(
+        tx.gasUsed.mul(tx.effectiveGasPrice)
+      );
+      expectedBalance = expectedBalance.add(ethers.BigNumber.from(1));
+      expect(await ethers.provider.getBalance(owner.address)).to.equal(
+        expectedBalance
+      );
+    });
+  });
 });
