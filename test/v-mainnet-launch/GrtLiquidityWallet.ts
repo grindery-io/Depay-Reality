@@ -14,7 +14,8 @@ describe("Grindery Liquidity Wallet", () => {
     grtToken: Contract,
     token: Contract,
     grtLiquidityWallet: Contract,
-    offerId: String;
+    offerId: String,
+    tradeId: String;
 
   beforeEach(async () => {
     [owner, user1, user2, bot, bot2] = await ethers.getSigners();
@@ -35,6 +36,8 @@ describe("Grindery Liquidity Wallet", () => {
     await grtToken.connect(owner).mint(owner.address, 1000);
     offerId =
       "0xd2b8dbec86dba5f9b5c34f84d0dc19bf715f984e3c78051e5ffa813a1d29dd73";
+    tradeId =
+      "0x7eed0db68dde2d383b9450597aa4a76fa97360cb705f21e5166d8f034c1f42ec";
   });
 
   describe("Initialization", async () => {
@@ -239,6 +242,7 @@ describe("Grindery Liquidity Wallet", () => {
           .connect(user2)
           .payOfferWithERC20Tokens(
             offerId,
+            tradeId,
             grtToken.address,
             owner.address,
             100
@@ -250,7 +254,13 @@ describe("Grindery Liquidity Wallet", () => {
       await grtToken.connect(owner).transfer(grtLiquidityWallet.address, 100);
       const status = await grtLiquidityWallet
         .connect(owner)
-        .payOfferWithERC20Tokens(offerId, grtToken.address, user2.address, 100);
+        .payOfferWithERC20Tokens(
+          offerId,
+          tradeId,
+          grtToken.address,
+          user2.address,
+          100
+        );
 
       expect(
         (await grtToken.connect(user2).balanceOf(user2.address)).toString()
@@ -265,13 +275,14 @@ describe("Grindery Liquidity Wallet", () => {
           .connect(owner)
           .payOfferWithERC20Tokens(
             offerId,
+            tradeId,
             grtToken.address,
             user2.address,
             100
           )
       )
         .to.emit(grtLiquidityWallet, "LogOfferPaid")
-        .withArgs(offerId, grtToken.address, user2.address, 100);
+        .withArgs(offerId, tradeId, grtToken.address, user2.address, 100);
     });
   });
 
@@ -280,7 +291,7 @@ describe("Grindery Liquidity Wallet", () => {
       await expect(
         grtLiquidityWallet
           .connect(user2)
-          .payOfferWithNativeTokens(offerId, owner.address, 100)
+          .payOfferWithNativeTokens(offerId, tradeId, owner.address, 100)
       ).to.be.revertedWith("Grindery wallet: not allowed to pay the offer.");
     });
 
@@ -294,7 +305,7 @@ describe("Grindery Liquidity Wallet", () => {
       ).wait();
       const status = await grtLiquidityWallet
         .connect(owner)
-        .payOfferWithNativeTokens(offerId, user2.address, 100);
+        .payOfferWithNativeTokens(offerId, tradeId, user2.address, 100);
       const balanceAfter = await user2.getBalance();
 
       expect(balanceAfter).to.equal(balanceBefore.add(BigNumber.from("100")));
@@ -311,10 +322,16 @@ describe("Grindery Liquidity Wallet", () => {
       await expect(
         await grtLiquidityWallet
           .connect(owner)
-          .payOfferWithNativeTokens(offerId, user2.address, 100)
+          .payOfferWithNativeTokens(offerId, tradeId, user2.address, 100)
       )
         .to.emit(grtLiquidityWallet, "LogOfferPaid")
-        .withArgs(offerId, ethers.constants.AddressZero, user2.address, 100);
+        .withArgs(
+          offerId,
+          tradeId,
+          ethers.constants.AddressZero,
+          user2.address,
+          100
+        );
     });
   });
 });

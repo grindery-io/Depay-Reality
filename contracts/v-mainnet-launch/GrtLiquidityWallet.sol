@@ -12,8 +12,9 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
 
     event LogOfferPaid(
         bytes32 indexed _offerId,
+        bytes32 indexed _tradeId,
         address indexed _token,
-        address indexed _to,
+        address _to,
         uint256 _amount
     );
 
@@ -50,6 +51,7 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
 
     function payOfferWithERC20Tokens(
         bytes32 offerId,
+        bytes32 tradeId,
         address token,
         address to,
         uint256 amount
@@ -59,12 +61,13 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
             "Grindery wallet: not allowed to pay the offer."
         );
         IERC20(token).safeTransfer(to, amount);
-        emit LogOfferPaid(offerId, token, to, amount);
+        emit LogOfferPaid(offerId, tradeId, token, to, amount);
         return true;
     }
 
     function payOfferWithNativeTokens(
         bytes32 offerId,
+        bytes32 tradeId,
         address to,
         uint256 amount
     ) external returns (bool) {
@@ -78,7 +81,7 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         );
         (bool sent, ) = to.call{value: amount}("");
         require(sent, "Grindery wallet: failed to send native tokens.");
-        emit LogOfferPaid(offerId, address(0), to, amount);
+        emit LogOfferPaid(offerId, tradeId, address(0), to, amount);
         return true;
     }
 }
