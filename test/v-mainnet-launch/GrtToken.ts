@@ -3,7 +3,7 @@ import { expect, use } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract, BigNumber } from "ethers";
 
-const protocolVersion = "v-testnet-launch";
+const protocolVersion = "v-mainnet-launch";
 const nameToken = "GRTToken";
 const symbolToken = "GRT";
 
