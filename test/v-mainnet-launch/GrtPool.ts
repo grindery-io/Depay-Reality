@@ -18,7 +18,6 @@ describe("Grindery Offer testings", function () {
     minter: SignerWithAddress,
     grtPool: Contract,
     grtTestToken: Contract,
-    grtToken: Contract,
     token: Contract,
     offerId: string,
     tradeId: string;
@@ -42,9 +41,6 @@ describe("Grindery Offer testings", function () {
       [grtTestToken.address]
     );
     await grtPool.deployed();
-
-    grtToken = await (await ethers.getContractFactory("ERC20Sample")).deploy();
-    await grtToken.deployed();
 
     token = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await token.deployed();
@@ -370,10 +366,6 @@ describe("Grindery Offer testings", function () {
 
     describe("Withdraw Native tokens from pool", function () {
       beforeEach(async function () {
-        await grtToken.connect(user1).mint(user1.address, 10000);
-        await grtToken.connect(user1).approve(grtPool.address, 500);
-        await grtToken.connect(user2).mint(user2.address, 10000);
-        await grtToken.connect(user2).approve(grtPool.address, 500);
         offerId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
         );
@@ -863,7 +855,7 @@ describe("Grindery Offer testings", function () {
     });
   });
 
-  describe("Withdraw tokens from pool", function () {
+  describe("Function to return payment information - Zapier use case", function () {
     beforeEach(async function () {
       offerId = ethers.utils.keccak256(
         ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
