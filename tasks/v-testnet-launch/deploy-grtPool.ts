@@ -23,5 +23,11 @@ task("deployGrtPool", "Deploy GRT Pool for testnet launch").setAction(
     console.log("GRT pool deployed to:", grtPool.address);
     console.log("GRT pool - owner address:", await grtPool.owner());
     console.log("--------------------------------------------");
+
+    if (hre.network.name === "bscTestnet" || hre.network.name === "goerli") {
+      await hre.run("verify:verify", {
+        address: grtPool.address,
+      });
+    }
   }
 );

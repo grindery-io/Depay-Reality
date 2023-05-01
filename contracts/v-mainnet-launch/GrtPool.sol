@@ -139,6 +139,26 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         _tokenTest = tokenTest;
     }
 
+    function getPaymentInfo(
+        bytes32 tradeId
+    )
+        external
+        view
+        returns (
+            bytes32 offerId,
+            address destAddr,
+            address token,
+            uint256 amount
+        )
+    {
+        return (
+            _trades[tradeId].offerId,
+            _trades[tradeId].destAddr,
+            _offers[_trades[tradeId].offerId].token,
+            _trades[tradeId].amountOffer
+        );
+    }
+
     function getTokenTest() external view returns (address) {
         return _tokenTest;
     }

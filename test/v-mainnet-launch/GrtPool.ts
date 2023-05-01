@@ -20,7 +20,8 @@ describe("Grindery Offer testings", function () {
     grtTestToken: Contract,
     grtToken: Contract,
     token: Contract,
-    offerId: string;
+    offerId: string,
+    tradeId: string;
 
   beforeEach(async function () {
     [owner, user1, user2, user3, user4, minter] = await ethers.getSigners();
@@ -859,6 +860,45 @@ describe("Grindery Offer testings", function () {
           expectedBalance + 10
         );
       });
+    });
+  });
+
+  describe("Withdraw tokens from pool", function () {
+    beforeEach(async function () {
+      offerId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+      );
+      tradeId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(["address", "uint256"], [user3.address, 0])
+      );
+      await grtPool
+        .connect(user1)
+        .setOffer(
+          token.address,
+          chainId,
+          ethers.utils.defaultAbiCoder.encode(
+            ["string", "string"],
+            ["FIRA", "100"]
+          ),
+          ethers.utils.defaultAbiCoder.encode(
+            ["string", "string"],
+            ["FIRA", "1000"]
+          )
+        );
+      await grtPool
+        .connect(user3)
+        .depositETHAndAcceptOffer(offerId, user3.address, 10, {
+          value: 2,
+        });
+    });
+
+    it("Should return all the payment information", async function () {
+      const res = await grtPool.getPaymentInfo(tradeId);
+
+      expect(res.offerId).to.equal(offerId);
+      expect(res.destAddr).to.equal(user3.address);
+      expect(res.token).to.equal(token.address);
+      expect(res.amount).to.equal(10);
     });
   });
 });
