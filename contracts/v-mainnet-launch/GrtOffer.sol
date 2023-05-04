@@ -89,7 +89,11 @@ contract GrtOffer is GrtOfferUtils {
             "Grindery offer: setOffer from zero address is not allowed"
         );
         bytes32 offerId = keccak256(
-            abi.encodePacked(msg.sender, _noncesOffer[msg.sender])
+            abi.encodePacked(
+                msg.sender,
+                _noncesOffer[msg.sender],
+                block.chainid
+            )
         );
         _offers[offerId].user = msg.sender;
         _offers[offerId].isActive = true;

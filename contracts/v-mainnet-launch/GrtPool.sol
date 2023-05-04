@@ -122,7 +122,11 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         uint256 amountOffer
     ) internal returns (bytes32) {
         bytes32 tradeId = keccak256(
-            abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
+            abi.encodePacked(
+                msg.sender,
+                _noncesDeposit[msg.sender],
+                block.chainid
+            )
         );
         Trade storage trade = _trades[tradeId];
         trade.userAddr = msg.sender;

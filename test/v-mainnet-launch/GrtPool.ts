@@ -69,7 +69,17 @@ describe("Grindery Offer testings", function () {
     describe("Deposit ETH and accept an offer", function () {
       beforeEach(async function () {
         offerId = ethers.utils.keccak256(
-          ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+          ethers.utils.solidityPack(
+            ["address", "uint256", "uint256"],
+            [user1.address, 0, chainId]
+          )
+        );
+
+        tradeId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ["address", "uint256", "uint256"],
+            [user2.address, 0, chainId]
+          )
         );
         await grtPool
           .connect(user1)
@@ -173,12 +183,7 @@ describe("Grindery Offer testings", function () {
           .to.emit(grtPool, "LogTrade")
           .withArgs(
             user1.address,
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            ),
+            tradeId,
             ethers.constants.AddressZero,
             100,
             offerId
@@ -213,8 +218,8 @@ describe("Grindery Offer testings", function () {
             user1.address,
             ethers.utils.keccak256(
               ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 2]
+                ["address", "uint256", "uint256"],
+                [user2.address, 2, chainId]
               )
             ),
             ethers.constants.AddressZero,
@@ -229,16 +234,7 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user2.address, 10, {
             value: 100,
           });
-        expect(
-          await grtPool.getRequester(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(user2.address);
+        expect(await grtPool.getRequester(tradeId)).to.equal(user2.address);
       });
 
       it("Should set the destination address", async function () {
@@ -247,16 +243,7 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user4.address, 10, {
             value: 100,
           });
-        expect(
-          await grtPool.getRecipient(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(user4.address);
+        expect(await grtPool.getRecipient(tradeId)).to.equal(user4.address);
       });
 
       it("Should set the zero address for the native token deposit", async function () {
@@ -265,16 +252,9 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user4.address, 10, {
             value: 100,
           });
-        expect(
-          await grtPool.getDepositToken(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(ethers.constants.AddressZero);
+        expect(await grtPool.getDepositToken(tradeId)).to.equal(
+          ethers.constants.AddressZero
+        );
       });
 
       it("Should set the proper amount for the native token deposit", async function () {
@@ -283,16 +263,7 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user4.address, 10, {
             value: 100,
           });
-        expect(
-          await grtPool.getDepositAmount(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(100);
+        expect(await grtPool.getDepositAmount(tradeId)).to.equal(100);
       });
 
       it("Should set the offer amount", async function () {
@@ -301,16 +272,7 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user4.address, 10, {
             value: 100,
           });
-        expect(
-          await grtPool.getAmountOffer(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(10);
+        expect(await grtPool.getAmountOffer(tradeId)).to.equal(10);
       });
 
       it("Should set the chainId for the deposit", async function () {
@@ -319,34 +281,16 @@ describe("Grindery Offer testings", function () {
           .depositETHAndAcceptOffer(offerId, user4.address, 10, {
             value: 100,
           });
-        expect(
-          await grtPool.getDepositChainId(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(chainId);
+        expect(await grtPool.getDepositChainId(tradeId)).to.equal(chainId);
       });
 
-      it("Should set the offerId", async function () {
+      it("Should get the offerId", async function () {
         await grtPool
           .connect(user2)
           .depositETHAndAcceptOffer(offerId, user4.address, 10, {
             value: 100,
           });
-        expect(
-          await grtPool.getIdOffer(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(offerId);
+        expect(await grtPool.getIdOffer(tradeId)).to.equal(offerId);
       });
 
       it("Should increase the deposit nonce of the user by 1", async function () {
@@ -367,7 +311,10 @@ describe("Grindery Offer testings", function () {
     describe("Withdraw Native tokens from pool", function () {
       beforeEach(async function () {
         offerId = ethers.utils.keccak256(
-          ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+          ethers.utils.solidityPack(
+            ["address", "uint256", "uint256"],
+            [user1.address, 0, chainId]
+          )
         );
         await grtPool
           .connect(user1)
@@ -429,7 +376,17 @@ describe("Grindery Offer testings", function () {
         await grtTestToken.connect(user2).approve(grtPool.address, 500);
 
         offerId = ethers.utils.keccak256(
-          ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+          ethers.utils.solidityPack(
+            ["address", "uint256", "uint256"],
+            [user1.address, 0, chainId]
+          )
+        );
+
+        tradeId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ["address", "uint256", "uint256"],
+            [user2.address, 0, chainId]
+          )
         );
         await grtPool
           .connect(user1)
@@ -543,18 +500,7 @@ describe("Grindery Offer testings", function () {
             )
         )
           .to.emit(grtPool, "LogTrade")
-          .withArgs(
-            user1.address,
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            ),
-            grtTestToken.address,
-            250,
-            offerId
-          );
+          .withArgs(user1.address, tradeId, grtTestToken.address, 250, offerId);
       });
 
       it("Should emit new trade event with TradeId different for each call", async function () {
@@ -598,8 +544,8 @@ describe("Grindery Offer testings", function () {
             user1.address,
             ethers.utils.keccak256(
               ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 2]
+                ["address", "uint256", "uint256"],
+                [user2.address, 2, chainId]
               )
             ),
             grtTestToken.address,
@@ -618,16 +564,7 @@ describe("Grindery Offer testings", function () {
             user2.address,
             10
           );
-        expect(
-          await grtPool.getRequester(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(user2.address);
+        expect(await grtPool.getRequester(tradeId)).to.equal(user2.address);
       });
 
       it("Should set the destination address", async function () {
@@ -640,16 +577,7 @@ describe("Grindery Offer testings", function () {
             user4.address,
             10
           );
-        expect(
-          await grtPool.getRecipient(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(user4.address);
+        expect(await grtPool.getRecipient(tradeId)).to.equal(user4.address);
       });
 
       it("Should set the TEST token address for the deposit", async function () {
@@ -662,16 +590,9 @@ describe("Grindery Offer testings", function () {
             user2.address,
             10
           );
-        expect(
-          await grtPool.getDepositToken(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(grtTestToken.address);
+        expect(await grtPool.getDepositToken(tradeId)).to.equal(
+          grtTestToken.address
+        );
       });
 
       it("Should set the TEST amount for the deposit", async function () {
@@ -684,16 +605,7 @@ describe("Grindery Offer testings", function () {
             user2.address,
             10
           );
-        expect(
-          await grtPool.getDepositAmount(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(100);
+        expect(await grtPool.getDepositAmount(tradeId)).to.equal(100);
       });
 
       it("Should set the offer amount", async function () {
@@ -706,16 +618,7 @@ describe("Grindery Offer testings", function () {
             user2.address,
             10
           );
-        expect(
-          await grtPool.getAmountOffer(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(10);
+        expect(await grtPool.getAmountOffer(tradeId)).to.equal(10);
       });
 
       it("Should set the chainId for the deposit", async function () {
@@ -728,16 +631,7 @@ describe("Grindery Offer testings", function () {
             user2.address,
             10
           );
-        expect(
-          await grtPool.getDepositChainId(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(chainId);
+        expect(await grtPool.getDepositChainId(tradeId)).to.equal(chainId);
       });
 
       it("Should set the offerId", async function () {
@@ -750,16 +644,7 @@ describe("Grindery Offer testings", function () {
             user2.address,
             10
           );
-        expect(
-          await grtPool.getIdOffer(
-            ethers.utils.keccak256(
-              ethers.utils.solidityPack(
-                ["address", "uint256"],
-                [user2.address, 0]
-              )
-            )
-          )
-        ).to.equal(offerId);
+        expect(await grtPool.getIdOffer(tradeId)).to.equal(offerId);
       });
 
       it("Should increase the deposit nonce of the user by 1", async function () {
@@ -791,7 +676,10 @@ describe("Grindery Offer testings", function () {
         await grtTestToken.connect(user3).approve(grtPool.address, 500);
 
         offerId = ethers.utils.keccak256(
-          ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+          ethers.utils.solidityPack(
+            ["address", "uint256", "uint256"],
+            [user1.address, 0, chainId]
+          )
         );
         await grtPool
           .connect(user1)
@@ -858,10 +746,16 @@ describe("Grindery Offer testings", function () {
   describe("Function to return payment information - Zapier use case", function () {
     beforeEach(async function () {
       offerId = ethers.utils.keccak256(
-        ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+        ethers.utils.solidityPack(
+          ["address", "uint256", "uint256"],
+          [user1.address, 0, chainId]
+        )
       );
       tradeId = ethers.utils.keccak256(
-        ethers.utils.solidityPack(["address", "uint256"], [user3.address, 0])
+        ethers.utils.solidityPack(
+          ["address", "uint256", "uint256"],
+          [user3.address, 0, chainId]
+        )
       );
       await grtPool
         .connect(user1)
