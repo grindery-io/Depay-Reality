@@ -59,7 +59,10 @@ describe("Grindery Offer testings", function () {
         ["FIRA", "100"]
       );
       offerId = ethers.utils.keccak256(
-        ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+        ethers.utils.solidityPack(
+          ["address", "uint256", "uint256"],
+          [user1.address, 0, chainId]
+        )
       );
     });
 
@@ -201,7 +204,10 @@ describe("Grindery Offer testings", function () {
           ["FIRA", "100"]
         );
         offerId = ethers.utils.keccak256(
-          ethers.utils.solidityPack(["address", "uint256"], [user1.address, 0])
+          ethers.utils.solidityPack(
+            ["address", "uint256", "uint256"],
+            [user1.address, 0, chainId]
+          )
         );
 
         await grtOffer
