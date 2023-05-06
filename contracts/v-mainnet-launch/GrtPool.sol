@@ -4,10 +4,12 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./GrtOffer.sol";
 
 contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
+    using SafeERC20 for IERC20;
+
     struct Trade {
         bool isComplete;
         address userAddr;
@@ -110,7 +112,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
             "Grindery Pool: the offer is inactive."
         );
 
-        IERC20(_tokenTest).transferFrom(msg.sender, address(this), amount);
+        IERC20(_tokenTest).safeTransferFrom(msg.sender, address(this), amount);
         return setTradeInfo(destAddr, _tokenTest, amount, offerId, amountOffer);
     }
 
