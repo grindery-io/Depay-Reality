@@ -3,8 +3,6 @@ import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
 
-const protocolVersion = "v-testnet-launch";
-
 describe("Grindery Offer testings", function () {
   const chainId = 31337;
 
@@ -24,7 +22,7 @@ describe("Grindery Offer testings", function () {
 
     grtOffer = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        `contracts/${protocolVersion}/GrtPool.sol:GrtPool`
+        "contracts/v-testnet-launch/GrtPool.sol:GrtPool"
       ),
       []
     );

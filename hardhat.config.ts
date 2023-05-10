@@ -46,15 +46,6 @@ const config: HardhatUserConfig = {
           },
         },
       },
-      {
-        version: "0.8.19",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1000,
-          },
-        },
-      },
     ],
   },
   networks: {
@@ -166,9 +157,11 @@ const config: HardhatUserConfig = {
     clear: true,
     flat: true,
     only: [
-      `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`,
-      `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`,
-      `contracts/v${protocolVersion}/GrtLiquidityWallet.sol:GrtLiquidityWallet`,
+      `contracts/v-testnet-launch/GrtPool.sol:GrtPool`,
+      `contracts/v-testnet-launch/GrtSatellite.sol:GrtSatellite`,
+      `contracts/v-testnet-launch/GrtLiquidityWallet.sol:GrtLiquidityWallet`,
+      `contracts/v-mainnet-launch/GrtPool.sol:GrtPoolV2`,
+      `contracts/v-mainnet-launch/GrtLiquidityWallet.sol:GrtLiquidityWalletV2`,
       "ERC20Sample",
     ],
     spacing: 2,

@@ -1,9 +1,7 @@
 import { ethers, upgrades } from "hardhat";
-import { expect, use } from "chai";
+import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract, BigNumber } from "ethers";
-
-const protocolVersion = "v-mainnet-launch";
 
 describe("Grindery Liquidity Wallet", () => {
   let owner: SignerWithAddress,
@@ -28,7 +26,7 @@ describe("Grindery Liquidity Wallet", () => {
 
     grtLiquidityWallet = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        `contracts/${protocolVersion}/GrtLiquidityWallet.sol:GrtLiquidityWallet`
+        "contracts/v-mainnet-launch/GrtLiquidityWallet.sol:GrtLiquidityWalletV2"
       ),
       [bot.address]
     );

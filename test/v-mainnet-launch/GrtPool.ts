@@ -3,7 +3,6 @@ import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
 
-const protocolVersion = "v-mainnet-launch";
 const nameToken = "GRTToken";
 const symbolToken = "GRT";
 
@@ -29,14 +28,14 @@ describe("Grindery Offer testings", function () {
 
     grtTestToken = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        `contracts/${protocolVersion}/GrtTestToken.sol:GrtTestToken`
+        "contracts/v-mainnet-launch/GrtTestToken.sol:GrtTestToken"
       ),
       [nameToken, symbolToken, minter.address]
     );
 
     grtPool = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        `contracts/${protocolVersion}/GrtPool.sol:GrtPool`
+        `contracts/v-mainnet-launch/GrtPool.sol:GrtPoolV2`
       ),
       [grtTestToken.address]
     );

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
-pragma solidity 0.8.19;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./GrtOffer.sol";
 
-contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
+contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     using SafeERC20 for IERC20;
 
     struct Trade {
