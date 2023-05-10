@@ -9,7 +9,7 @@ async function main() {
   const grtPool = (
     await ethers.getContractFactory("contracts/v0.2.0/GrtPool.sol:GrtPool")
   ).attach(GRT_POOL_ADDRESS);
-  const grtToken = (await ethers.getContractFactory("MockERC20")).attach(
+  const grtToken = (await ethers.getContractFactory("ERC20Sample")).attach(
     GRT_ADDRESS
   );
 

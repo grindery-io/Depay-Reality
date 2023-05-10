@@ -25,10 +25,10 @@ describe("Grindery Satellite testings", function () {
     );
     await grtSatellite.deployed();
 
-    grtToken = await (await ethers.getContractFactory("MockERC20")).deploy();
+    grtToken = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await grtToken.deployed();
 
-    token = await (await ethers.getContractFactory("MockERC20")).deploy();
+    token = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await token.deployed();
 
     // initialize contract

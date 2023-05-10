@@ -25,13 +25,13 @@ describe("Grindery Offer testings", function () {
     );
     await grtOffer.deployed();
 
-    grtToken = await (await ethers.getContractFactory("MockERC20")).deploy();
+    grtToken = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await grtToken.deployed();
 
-    token = await (await ethers.getContractFactory("MockERC20")).deploy();
+    token = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await token.deployed();
 
-    token1 = await (await ethers.getContractFactory("MockERC20")).deploy();
+    token1 = await (await ethers.getContractFactory("ERC20Sample")).deploy();
     await token1.deployed();
 
     // initialize contract

@@ -166,7 +166,7 @@ const config: HardhatUserConfig = {
       "contracts/v1/GrtLiquidityWallet.sol:GrtLiquidityWallet",
       "contracts/v2/GrtPool.sol:GrtPoolV2",
       "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2",
-      "MockERC20",
+      "ERC20Sample",
     ],
     spacing: 2,
     format: "json",
