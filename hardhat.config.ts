@@ -14,12 +14,16 @@ import {
   BSCSCAN_KEY,
   CRONOS_SCAN_KEY,
 } from "./secrets";
-import "./tasks/v-testnet-launch/deploy-grtPool";
-import "./tasks/v-testnet-launch/deploy-grtLiquidityWallet";
-import "./tasks/v-testnet-launch/update-grtLiquidityWallet";
-import "./tasks/v-testnet-launch/update-grtPool";
+import "./tasks/v1/deploy-grtPool";
+import "./tasks/v1/deploy-grtLiquidityWallet";
+import "./tasks/v1/update-grtLiquidityWallet";
+import "./tasks/v1/update-grtPool";
+import "./tasks/v2/deploy-grtPool";
+import "./tasks/v2/deploy-grtLiquidityWallet";
+import "./tasks/v2/update-grtLiquidityWallet";
+import "./tasks/v2/update-grtPool";
 
-let protocolVersion = "-testnet-launch";
+let protocolVersion = "1";
 
 function getGrtAddress(network: string) {
   if (network === "goerli") {
@@ -157,12 +161,12 @@ const config: HardhatUserConfig = {
     clear: true,
     flat: true,
     only: [
-      `contracts/v-testnet-launch/GrtPool.sol:GrtPool`,
-      `contracts/v-testnet-launch/GrtSatellite.sol:GrtSatellite`,
-      `contracts/v-testnet-launch/GrtLiquidityWallet.sol:GrtLiquidityWallet`,
-      `contracts/v-mainnet-launch/GrtPool.sol:GrtPoolV2`,
-      `contracts/v-mainnet-launch/GrtLiquidityWallet.sol:GrtLiquidityWalletV2`,
-      "ERC20Sample",
+      "contracts/v1/GrtPool.sol:GrtPool",
+      "contracts/v1/GrtSatellite.sol:GrtSatellite",
+      "contracts/v1/GrtLiquidityWallet.sol:GrtLiquidityWallet",
+      "contracts/v2/GrtPool.sol:GrtPoolV2",
+      "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2",
+      "MockERC20",
     ],
     spacing: 2,
     format: "json",

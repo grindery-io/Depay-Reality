@@ -1,9 +1,7 @@
 import { task } from "hardhat/config";
 
-const version_protocol = "v-testnet-launch";
-
 task(
-  "deployGrtLiquidityWallet",
+  "deployGrtLiquidityWalletV1",
   "Deploy GRT Liquidity Wallet for testnet launch"
 )
   .addParam("owner", "Owner of the liquidity wallet")
@@ -18,7 +16,7 @@ task(
 
     const grtLiquidityWallet = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        `contracts/${version_protocol}/GrtLiquidityWallet.sol:GrtLiquidityWallet`
+        "contracts/v1/GrtLiquidityWallet.sol:GrtLiquidityWallet"
       ),
       [taskArgs.bot]
     );

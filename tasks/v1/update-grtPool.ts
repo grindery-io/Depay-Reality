@@ -1,8 +1,6 @@
 import { task } from "hardhat/config";
 
-const version_protocol = "v-testnet-launch";
-
-task("updateGrtPool", "Update GRT Pool for testnet launch")
+task("updateGrtPoolV1", "Update GRT Pool for testnet launch")
   .addParam("address", "Address of the GRT Pool")
   .setAction(async (taskArgs, hre) => {
     const { getNamedAccounts, ethers, upgrades } = hre;
@@ -13,9 +11,7 @@ task("updateGrtPool", "Update GRT Pool for testnet launch")
 
     const grtPoolUpdate = await upgrades.upgradeProxy(
       taskArgs.address,
-      await ethers.getContractFactory(
-        `contracts/${version_protocol}/GrtPool.sol:GrtPool`
-      )
+      await ethers.getContractFactory("contracts/v1/GrtPool.sol:GrtPool")
     );
 
     console.log("--------------------------------------------");

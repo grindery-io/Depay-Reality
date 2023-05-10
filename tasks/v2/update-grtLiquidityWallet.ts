@@ -1,9 +1,7 @@
 import { task } from "hardhat/config";
 
-const version_protocol = "v-testnet-launch";
-
 task(
-  "updateGrtLiquidityWallet",
+  "updateGrtLiquidityWalletV2",
   "Update GRT Liquidity Wallet for testnet launch"
 )
   .addParam("address", "Address of the Liquidity Wallet")
@@ -18,7 +16,7 @@ task(
     const grtLiquidityWalletUpdate = await upgrades.upgradeProxy(
       taskArgs.address,
       await ethers.getContractFactory(
-        `contracts/${version_protocol}/GrtLiquidityWallet.sol:GrtLiquidityWallet`
+        "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWallet"
       )
     );
 

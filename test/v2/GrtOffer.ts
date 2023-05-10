@@ -21,20 +21,18 @@ describe("Grindery Offer testings", function () {
     [owner, user1, user2] = await ethers.getSigners();
 
     grtOffer = await upgrades.deployProxy(
-      await ethers.getContractFactory(
-        `contracts/v-mainnet-launch/GrtPool.sol:GrtPoolV2`
-      ),
+      await ethers.getContractFactory(`contracts/v2/GrtPool.sol:GrtPoolV2`),
       [ethers.constants.AddressZero]
     );
     await grtOffer.deployed();
 
-    grtToken = await (await ethers.getContractFactory("ERC20Sample")).deploy();
+    grtToken = await (await ethers.getContractFactory("MockERC20")).deploy();
     await grtToken.deployed();
 
-    token = await (await ethers.getContractFactory("ERC20Sample")).deploy();
+    token = await (await ethers.getContractFactory("MockERC20")).deploy();
     await token.deployed();
 
-    token1 = await (await ethers.getContractFactory("ERC20Sample")).deploy();
+    token1 = await (await ethers.getContractFactory("MockERC20")).deploy();
     await token1.deployed();
   });
 

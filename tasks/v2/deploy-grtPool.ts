@@ -1,8 +1,6 @@
 import { task } from "hardhat/config";
 
-const version_protocol = "v-mainnet-launch";
-
-task("deployGrtPool", "Deploy GRT Pool for testnet launch")
+task("deployGrtPoolV2", "Deploy GRT Pool for testnet launch")
   .addParam("tokenaddress", "ERC20 token address")
   .setAction(async (taskArgs, hre) => {
     const { getNamedAccounts, ethers, upgrades } = hre;
@@ -12,9 +10,7 @@ task("deployGrtPool", "Deploy GRT Pool for testnet launch")
     console.log("###############################################");
 
     const grtPool = await upgrades.deployProxy(
-      await ethers.getContractFactory(
-        `contracts/${version_protocol}/GrtPool.sol:GrtPool`
-      ),
+      await ethers.getContractFactory("contracts/v2/GrtPool.sol:GrtPool"),
       [taskArgs.tokenaddress]
     );
 

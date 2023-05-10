@@ -18,15 +18,15 @@ describe("Grindery Liquidity Wallet", () => {
   beforeEach(async () => {
     [owner, user1, user2, bot, bot2] = await ethers.getSigners();
 
-    grtToken = await (await ethers.getContractFactory("ERC20Sample")).deploy();
+    grtToken = await (await ethers.getContractFactory("MockERC20")).deploy();
     await grtToken.deployed();
 
-    token = await (await ethers.getContractFactory("ERC20Sample")).deploy();
+    token = await (await ethers.getContractFactory("MockERC20")).deploy();
     await token.deployed();
 
     grtLiquidityWallet = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        "contracts/v-mainnet-launch/GrtLiquidityWallet.sol:GrtLiquidityWalletV2"
+        "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2"
       ),
       [bot.address]
     );

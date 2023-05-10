@@ -19,7 +19,7 @@ describe("Grindery Liquidity Wallet", () => {
 
     grtToken = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        `contracts/v-mainnet-launch/GrtTestToken.sol:GrtTestToken`
+        `contracts/v2/GrtTestToken.sol:GrtTestToken`
       ),
       [nameToken, symbolToken, minter.address]
     );
