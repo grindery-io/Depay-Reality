@@ -10,7 +10,7 @@ task("deployGrtPoolV2", "Deploy GRT Pool for testnet launch")
     console.log("###############################################");
 
     const grtPool = await upgrades.deployProxy(
-      await ethers.getContractFactory("contracts/v2/GrtPool.sol:GrtPool"),
+      await ethers.getContractFactory("contracts/v2/GrtPool.sol:GrtPoolV2"),
       [taskArgs.tokenaddress]
     );
 

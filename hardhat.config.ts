@@ -1,3 +1,4 @@
+import "./tasks/v2/update-grtPool";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
@@ -13,6 +14,7 @@ import {
   ETHERSCAN_KEY,
   BSCSCAN_KEY,
   CRONOS_SCAN_KEY,
+  FANTOM_SCAN_KEY,
 } from "./secrets";
 import "./tasks/v1/deploy-grtPool";
 import "./tasks/v1/deploy-grtLiquidityWallet";
@@ -22,6 +24,7 @@ import "./tasks/v2/deploy-grtPool";
 import "./tasks/v2/deploy-grtLiquidityWallet";
 import "./tasks/v2/update-grtLiquidityWallet";
 import "./tasks/v2/update-grtPool";
+import "./tasks/Mocks/deploy-grtupgradeable";
 
 let protocolVersion = "1";
 
@@ -85,6 +88,11 @@ const config: HardhatUserConfig = {
       url: `https://rpc.ankr.com/fantom`,
       accounts: [OWNER_KEY],
     },
+    ftmTestnet: {
+      live: true,
+      url: "https://rpc.ankr.com/fantom_testnet",
+      accounts: [OWNER_KEY],
+    },
     gnosis: {
       url: `https://rpc.ankr.com/gnosis`,
       accounts: [OWNER_KEY],
@@ -128,6 +136,7 @@ const config: HardhatUserConfig = {
       goerli: ETHERSCAN_KEY!,
       bscTestnet: BSCSCAN_KEY!,
       cronosTestnet: CRONOS_SCAN_KEY!,
+      ftmTestnet: FANTOM_SCAN_KEY!,
     },
     customChains: [
       {
@@ -167,6 +176,7 @@ const config: HardhatUserConfig = {
       "contracts/v2/GrtPool.sol:GrtPoolV2",
       "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2",
       "ERC20Sample",
+      "GRTUpgradeable",
     ],
     spacing: 2,
     format: "json",
