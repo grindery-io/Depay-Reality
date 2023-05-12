@@ -59,7 +59,7 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         uint256 amount,
         address to
     ) external onlyOwner {
-        IERC20(token).transfer(to, amount);
+        IERC20(token).safeTransfer(to, amount);
     }
 
     function depositETHAndAcceptOffer(
