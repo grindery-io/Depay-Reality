@@ -95,6 +95,10 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         uint256 amountOffer
     ) external returns (bytes32) {
         require(
+            token != address(0),
+            "Grindery Pool: the token must not be zero address."
+        );
+        require(
             token == _tokenTest,
             "Grindery Pool: the token sent must be the test token."
         );
