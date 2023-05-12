@@ -566,6 +566,25 @@
         "type": "bytes32"
       }
     ],
+    "name": "getOrderComplete",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      }
+    ],
     "name": "getPaymentInfo",
     "outputs": [
       {
@@ -828,6 +847,25 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setOrderComplete",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "nonpayable",

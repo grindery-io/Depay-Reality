@@ -144,6 +144,20 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         _tokenTest = tokenTest;
     }
 
+    function setOrderComplete(bytes32 tradeId) external returns (bool) {
+        require(
+            !_trades[tradeId].isComplete,
+            "Grindery Pool: the order is already complete."
+        );
+        require(
+            msg.sender == _trades[tradeId].userAddr,
+            "Grindery Pool: you are not the user who made the order."
+        );
+
+        _trades[tradeId].isComplete = true;
+        return true;
+    }
+
     function getPaymentInfo(
         bytes32 tradeId
     )
@@ -170,6 +184,10 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function getNonceDeposit(address user) external view returns (uint256) {
         return _noncesDeposit[user];
+    }
+
+    function getOrderComplete(bytes32 tradeId) external view returns (bool) {
+        return _trades[tradeId].isComplete;
     }
 
     function getAmountOffer(bytes32 tradeId) external view returns (uint256) {

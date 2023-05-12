@@ -70,6 +70,10 @@ contract GrtOffer is GrtOfferUtils {
 
     function setIsActive(bytes32 offerId, bool isActive) external {
         require(
+            _offers[offerId].isActive != isActive,
+            "Grindery offer: the offer is already in this state."
+        );
+        require(
             msg.sender == _offers[offerId].user,
             "Grindery offer: you are not allowed to modify this offer."
         );

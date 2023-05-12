@@ -412,6 +412,14 @@ describe("Grindery Offer testings", function () {
           );
         });
 
+        it("Should fail if the offer is already in the desired state", async function () {
+          await expect(
+            grtOffer.connect(user1).setIsActive(offerId, true)
+          ).to.be.revertedWith(
+            "Grindery offer: the offer is already in this state."
+          );
+        });
+
         it("Should modify the status", async function () {
           await grtOffer.connect(user1).setIsActive(offerId, false);
           expect(await grtOffer.getStatusOffer(offerId)).to.equal(false);
