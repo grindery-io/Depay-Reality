@@ -30,10 +30,10 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     event LogTrade(
         address indexed _offerer,
-        bytes32 indexed _idTrade,
+        bytes32 indexed _tradeId,
         address indexed _token,
         uint256 _amount,
-        bytes32 _idOffer
+        bytes32 _offerId
     );
 
     function initialize(address tokenTest) external initializer {

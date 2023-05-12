@@ -50,7 +50,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idOffer",
+        "name": "_offerId",
         "type": "bytes32"
       },
       {
@@ -75,7 +75,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idOffer",
+        "name": "_offerId",
         "type": "bytes32"
       },
       {
@@ -94,7 +94,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idOffer",
+        "name": "_offerId",
         "type": "bytes32"
       },
       {
@@ -113,7 +113,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idOffer",
+        "name": "_offerId",
         "type": "bytes32"
       },
       {
@@ -132,7 +132,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idOffer",
+        "name": "_offerId",
         "type": "bytes32"
       },
       {
@@ -151,7 +151,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idOffer",
+        "name": "_offerId",
         "type": "bytes32"
       },
       {
@@ -176,7 +176,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_idTrade",
+        "name": "_tradeId",
         "type": "bytes32"
       },
       {
@@ -194,7 +194,7 @@
       {
         "indexed": false,
         "internalType": "bytes32",
-        "name": "_idOffer",
+        "name": "_offerId",
         "type": "bytes32"
       }
     ],

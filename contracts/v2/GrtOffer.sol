@@ -5,24 +5,24 @@ import "./utils/GrtOfferUtils.sol";
 
 contract GrtOffer is GrtOfferUtils {
     event LogNewOffer(
-        bytes32 indexed _idOffer,
+        bytes32 indexed _offerId,
         address indexed _token,
         uint256 _chainId
     );
     event LogSetChainIdOffer(
-        bytes32 indexed _idOffer,
+        bytes32 indexed _offerId,
         uint256 indexed _chainId
     );
-    event LogSetTokenOffer(bytes32 indexed _idOffer, address indexed _token);
+    event LogSetTokenOffer(bytes32 indexed _offerId, address indexed _token);
     event LogSetMinPriceLimit(
-        bytes32 indexed _idOffer,
+        bytes32 indexed _offerId,
         bytes32 indexed _lowerLimitFn
     );
     event LogSetMaxPriceLimit(
-        bytes32 indexed _idOffer,
+        bytes32 indexed _offerId,
         bytes32 indexed _upperLimitFn
     );
-    event LogSetStatusOffer(bytes32 indexed _idOffer, bool indexed _isActive);
+    event LogSetStatusOffer(bytes32 indexed _offerId, bool indexed _isActive);
 
     function setChainIdOffer(bytes32 offerId, uint256 chainId) external {
         require(
