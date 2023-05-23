@@ -175,6 +175,8 @@ const config: HardhatUserConfig = {
       "contracts/v1/GrtLiquidityWallet.sol:GrtLiquidityWallet",
       "contracts/v2/GrtPool.sol:GrtPoolV2",
       "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2",
+      "contracts/v2-tmp/GrtPool.sol:GrtPoolV2Tmp",
+      "contracts/v2-tmp/GrtLiquidityWallet.sol:GrtLiquidityWalletV2Tmp",
       "ERC20Sample",
       "GRTUpgradeable",
     ],
