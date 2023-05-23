@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 contract GrtOfferUtils {
     struct Offer {
-        address user;
+        address seller;
         bool isActive;
         uint256 chainId;
         address token;
@@ -14,8 +14,8 @@ contract GrtOfferUtils {
     mapping(bytes32 => Offer) internal _offers;
     mapping(address => uint256) internal _noncesOffer;
 
-    function getSeller(bytes32 offerId) public view returns (address) {
-        return _offers[offerId].user;
+    function getSellerOffer(bytes32 offerId) public view returns (address) {
+        return _offers[offerId].seller;
     }
 
     function getStatusOffer(bytes32 offerId) external view returns (bool) {

@@ -26,7 +26,7 @@ contract GrtOffer is GrtOfferUtils {
 
     function setChainIdOffer(bytes32 offerId, uint256 chainId) external {
         require(
-            msg.sender == _offers[offerId].user,
+            msg.sender == _offers[offerId].seller,
             "Grindery offer: you are not allowed to modify this offer."
         );
         _offers[offerId].chainId = chainId;
@@ -35,7 +35,7 @@ contract GrtOffer is GrtOfferUtils {
 
     function setTokenOffer(bytes32 offerId, address token) external {
         require(
-            msg.sender == _offers[offerId].user,
+            msg.sender == _offers[offerId].seller,
             "Grindery offer: you are not allowed to modify this offer."
         );
         _offers[offerId].token = token;
@@ -47,7 +47,7 @@ contract GrtOffer is GrtOfferUtils {
         bytes calldata minPriceLimit
     ) external {
         require(
-            msg.sender == _offers[offerId].user,
+            msg.sender == _offers[offerId].seller,
             "Grindery offer: you are not allowed to modify this offer."
         );
         bytes32 priceLimit = keccak256(abi.encodePacked(minPriceLimit));
@@ -60,7 +60,7 @@ contract GrtOffer is GrtOfferUtils {
         bytes calldata maxPriceLimit
     ) external {
         require(
-            msg.sender == _offers[offerId].user,
+            msg.sender == _offers[offerId].seller,
             "Grindery offer: you are not allowed to modify this offer."
         );
         bytes32 priceLimit = keccak256(abi.encodePacked(maxPriceLimit));
@@ -74,7 +74,7 @@ contract GrtOffer is GrtOfferUtils {
             "Grindery offer: the offer is already in this state."
         );
         require(
-            msg.sender == _offers[offerId].user,
+            msg.sender == _offers[offerId].seller,
             "Grindery offer: you are not allowed to modify this offer."
         );
         _offers[offerId].isActive = isActive;
@@ -98,7 +98,7 @@ contract GrtOffer is GrtOfferUtils {
                 block.chainid
             )
         );
-        _offers[offerId].user = msg.sender;
+        _offers[offerId].seller = msg.sender;
         _offers[offerId].isActive = true;
         _offers[offerId].chainId = chainId;
         _offers[offerId].token = token;

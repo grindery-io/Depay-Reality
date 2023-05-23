@@ -67,7 +67,7 @@ describe("Grindery Offer testings", function () {
         await grtOffer
           .connect(user1)
           .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
-        expect(await grtOffer.getSeller(offerId)).to.equal(user1.address);
+        expect(await grtOffer.getSellerOffer(offerId)).to.equal(user1.address);
       });
 
       it("Should set the chainId for the offer", async function () {

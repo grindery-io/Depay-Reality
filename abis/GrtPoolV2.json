@@ -137,7 +137,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_upperLimitFn",
+        "name": "_upperPriceLimit",
         "type": "bytes32"
       }
     ],
@@ -156,7 +156,7 @@
       {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "_lowerLimitFn",
+        "name": "_lowerPriceLimit",
         "type": "bytes32"
       }
     ],

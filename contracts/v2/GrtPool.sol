@@ -147,7 +147,13 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         trade.offerId = offerId;
         trade.amountOffer = amountOffer;
         _noncesTrade[msg.sender]++;
-        emit LogNewTrade(getSeller(offerId), tradeId, token, amount, offerId);
+        emit LogNewTrade(
+            getSellerOffer(offerId),
+            tradeId,
+            token,
+            amount,
+            offerId
+        );
         return tradeId;
     }
 
