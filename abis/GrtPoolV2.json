@@ -141,7 +141,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "LogSetMaxPriceLimit",
+    "name": "LogSetMaxPriceLimitOffer",
     "type": "event"
   },
   {
@@ -160,7 +160,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "LogSetMinPriceLimit",
+    "name": "LogSetMinPriceLimitOffer",
     "type": "event"
   },
   {
@@ -357,7 +357,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "getAmountOfferTrade",
+    "name": "getAmountOfferForTrade",
     "outputs": [
       {
         "internalType": "uint256",
@@ -579,7 +579,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "getOfferIdTrade",
+    "name": "getOfferIdForTrade",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -796,7 +796,7 @@
         "type": "bool"
       }
     ],
-    "name": "setIsActive",
+    "name": "setIsActiveOffer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -827,7 +827,7 @@
         "type": "bytes"
       }
     ],
-    "name": "setMaxPriceLimit",
+    "name": "setMaxPriceLimitOffer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -845,7 +845,7 @@
         "type": "bytes"
       }
     ],
-    "name": "setMinPriceLimit",
+    "name": "setMinPriceLimitOffer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

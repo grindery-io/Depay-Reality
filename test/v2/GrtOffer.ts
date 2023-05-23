@@ -264,7 +264,7 @@ describe("Grindery Offer testings", function () {
           await expect(
             grtOffer
               .connect(user2)
-              .setMinPriceLimit(
+              .setMinPriceLimitOffer(
                 offerId,
                 ethers.utils.defaultAbiCoder.encode(
                   ["string", "string"],
@@ -279,7 +279,7 @@ describe("Grindery Offer testings", function () {
         it("Should modify the Min price limit options", async function () {
           await grtOffer
             .connect(user1)
-            .setMinPriceLimit(
+            .setMinPriceLimitOffer(
               offerId,
               ethers.utils.defaultAbiCoder.encode(
                 ["string", "string"],
@@ -305,7 +305,7 @@ describe("Grindery Offer testings", function () {
           await expect(
             await grtOffer
               .connect(user1)
-              .setMinPriceLimit(
+              .setMinPriceLimitOffer(
                 offerId,
                 ethers.utils.defaultAbiCoder.encode(
                   ["string", "string"],
@@ -313,7 +313,7 @@ describe("Grindery Offer testings", function () {
                 )
               )
           )
-            .to.emit(grtOffer, "LogSetMinPriceLimit")
+            .to.emit(grtOffer, "LogSetMinPriceLimitOffer")
             .withArgs(
               offerId,
               ethers.utils.keccak256(
@@ -336,7 +336,7 @@ describe("Grindery Offer testings", function () {
           await expect(
             grtOffer
               .connect(user2)
-              .setMaxPriceLimit(
+              .setMaxPriceLimitOffer(
                 offerId,
                 ethers.utils.defaultAbiCoder.encode(
                   ["string", "string"],
@@ -351,7 +351,7 @@ describe("Grindery Offer testings", function () {
         it("Should modify the Max price limit options", async function () {
           await grtOffer
             .connect(user1)
-            .setMaxPriceLimit(
+            .setMaxPriceLimitOffer(
               offerId,
               ethers.utils.defaultAbiCoder.encode(
                 ["string", "string"],
@@ -377,7 +377,7 @@ describe("Grindery Offer testings", function () {
           await expect(
             await grtOffer
               .connect(user1)
-              .setMaxPriceLimit(
+              .setMaxPriceLimitOffer(
                 offerId,
                 ethers.utils.defaultAbiCoder.encode(
                   ["string", "string"],
@@ -385,7 +385,7 @@ describe("Grindery Offer testings", function () {
                 )
               )
           )
-            .to.emit(grtOffer, "LogSetMaxPriceLimit")
+            .to.emit(grtOffer, "LogSetMaxPriceLimitOffer")
             .withArgs(
               offerId,
               ethers.utils.keccak256(
@@ -406,7 +406,7 @@ describe("Grindery Offer testings", function () {
       describe("Modify status offer", function () {
         it("Should fail if the sender is not the creator of the offer", async function () {
           await expect(
-            grtOffer.connect(user2).setIsActive(offerId, false)
+            grtOffer.connect(user2).setIsActiveOffer(offerId, false)
           ).to.be.revertedWith(
             "Grindery offer: you are not allowed to modify this offer."
           );
@@ -414,20 +414,20 @@ describe("Grindery Offer testings", function () {
 
         it("Should fail if the offer is already in the desired state", async function () {
           await expect(
-            grtOffer.connect(user1).setIsActive(offerId, true)
+            grtOffer.connect(user1).setIsActiveOffer(offerId, true)
           ).to.be.revertedWith(
             "Grindery offer: the offer is already in this state."
           );
         });
 
         it("Should modify the status", async function () {
-          await grtOffer.connect(user1).setIsActive(offerId, false);
+          await grtOffer.connect(user1).setIsActiveOffer(offerId, false);
           expect(await grtOffer.getStatusOffer(offerId)).to.equal(false);
         });
 
         it("Should emit an event", async function () {
           await expect(
-            await grtOffer.connect(user1).setIsActive(offerId, false)
+            await grtOffer.connect(user1).setIsActiveOffer(offerId, false)
           )
             .to.emit(grtOffer, "LogSetStatusOffer")
             .withArgs(offerId, false);

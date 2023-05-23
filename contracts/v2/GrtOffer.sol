@@ -14,13 +14,13 @@ contract GrtOffer is GrtOfferUtils {
         uint256 indexed _chainId
     );
     event LogSetTokenOffer(bytes32 indexed _offerId, address indexed _token);
-    event LogSetMinPriceLimit(
+    event LogSetMinPriceLimitOffer(
         bytes32 indexed _offerId,
-        bytes32 indexed _lowerLimitFn
+        bytes32 indexed _lowerPriceLimit
     );
-    event LogSetMaxPriceLimit(
+    event LogSetMaxPriceLimitOffer(
         bytes32 indexed _offerId,
-        bytes32 indexed _upperLimitFn
+        bytes32 indexed _upperPriceLimit
     );
     event LogSetStatusOffer(bytes32 indexed _offerId, bool indexed _isActive);
 
@@ -42,7 +42,7 @@ contract GrtOffer is GrtOfferUtils {
         emit LogSetTokenOffer(offerId, token);
     }
 
-    function setMinPriceLimit(
+    function setMinPriceLimitOffer(
         bytes32 offerId,
         bytes calldata minPriceLimit
     ) external {
@@ -52,10 +52,10 @@ contract GrtOffer is GrtOfferUtils {
         );
         bytes32 priceLimit = keccak256(abi.encodePacked(minPriceLimit));
         _offers[offerId].minPriceLimit = priceLimit;
-        emit LogSetMinPriceLimit(offerId, priceLimit);
+        emit LogSetMinPriceLimitOffer(offerId, priceLimit);
     }
 
-    function setMaxPriceLimit(
+    function setMaxPriceLimitOffer(
         bytes32 offerId,
         bytes calldata maxPriceLimit
     ) external {
@@ -65,10 +65,10 @@ contract GrtOffer is GrtOfferUtils {
         );
         bytes32 priceLimit = keccak256(abi.encodePacked(maxPriceLimit));
         _offers[offerId].maxPriceLimit = priceLimit;
-        emit LogSetMaxPriceLimit(offerId, priceLimit);
+        emit LogSetMaxPriceLimitOffer(offerId, priceLimit);
     }
 
-    function setIsActive(bytes32 offerId, bool isActive) external {
+    function setIsActiveOffer(bytes32 offerId, bool isActive) external {
         require(
             _offers[offerId].isActive != isActive,
             "Grindery offer: the offer is already in this state."
@@ -79,7 +79,7 @@ contract GrtOffer is GrtOfferUtils {
         );
         _offers[offerId].isActive = isActive;
         emit LogSetStatusOffer(offerId, isActive);
-    } // setIsActiveOffer
+    }
 
     function setOffer(
         address token,

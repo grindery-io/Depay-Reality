@@ -95,7 +95,7 @@ describe("Grindery Offer testings", function () {
       });
 
       it("Should fail if the deposit amount is 0", async function () {
-        await grtPool.connect(user1).setIsActive(offerId, false);
+        await grtPool.connect(user1).setIsActiveOffer(offerId, false);
         await expect(
           grtPool
             .connect(user3)
@@ -108,7 +108,7 @@ describe("Grindery Offer testings", function () {
       });
 
       it("Should fail if the offer is inactive", async function () {
-        await grtPool.connect(user1).setIsActive(offerId, false);
+        await grtPool.connect(user1).setIsActiveOffer(offerId, false);
         await expect(
           grtPool
             .connect(user3)
@@ -119,7 +119,7 @@ describe("Grindery Offer testings", function () {
       });
 
       it("Should fail if the destination address is the zero address", async function () {
-        await grtPool.connect(user1).setIsActive(offerId, false);
+        await grtPool.connect(user1).setIsActiveOffer(offerId, false);
         await expect(
           grtPool
             .connect(user3)
@@ -452,7 +452,7 @@ describe("Grindery Offer testings", function () {
       });
 
       it("Should fail if the offer is inactive", async function () {
-        await grtPool.connect(user1).setIsActive(offerId, false);
+        await grtPool.connect(user1).setIsActiveOffer(offerId, false);
         await expect(
           grtPool
             .connect(user3)
@@ -467,7 +467,7 @@ describe("Grindery Offer testings", function () {
       });
 
       it("Should fail if the destination address is the zero address", async function () {
-        await grtPool.connect(user1).setIsActive(offerId, false);
+        await grtPool.connect(user1).setIsActiveOffer(offerId, false);
         await expect(
           grtPool
             .connect(user3)
