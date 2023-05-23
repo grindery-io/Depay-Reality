@@ -9,7 +9,7 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
     using SafeERC20 for IERC20;
     address _bot;
 
-    event LogOfferPaid(
+    event LogTradePaid(
         bytes32 indexed _offerId,
         bytes32 indexed _tradeId,
         address indexed _token,
@@ -48,7 +48,7 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
         return sent;
     }
 
-    function payOfferWithERC20Tokens(
+    function payTradeWithERC20Tokens(
         bytes32 offerId,
         bytes32 tradeId,
         address token,
@@ -57,14 +57,14 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
     ) external returns (bool) {
         require(
             msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
+            "Grindery wallet: not allowed to pay the trade."
         );
         IERC20(token).safeTransfer(to, amount);
-        emit LogOfferPaid(offerId, tradeId, token, to, amount);
+        emit LogTradePaid(offerId, tradeId, token, to, amount);
         return true;
     }
 
-    function payOfferWithNativeTokens(
+    function payTradeWithNativeTokens(
         bytes32 offerId,
         bytes32 tradeId,
         address to,
@@ -72,7 +72,7 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
     ) external returns (bool) {
         require(
             msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
+            "Grindery wallet: not allowed to pay the trade."
         );
         require(
             address(this).balance >= amount,
@@ -80,7 +80,7 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
         );
         (bool sent, ) = to.call{value: amount}("");
         require(sent, "Grindery wallet: failed to send native tokens.");
-        emit LogOfferPaid(offerId, tradeId, address(0), to, amount);
+        emit LogTradePaid(offerId, tradeId, address(0), to, amount);
         return true;
     }
 }

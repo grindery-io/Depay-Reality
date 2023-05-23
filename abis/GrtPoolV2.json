@@ -632,7 +632,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "getSeller",
+    "name": "getSellerOffer",
     "outputs": [
       {
         "internalType": "address",

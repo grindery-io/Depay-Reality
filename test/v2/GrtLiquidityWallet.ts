@@ -238,21 +238,21 @@ describe("Grindery Liquidity Wallet", () => {
       await expect(
         grtLiquidityWallet
           .connect(user2)
-          .payOfferWithERC20Tokens(
+          .payTradeWithERC20Tokens(
             offerId,
             tradeId,
             grtToken.address,
             owner.address,
             100
           )
-      ).to.be.revertedWith("Grindery wallet: not allowed to pay the offer.");
+      ).to.be.revertedWith("Grindery wallet: not allowed to pay the trade.");
     });
 
     it("Should transfer ERC20 funds to user", async () => {
       await grtToken.connect(owner).transfer(grtLiquidityWallet.address, 100);
       const status = await grtLiquidityWallet
         .connect(owner)
-        .payOfferWithERC20Tokens(
+        .payTradeWithERC20Tokens(
           offerId,
           tradeId,
           grtToken.address,
@@ -266,12 +266,12 @@ describe("Grindery Liquidity Wallet", () => {
       expect(Boolean(status)).to.be.true;
     });
 
-    it("Should emit a LogOfferPaid event", async () => {
+    it("Should emit a LogTradePaid event", async () => {
       await grtToken.connect(owner).transfer(grtLiquidityWallet.address, 100);
       await expect(
         await grtLiquidityWallet
           .connect(owner)
-          .payOfferWithERC20Tokens(
+          .payTradeWithERC20Tokens(
             offerId,
             tradeId,
             grtToken.address,
@@ -279,7 +279,7 @@ describe("Grindery Liquidity Wallet", () => {
             100
           )
       )
-        .to.emit(grtLiquidityWallet, "LogOfferPaid")
+        .to.emit(grtLiquidityWallet, "LogTradePaid")
         .withArgs(offerId, tradeId, grtToken.address, user2.address, 100);
     });
   });
@@ -289,8 +289,8 @@ describe("Grindery Liquidity Wallet", () => {
       await expect(
         grtLiquidityWallet
           .connect(user2)
-          .payOfferWithNativeTokens(offerId, tradeId, owner.address, 100)
-      ).to.be.revertedWith("Grindery wallet: not allowed to pay the offer.");
+          .payTradeWithNativeTokens(offerId, tradeId, owner.address, 100)
+      ).to.be.revertedWith("Grindery wallet: not allowed to pay the trade.");
     });
 
     it("Should transfer Native funds to user", async () => {
@@ -303,14 +303,14 @@ describe("Grindery Liquidity Wallet", () => {
       ).wait();
       const status = await grtLiquidityWallet
         .connect(owner)
-        .payOfferWithNativeTokens(offerId, tradeId, user2.address, 100);
+        .payTradeWithNativeTokens(offerId, tradeId, user2.address, 100);
       const balanceAfter = await user2.getBalance();
 
       expect(balanceAfter).to.equal(balanceBefore.add(BigNumber.from("100")));
       expect(Boolean(status)).to.be.true;
     });
 
-    it("Should emit a LogOfferPaid event", async () => {
+    it("Should emit a LogTradePaid event", async () => {
       await (
         await owner.sendTransaction({
           to: grtLiquidityWallet.address,
@@ -320,9 +320,9 @@ describe("Grindery Liquidity Wallet", () => {
       await expect(
         await grtLiquidityWallet
           .connect(owner)
-          .payOfferWithNativeTokens(offerId, tradeId, user2.address, 100)
+          .payTradeWithNativeTokens(offerId, tradeId, user2.address, 100)
       )
-        .to.emit(grtLiquidityWallet, "LogOfferPaid")
+        .to.emit(grtLiquidityWallet, "LogTradePaid")
         .withArgs(
           offerId,
           tradeId,
