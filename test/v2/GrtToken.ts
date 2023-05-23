@@ -3,8 +3,8 @@ import { expect, use } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract, BigNumber } from "ethers";
 
-const nameToken = "GRTToken";
-const symbolToken = "GRT";
+const nameToken = "MRIToken";
+const symbolToken = "MRI";
 
 describe("Grindery Liquidity Wallet", () => {
   let owner: SignerWithAddress,
@@ -19,7 +19,7 @@ describe("Grindery Liquidity Wallet", () => {
 
     grtToken = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        `contracts/v2/GrtTestToken.sol:GrtTestToken`
+        `contracts/v2/GrtMRIToken.sol:GrtMRIToken`
       ),
       [nameToken, symbolToken, minter.address]
     );

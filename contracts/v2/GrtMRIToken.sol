@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract GrtTestToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
+contract GrtMRIToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     address private _minter;
 
     function initialize(

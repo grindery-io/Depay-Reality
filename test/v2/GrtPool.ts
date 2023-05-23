@@ -3,8 +3,8 @@ import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
 
-const nameToken = "GRTToken";
-const symbolToken = "GRT";
+const nameToken = "MRIToken";
+const symbolToken = "MRI";
 
 describe("Grindery Offer testings", function () {
   const chainId = 31337;
@@ -28,7 +28,7 @@ describe("Grindery Offer testings", function () {
 
     grtTestToken = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        "contracts/v2/GrtTestToken.sol:GrtTestToken"
+        "contracts/v2/GrtMRIToken.sol:GrtMRIToken"
       ),
       [nameToken, symbolToken, minter.address]
     );
