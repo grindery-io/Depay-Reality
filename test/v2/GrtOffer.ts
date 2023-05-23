@@ -63,11 +63,11 @@ describe("Grindery Offer testings", function () {
     });
 
     describe("Set up an offer with Grindery", function () {
-      it("Should set the user address for the offerer", async function () {
+      it("Should set the user address for the seller", async function () {
         await grtOffer
           .connect(user1)
           .setOffer(token.address, chainId, minPriceLimit, maxPriceLimit);
-        expect(await grtOffer.getOfferer(offerId)).to.equal(user1.address);
+        expect(await grtOffer.getSeller(offerId)).to.equal(user1.address);
       });
 
       it("Should set the chainId for the offer", async function () {

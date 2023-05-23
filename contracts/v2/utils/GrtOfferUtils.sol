@@ -14,7 +14,7 @@ contract GrtOfferUtils {
     mapping(bytes32 => Offer) internal _offers;
     mapping(address => uint256) internal _noncesOffer;
 
-    function getOfferer(bytes32 offerId) public view returns (address) {
+    function getSeller(bytes32 offerId) public view returns (address) {
         return _offers[offerId].user;
     }
 

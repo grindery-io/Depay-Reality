@@ -79,7 +79,7 @@ contract GrtOffer is GrtOfferUtils {
         );
         _offers[offerId].isActive = isActive;
         emit LogSetStatusOffer(offerId, isActive);
-    }
+    } // setIsActiveOffer
 
     function setOffer(
         address token,
