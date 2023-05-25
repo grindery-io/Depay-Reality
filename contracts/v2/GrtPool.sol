@@ -80,17 +80,18 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
             "Grindery Pool: the offer is inactive."
         );
 
+        bytes32 tradeId = setInfoTrade(
+            destAddress,
+            address(0),
+            msg.value,
+            offerId,
+            amountOffer
+        );
+
         (bool sent, ) = address(this).call{value: msg.value}("");
         require(sent, "Grindery Pool: failed to send native tokens.");
 
-        return
-            setInfoTrade(
-                destAddress,
-                address(0),
-                msg.value,
-                offerId,
-                amountOffer
-            );
+        return tradeId;
     }
 
     function depositMRITokenAndAcceptOffer(
@@ -121,9 +122,17 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
             "Grindery Pool: the offer is inactive."
         );
 
+        bytes32 tradeId = setInfoTrade(
+            destAddress,
+            _tokenMRI,
+            amount,
+            offerId,
+            amountOffer
+        );
+
         IERC20(_tokenMRI).safeTransferFrom(msg.sender, address(this), amount);
-        return
-            setInfoTrade(destAddress, _tokenMRI, amount, offerId, amountOffer);
+
+        return tradeId;
     }
 
     function setInfoTrade(
