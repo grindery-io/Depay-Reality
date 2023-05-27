@@ -24,8 +24,8 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         uint256 chainId;
     }
 
-    mapping(bytes32 => Trade) internal _trades;
-    mapping(address => uint256) internal _noncesTrade;
+    mapping(bytes32 => Trade) private _trades;
+    mapping(address => uint256) private _noncesTrade;
     address private _tokenMRI;
 
     event LogNewTrade(

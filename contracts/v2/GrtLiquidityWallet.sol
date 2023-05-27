@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
     using SafeERC20 for IERC20;
-    address _bot;
+    address private _bot;
 
     event LogTradePaid(
         bytes32 indexed _offerId,
