@@ -31,11 +31,11 @@ contract GrtMRIToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
         return _minter;
     }
 
-    function mint(address account, uint amount) external onlyMinter {
+    function mint(address account, uint256 amount) external onlyMinter {
         _mint(account, amount);
     }
 
-    function burn(address account, uint amount) external onlyMinter {
+    function burn(address account, uint256 amount) external onlyMinter {
         _burn(account, amount);
     }
 }
