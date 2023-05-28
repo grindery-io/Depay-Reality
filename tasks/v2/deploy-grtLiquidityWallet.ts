@@ -16,7 +16,7 @@ task(
 
     const grtLiquidityWallet = await upgrades.deployProxy(
       await ethers.getContractFactory(
-        "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWallet"
+        "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2"
       ),
       [taskArgs.bot]
     );

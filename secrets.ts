@@ -10,6 +10,7 @@ const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY;
 const BSCSCAN_KEY = process.env.BSCSCAN_KEY;
 const CRONOS_SCAN_KEY = process.env.CRONOS_SCAN_KEY;
 const FANTOM_SCAN_KEY = process.env.FANTOM_SCAN_KEY;
+const MUMBAI_SCAN_KEY = process.env.MUMBAI_SCAN_KEY;
 
 export {
   OWNER_ADDRESS,
@@ -21,4 +22,5 @@ export {
   BSCSCAN_KEY,
   CRONOS_SCAN_KEY,
   FANTOM_SCAN_KEY,
+  MUMBAI_SCAN_KEY,
 };

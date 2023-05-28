@@ -15,6 +15,7 @@ import {
   BSCSCAN_KEY,
   CRONOS_SCAN_KEY,
   FANTOM_SCAN_KEY,
+  MUMBAI_SCAN_KEY,
 } from "./secrets";
 import "./tasks/v1/deploy-grtPool";
 import "./tasks/v1/deploy-grtLiquidityWallet";
@@ -64,7 +65,7 @@ const config: HardhatUserConfig = {
       url: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [OWNER_KEY],
     },
-    mumbai: {
+    polygonMumbai: {
       url: `https://rpc.ankr.com/polygon_mumbai`,
       accounts: [OWNER_KEY],
     },
@@ -137,6 +138,7 @@ const config: HardhatUserConfig = {
       bscTestnet: BSCSCAN_KEY!,
       cronosTestnet: CRONOS_SCAN_KEY!,
       ftmTestnet: FANTOM_SCAN_KEY!,
+      polygonMumbai: MUMBAI_SCAN_KEY!,
     },
     customChains: [
       {
