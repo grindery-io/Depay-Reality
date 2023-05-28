@@ -2,11 +2,17 @@
 pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract GrtMRIToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
-    address private _minter;
+contract GrtMRIToken is
+    Initializable,
+    ERC20Upgradeable,
+    AccessControlUpgradeable
+{
+    bytes32 public constant MINTER_BURNER_ROLE =
+        keccak256("MINTER_BURNER_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     function initialize(
         string memory name,
@@ -14,28 +20,21 @@ contract GrtMRIToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
         address minter
     ) external initializer {
         __ERC20_init(name, symbol);
-        __Ownable_init();
-        _minter = minter;
+        _setupRole(MINTER_BURNER_ROLE, minter);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    modifier onlyMinter() {
-        require(_minter == _msgSender(), "Caller is not the minter");
-        _;
-    }
-
-    function setMinter(address minter) external onlyOwner {
-        _minter = minter;
-    }
-
-    function getMinter() external view returns (address) {
-        return _minter;
-    }
-
-    function mint(address account, uint256 amount) external onlyMinter {
+    function mint(
+        address account,
+        uint256 amount
+    ) external onlyRole(MINTER_BURNER_ROLE) {
         _mint(account, amount);
     }
 
-    function burn(address account, uint256 amount) external onlyMinter {
+    function burn(
+        address account,
+        uint256 amount
+    ) external onlyRole(MINTER_BURNER_ROLE) {
         _burn(account, amount);
     }
 }

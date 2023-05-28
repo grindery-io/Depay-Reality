@@ -7,7 +7,7 @@ const nameToken = "MRIToken";
 const symbolToken = "MRI";
 
 describe("Grindery Liquidity Wallet", () => {
-  let owner: SignerWithAddress,
+  let admin: SignerWithAddress,
     user1: SignerWithAddress,
     user2: SignerWithAddress,
     minter: SignerWithAddress,
@@ -15,7 +15,7 @@ describe("Grindery Liquidity Wallet", () => {
     grtToken: Contract;
 
   beforeEach(async () => {
-    [owner, user1, user2, minter, minter2] = await ethers.getSigners();
+    [admin, user1, user2, minter, minter2] = await ethers.getSigners();
 
     grtToken = await upgrades.deployProxy(
       await ethers.getContractFactory(
@@ -26,12 +26,15 @@ describe("Grindery Liquidity Wallet", () => {
   });
 
   describe("Deployment & initialization", async () => {
-    it("Should set the proper owner", async function () {
-      expect(await grtToken.owner()).to.equal(owner.address);
-    });
-
     it("Should set the proper minter address", async function () {
-      expect(await grtToken.getMinter()).to.equal(minter.address);
+      expect(
+        await grtToken.hasRole(
+          ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes("MINTER_BURNER_ROLE")
+          ),
+          minter.address
+        )
+      ).to.be.true;
     });
 
     it("Should set the proper token name", async function () {
@@ -47,7 +50,13 @@ describe("Grindery Liquidity Wallet", () => {
     it("Should return an error if msg.sender is not the minter", async function () {
       await expect(
         grtToken.connect(user1).mint(user2.address, 100)
-      ).to.be.revertedWith("Caller is not the minter");
+      ).to.be.revertedWith(
+        `AccessControl: account ${ethers.utils.hexlify(
+          user1.address
+        )} is missing role ${ethers.utils.keccak256(
+          ethers.utils.toUtf8Bytes("MINTER_BURNER_ROLE")
+        )}`
+      );
     });
 
     it("Should increase the total supply", async function () {
@@ -69,7 +78,13 @@ describe("Grindery Liquidity Wallet", () => {
     it("Should return an error if msg.sender is not the minter", async function () {
       await expect(
         grtToken.connect(user1).burn(user2.address, 100)
-      ).to.be.revertedWith("Caller is not the minter");
+      ).to.be.revertedWith(
+        `AccessControl: account ${ethers.utils.hexlify(
+          user1.address
+        )} is missing role ${ethers.utils.keccak256(
+          ethers.utils.toUtf8Bytes("MINTER_BURNER_ROLE")
+        )}`
+      );
     });
 
     it("Should decrease the total supply", async function () {
@@ -83,16 +98,73 @@ describe("Grindery Liquidity Wallet", () => {
     });
   });
 
-  describe("Modify minter", async () => {
-    it("Should return an error if msg.sender is not the owner", async function () {
+  describe("Modify access control", async () => {
+    it("Change minter should return an error if msg.sender is not the admin", async function () {
       await expect(
-        grtToken.connect(user1).setMinter(user2.address)
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+        grtToken
+          .connect(minter)
+          .grantRole(
+            ethers.utils.keccak256(
+              ethers.utils.toUtf8Bytes("MINTER_BURNER_ROLE")
+            ),
+            user2.address
+          )
+      ).to.be.revertedWith(
+        `AccessControl: account ${ethers.utils.hexlify(
+          minter.address
+        )} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
+      );
     });
 
-    it("Should modify the minter", async function () {
-      await grtToken.connect(owner).setMinter(user2.address);
-      expect(await grtToken.getMinter()).to.equal(user2.address);
+    it("Change minter should modify the minter if msg.sender is the admin", async function () {
+      await grtToken
+        .connect(admin)
+        .grantRole(
+          ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes("MINTER_BURNER_ROLE")
+          ),
+          user2.address
+        );
+
+      expect(
+        await grtToken.hasRole(
+          ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes("MINTER_BURNER_ROLE")
+          ),
+          user2.address
+        )
+      ).to.be.true;
+    });
+
+    it("Change admin should return an error if msg.sender is not the admin", async function () {
+      await expect(
+        grtToken
+          .connect(minter)
+          .grantRole(
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            user2.address
+          )
+      ).to.be.revertedWith(
+        `AccessControl: account ${ethers.utils.hexlify(
+          minter.address
+        )} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`
+      );
+    });
+
+    it("Change admin should modify the admin if msg.sender is the admin", async function () {
+      await grtToken
+        .connect(admin)
+        .grantRole(
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          user2.address
+        );
+
+      expect(
+        await grtToken.hasRole(
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          user2.address
+        )
+      ).to.be.true;
     });
   });
 });
