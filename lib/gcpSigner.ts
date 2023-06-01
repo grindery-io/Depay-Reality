@@ -17,7 +17,7 @@ export function getEthSignerWithKeyPath(keyPath: string) {
   return signer;
 }
 
-let registeredSigners = {} as { [address: string]: GcpKmsSigner };
+const registeredSigners = {} as { [address: string]: GcpKmsSigner };
 
 export function registerSigner(address: string, keyPath: string) {
   address = ethers.utils.getAddress(address);

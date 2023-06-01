@@ -6,8 +6,7 @@ task(
 )
   .addParam('address', 'Address of the Liquidity Wallet')
   .setAction(async (taskArgs, hre) => {
-    const { getNamedAccounts, ethers, upgrades } = hre;
-    const { owner } = await getNamedAccounts();
+    const { ethers, upgrades } = hre;
 
     console.log('###############################################');
     console.log('Updating GRT Liquidity Wallet on:', hre.network.name, '...');

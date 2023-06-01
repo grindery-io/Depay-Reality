@@ -17,6 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ),
     { kind: 'uups' }
   );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const result = await deploy('GrtPool_GrtPoolImpl', {
     contract: `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`,
     from: owner,

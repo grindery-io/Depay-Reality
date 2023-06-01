@@ -357,7 +357,7 @@ describe('Grindery Offer testings', function () {
 
       it('Should increase the balance of the recipient', async function () {
         let expectedBalance = await ethers.provider.getBalance(user4.address);
-        const tx = await (
+        await (
           await grtPool.connect(owner).withdrawNative(1, user4.address)
         ).wait();
         expectedBalance = expectedBalance.add(ethers.BigNumber.from(1));
@@ -484,7 +484,7 @@ describe('Grindery Offer testings', function () {
       });
 
       it('Should decrease the native token balance of the user', async function () {
-        let expectedBalance = await grtTestToken.balanceOf(user2.address);
+        const expectedBalance = await grtTestToken.balanceOf(user2.address);
         await grtPool
           .connect(user2)
           .depositMRITokenAndAcceptOffer(
@@ -500,7 +500,7 @@ describe('Grindery Offer testings', function () {
       });
 
       it('Should increase the token balance of the pool contract', async function () {
-        let expectedBalance = await grtTestToken.balanceOf(grtPool.address);
+        const expectedBalance = await grtTestToken.balanceOf(grtPool.address);
 
         await grtPool
           .connect(user2)
@@ -764,7 +764,7 @@ describe('Grindery Offer testings', function () {
       });
 
       it('Should increase the balance of the destination user', async function () {
-        let expectedBalance = await grtTestToken.balanceOf(user4.address);
+        const expectedBalance = await grtTestToken.balanceOf(user4.address);
         await grtPool
           .connect(owner)
           .withdrawERC20Tokens(grtTestToken.address, 10, user4.address);

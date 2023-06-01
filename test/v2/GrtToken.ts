@@ -1,7 +1,7 @@
 import { ethers, upgrades } from 'hardhat';
-import { expect, use } from 'chai';
+import { expect } from 'chai';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { Contract, BigNumber } from 'ethers';
+import { Contract } from 'ethers';
 
 const nameToken = 'MRIToken';
 const symbolToken = 'MRI';
@@ -11,11 +11,10 @@ describe('Grindery Liquidity Wallet', () => {
     user1: SignerWithAddress,
     user2: SignerWithAddress,
     minter: SignerWithAddress,
-    minter2: SignerWithAddress,
     grtToken: Contract;
 
   beforeEach(async () => {
-    [admin, user1, user2, minter, minter2] = await ethers.getSigners();
+    [admin, user1, user2, minter] = await ethers.getSigners();
 
     grtToken = await upgrades.deployProxy(
       await ethers.getContractFactory(

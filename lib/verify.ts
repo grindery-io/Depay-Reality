@@ -4,9 +4,9 @@ const EXPECTED_ADDRESSES = {
 };
 
 export function verifyContractAddress(
-  chainId: number | string,
-  type: keyof typeof EXPECTED_ADDRESSES,
-  address: string
+  _chainId: number | string,
+  _type: keyof typeof EXPECTED_ADDRESSES,
+  _address: string
 ) {
   // if (chainId.toString() === "31337") {
   //   // Hardhat chain

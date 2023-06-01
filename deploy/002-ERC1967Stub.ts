@@ -11,6 +11,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { owner } = await getNamedAccounts();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const result = await deploy('GrtPool_ERC1967Stub', {
     contract: 'ERC1967Stub',
     from: owner,

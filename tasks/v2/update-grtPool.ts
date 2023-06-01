@@ -3,7 +3,7 @@ import { task } from 'hardhat/config';
 task('updateGrtPoolV2', 'Update GRT Pool for testnet launch')
   .addParam('address', 'Address of the GRT Pool')
   .setAction(async (taskArgs, hre) => {
-    const { getNamedAccounts, ethers, upgrades } = hre;
+    const { ethers, upgrades } = hre;
 
     console.log('###############################################');
     console.log('Updating GRT Pool on:', hre.network.name, '...');

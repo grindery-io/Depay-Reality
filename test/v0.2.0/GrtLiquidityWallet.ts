@@ -1,11 +1,10 @@
 import { ethers, upgrades } from 'hardhat';
-import { expect, use } from 'chai';
+import { expect } from 'chai';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { Contract, BigNumber } from 'ethers';
 
 describe('Grindery Liquidity Wallet', () => {
   let owner: SignerWithAddress,
-    user1: SignerWithAddress,
     user2: SignerWithAddress,
     bot: SignerWithAddress,
     bot2: SignerWithAddress,
@@ -13,10 +12,10 @@ describe('Grindery Liquidity Wallet', () => {
     token: Contract,
     grtLiquidityWallet: Contract,
     grtSatellite: Contract,
-    offerId: String;
+    offerId: string;
 
   beforeEach(async () => {
-    [owner, user1, user2, bot, bot2] = await ethers.getSigners();
+    [owner, user2, bot, bot2] = await ethers.getSigners();
 
     grtToken = await (await ethers.getContractFactory('ERC20Sample')).deploy();
     await grtToken.deployed();
@@ -108,7 +107,7 @@ describe('Grindery Liquidity Wallet', () => {
   describe('Withdraw ERC20 funds from Liquidity Wallet', async () => {
     it('Non owner are not allowed to withdraw', async () => {
       await grtToken.connect(owner).transfer(grtLiquidityWallet.address, 100);
-      expect(
+      await expect(
         grtLiquidityWallet.connect(user2).withdrawERC20(grtToken.address, 100)
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
@@ -133,7 +132,7 @@ describe('Grindery Liquidity Wallet', () => {
           value: ethers.utils.parseEther('100'),
         })
       ).wait();
-      expect(
+      await expect(
         grtLiquidityWallet
           .connect(user2)
           .withdrawNative(ethers.utils.parseEther('100'))
@@ -181,14 +180,14 @@ describe('Grindery Liquidity Wallet', () => {
       let expectedBalance = await ethers.provider.getBalance(
         grtLiquidityWallet.address
       );
-      const tx = await (
+      await (
         await owner.sendTransaction({
           to: grtLiquidityWallet.address,
           value: 400,
         })
       ).wait();
       expectedBalance = expectedBalance.add(ethers.BigNumber.from(400));
-      const withdraw = await (
+      await (
         await grtLiquidityWallet.connect(owner).withdrawNative(100)
       ).wait();
       expectedBalance = expectedBalance.sub(ethers.BigNumber.from(100));

@@ -2,13 +2,13 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { ethers } from 'hardhat';
 import { getGasConfiguration } from '../lib/gas';
-import { protocolVersion, getGrtAddress } from '../hardhat.config';
+import { protocolVersion } from '../hardhat.config';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log(
     '--------------------- GRT Satellite - upgrade ---------------------'
   );
-  const { deployments, getNamedAccounts } = hre;
+  const { deployments } = hre;
   const impl = await deployments.get('GrtSatellite_GrtSatelliteImpl');
   const proxy = await deployments.get('GrtSatellite_GrtSatellite');
   const factory = await ethers.getContractFactory(

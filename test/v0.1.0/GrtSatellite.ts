@@ -7,20 +7,17 @@ describe('Grindery Satellite testings', function () {
   let owner: SignerWithAddress,
     user1: SignerWithAddress,
     user2: SignerWithAddress,
-    user3: SignerWithAddress,
-    user4: SignerWithAddress,
-    user5: SignerWithAddress,
     realityEth: Contract,
     grtToken: Contract,
     token: Contract,
-    grtSatellite: any,
+    grtSatellite: Contract,
     idRequest: string,
     offerId: number,
     chainIdDeposit: number,
     paymentId: string;
 
   beforeEach(async function () {
-    [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
+    [owner, user1, user2] = await ethers.getSigners();
 
     grtSatellite = await upgrades.deployProxy(
       await ethers.getContractFactory(
@@ -276,7 +273,7 @@ describe('Grindery Satellite testings', function () {
     });
 
     it('Should increase the native token amount of the recipient if payment is a success', async function () {
-      let expectedUser1Balance = await ethers.provider.getBalance(
+      const expectedUser1Balance = await ethers.provider.getBalance(
         user1.address
       );
       await grtSatellite

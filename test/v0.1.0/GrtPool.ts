@@ -14,8 +14,6 @@ describe('Grindery Pool testings', function () {
     user1: SignerWithAddress,
     user2: SignerWithAddress,
     user3: SignerWithAddress,
-    user4: SignerWithAddress,
-    user5: SignerWithAddress,
     grtPool: Contract,
     realityEth: Contract,
     grtToken: Contract,
@@ -23,7 +21,7 @@ describe('Grindery Pool testings', function () {
     grtSatellite: Contract;
 
   beforeEach(async function () {
-    [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
+    [owner, user1, user2, user3] = await ethers.getSigners();
 
     grtPool = await upgrades.deployProxy(
       await ethers.getContractFactory('contracts/v0.1.0/GrtPool.sol:GrtPool')

@@ -7,6 +7,17 @@
     "outDir": "dist",
     "resolveJsonModule": true
   },
-  "include": ["./scripts", "./test", "./typechain-types"],
+  "include": [
+    "./lib",
+    "./scripts",
+    "./test",
+    "./typechain-types",
+    "src/**/*",
+    "tasks/**/*",
+    "test/**/*",
+    "deploy/**/*",
+    "deploy-hardhat-deploy"
+  ],
+  "exclude": ["node_modules"],
   "files": ["./hardhat.config.ts"]
 }

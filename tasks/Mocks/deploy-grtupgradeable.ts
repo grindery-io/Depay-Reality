@@ -2,7 +2,7 @@ import { task } from 'hardhat/config';
 
 task('deployGrtUpgradeable', 'Deploy GRT Upgradeable token').setAction(
   async (taskArgs, hre) => {
-    const { getNamedAccounts, ethers, upgrades } = hre;
+    const { ethers, upgrades } = hre;
 
     console.log('###############################################');
     console.log('Deploying GRTUpgradeable on:', hre.network.name, '...');

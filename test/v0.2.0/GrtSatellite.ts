@@ -12,7 +12,7 @@ describe('Grindery Satellite testings', function () {
     grtToken: Contract,
     token: Contract,
     grtLiquidityWallet: Contract,
-    grtSatellite: any,
+    grtSatellite: Contract,
     offerId: string;
 
   beforeEach(async function () {

@@ -2,7 +2,7 @@ import { task } from 'hardhat/config';
 
 task('deployGrtPoolV1', 'Deploy GRT Pool for testnet launch').setAction(
   async (taskArgs, hre) => {
-    const { getNamedAccounts, ethers, upgrades } = hre;
+    const { ethers, upgrades } = hre;
 
     console.log('###############################################');
     console.log('Deploying GRT Pool on:', hre.network.name, '...');

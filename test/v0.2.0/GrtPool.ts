@@ -11,18 +11,15 @@ describe('Grindery Offer testings', function () {
     user2: SignerWithAddress,
     user3: SignerWithAddress,
     user4: SignerWithAddress,
-    user5: SignerWithAddress,
     grtPool: Contract,
     grtToken: Contract,
     token: Contract,
-    args: string,
     lowerLimitOffer: string,
     upperLimitOffer: string,
-    offerId: string,
-    fnPrice: string;
+    offerId: string;
 
   beforeEach(async function () {
-    [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
+    [owner, user1, user2, user3, user4] = await ethers.getSigners();
 
     grtPool = await upgrades.deployProxy(
       await ethers.getContractFactory('contracts/v0.2.0/GrtPool.sol:GrtPool')
@@ -37,14 +34,6 @@ describe('Grindery Offer testings', function () {
 
     // initialize contract
     await grtPool.initializePool(grtToken.address);
-
-    // const abi = ethers.utils.defaultAbiCoder;
-    args = ethers.utils.defaultAbiCoder.encode(
-      ['uint256', 'uint256'], // encode as address array
-      [10, 30]
-    );
-
-    fnPrice = 'setPrice(uint256,uint256)';
   });
 
   describe('Initialization', function () {

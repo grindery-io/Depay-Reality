@@ -1,14 +1,13 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { ethers } from 'hardhat';
-import { getGasConfiguration } from '../lib/gas';
 import { protocolVersion, getGrtAddress } from '../hardhat.config';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log('---------------------------------------------------');
 
   const { getNamedAccounts, deployments } = hre;
-  const { deploy, deterministic } = deployments;
+  const { deploy } = deployments;
   const { owner } = await getNamedAccounts();
 
   const result = await deploy('GrtPool', {

@@ -11,14 +11,13 @@ describe('Grindery Offer testings', function () {
     user2: SignerWithAddress,
     user3: SignerWithAddress,
     user4: SignerWithAddress,
-    user5: SignerWithAddress,
     grtPool: Contract,
     grtToken: Contract,
     token: Contract,
     offerId: string;
 
   beforeEach(async function () {
-    [owner, user1, user2, user3, user4, user5] = await ethers.getSigners();
+    [owner, user1, user2, user3, user4] = await ethers.getSigners();
 
     grtPool = await upgrades.deployProxy(
       await ethers.getContractFactory('contracts/v1/GrtPool.sol:GrtPool'),

@@ -3,7 +3,7 @@ import { task } from 'hardhat/config';
 task('deployGrtPoolV2', 'Deploy GRT Pool for testnet launch')
   .addParam('tokenaddress', 'ERC20 token address')
   .setAction(async (taskArgs, hre) => {
-    const { getNamedAccounts, ethers, upgrades } = hre;
+    const { ethers, upgrades } = hre;
 
     console.log('###############################################');
     console.log('Deploying GRT Pool on:', hre.network.name, '...');

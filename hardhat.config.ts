@@ -31,7 +31,7 @@ import { registerSigner } from './lib/gcpSigner';
 
 registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
 
-let protocolVersion = '1';
+const protocolVersion = '1';
 
 function getGrtAddress(network: string) {
   if (network === 'goerli') {
@@ -138,11 +138,11 @@ const config: HardhatUserConfig = {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
     apiKey: {
-      goerli: ETHERSCAN_KEY!,
-      bscTestnet: BSCSCAN_KEY!,
-      cronosTestnet: CRONOS_SCAN_KEY!,
-      ftmTestnet: FANTOM_SCAN_KEY!,
-      polygonMumbai: MUMBAI_SCAN_KEY!,
+      goerli: ETHERSCAN_KEY || '',
+      bscTestnet: BSCSCAN_KEY || '',
+      cronosTestnet: CRONOS_SCAN_KEY || '',
+      ftmTestnet: FANTOM_SCAN_KEY || '',
+      polygonMumbai: MUMBAI_SCAN_KEY || '',
     },
     customChains: [
       {
