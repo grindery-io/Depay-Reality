@@ -1,12 +1,13 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
-import { ethers } from "hardhat";
-import { getGasConfiguration } from "../lib/gas";
-import { protocolVersion } from "../hardhat.config";
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { DeployFunction } from 'hardhat-deploy/types';
+import { ethers } from 'hardhat';
+import { getGasConfiguration } from '../lib/gas';
+import { protocolVersion } from '../hardhat.config';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-
-  console.log("--------------------- GRT Satellite implementation ---------------------");
+  console.log(
+    '--------------------- GRT Satellite implementation ---------------------'
+  );
   const { getNamedAccounts, deployments } = hre;
   const { deploy } = deployments;
   const { owner } = await getNamedAccounts();
@@ -14,9 +15,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await ethers.getContractFactory(
       `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`
     ),
-    { kind: "uups", }
+    { kind: 'uups' }
   );
-  const result = await deploy("GrtSatellite_GrtSatelliteImpl", {
+  const result = await deploy('GrtSatellite_GrtSatelliteImpl', {
     contract: `contracts/v${protocolVersion}/GrtSatellite.sol:GrtSatellite`,
     from: owner,
     log: true,
@@ -24,7 +25,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     waitConfirmations: 1,
     deterministicDeployment: ethers.utils.keccak256(
       ethers.utils.arrayify(
-        ethers.utils.toUtf8Bytes("GrtSatellite_GrtSatelliteImpl")
+        ethers.utils.toUtf8Bytes('GrtSatellite_GrtSatelliteImpl')
       )
     ),
     ...(await getGasConfiguration(hre.ethers.provider)),
@@ -32,9 +33,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // await hre.run("verify:verify", {
   //   address: result.address,
   // });
-  console.log("-----------------------------------------------------------------");
-
+  console.log(
+    '-----------------------------------------------------------------'
+  );
 };
-func.tags = ["GrtSatellite_GrtSatelliteImpl"];
+func.tags = ['GrtSatellite_GrtSatelliteImpl'];
 // func.dependencies = ["DeterministicDeploymentProxy"];
 export default func;

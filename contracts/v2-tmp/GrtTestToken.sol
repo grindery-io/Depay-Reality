@@ -8,11 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract GrtTestToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     address private _minter;
 
-    function initialize(
-        string memory name,
-        string memory symbol,
-        address minter
-    ) external initializer {
+    function initialize(string memory name, string memory symbol, address minter) external initializer {
         __ERC20_init(name, symbol);
         __Ownable_init();
         _minter = minter;

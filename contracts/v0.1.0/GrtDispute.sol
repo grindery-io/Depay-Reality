@@ -6,7 +6,6 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../reality/IRealityETH.sol";
 
 contract GrtDispute is OwnableUpgradeable {
-
     // Variables
     address private _addrReality;
     uint private _countQuestion;
@@ -50,8 +49,7 @@ contract GrtDispute is OwnableUpgradeable {
         uint256 amountOffer,
         uint256 chainIdOffer
     ) external payable returns (bytes32, QuestionReality memory) {
-
-        bytes32 questionReality = IRealityETH(_addrReality).askQuestion{value: msg.value}(
+        bytes32 questionReality = IRealityETH(_addrReality).askQuestion{ value: msg.value }(
             templateId,
             question,
             address(this),
@@ -62,44 +60,40 @@ contract GrtDispute is OwnableUpgradeable {
 
         _questions[_countQuestion] = questionReality;
         emit LogQuestionCreated(_countQuestion, questionReality);
-        return (questionReality,  QuestionReality(
-            txHashOffer,
-            fromOffer,
-            toOffer,
-            tokenOffer,
-            amountOffer,
-            chainIdOffer
-        ));
+        return (
+            questionReality,
+            QuestionReality(txHashOffer, fromOffer, toOffer, tokenOffer, amountOffer, chainIdOffer)
+        );
     }
 
-    function claimWinnings (
+    function claimWinnings(
         bytes32 questionId,
         bytes32[] memory history_hashes,
         address[] memory addrs,
         uint256[] memory bonds,
         bytes32[] memory answers
     ) internal {
-        IRealityETH(_addrReality).claimWinnings( questionId, history_hashes, addrs, bonds, answers);
+        IRealityETH(_addrReality).claimWinnings(questionId, history_hashes, addrs, bonds, answers);
     }
 
     function isFinalized(bytes32 question_id) external view returns (bool) {
-        return  IRealityETH(_addrReality).isFinalized(question_id);
+        return IRealityETH(_addrReality).isFinalized(question_id);
     }
 
     function getFinalAnswer(bytes32 question_id) public view returns (bytes32) {
         return IRealityETH(_addrReality).getFinalAnswer(question_id);
     }
 
-    function getHistoryHash (bytes32 question_id) public view returns (bytes32) {
+    function getHistoryHash(bytes32 question_id) public view returns (bytes32) {
         return IRealityETH(_addrReality).getHistoryHash(question_id);
     }
 
     function setAddrReality(address addr) external onlyOwner {
-       _addrReality = addr;
+        _addrReality = addr;
     }
 
     // Get GRT token address
     function realityAddress() external view returns (address) {
-       return _addrReality;
+        return _addrReality;
     }
 }

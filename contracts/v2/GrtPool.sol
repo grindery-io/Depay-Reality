@@ -46,19 +46,12 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     receive() external payable {}
 
     function withdrawNative(uint256 amount, address to) external onlyOwner {
-        require(
-            amount <= address(this).balance,
-            "Grindery Pool: insufficient balance."
-        );
-        (bool success, ) = to.call{value: amount}("");
+        require(amount <= address(this).balance, "Grindery Pool: insufficient balance.");
+        (bool success, ) = to.call{ value: amount }("");
         require(success, "Grindery Pool: withdrawNative failed.");
     }
 
-    function withdrawERC20Tokens(
-        address token,
-        uint256 amount,
-        address to
-    ) external onlyOwner {
+    function withdrawERC20Tokens(address token, uint256 amount, address to) external onlyOwner {
         IERC20(token).safeTransfer(to, amount);
     }
 
@@ -67,28 +60,13 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         address destAddress,
         uint256 amountOffer
     ) external payable returns (bytes32) {
-        require(
-            msg.value > 0,
-            "Grindery Pool: transfered amount must be positive."
-        );
-        require(
-            destAddress != address(0),
-            "Grindery Pool: zero address as destination address is not allowed."
-        );
-        require(
-            _offers[offerId].isActive,
-            "Grindery Pool: the offer is inactive."
-        );
+        require(msg.value > 0, "Grindery Pool: transfered amount must be positive.");
+        require(destAddress != address(0), "Grindery Pool: zero address as destination address is not allowed.");
+        require(_offers[offerId].isActive, "Grindery Pool: the offer is inactive.");
 
-        bytes32 tradeId = setInfoTrade(
-            destAddress,
-            address(0),
-            msg.value,
-            offerId,
-            amountOffer
-        );
+        bytes32 tradeId = setInfoTrade(destAddress, address(0), msg.value, offerId, amountOffer);
 
-        (bool sent, ) = address(this).call{value: msg.value}("");
+        (bool sent, ) = address(this).call{ value: msg.value }("");
         require(sent, "Grindery Pool: failed to send native tokens.");
 
         return tradeId;
@@ -101,34 +79,13 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         address destAddress,
         uint256 amountOffer
     ) external returns (bytes32) {
-        require(
-            token != address(0),
-            "Grindery Pool: the token must not be zero address."
-        );
-        require(
-            token == _tokenMRI,
-            "Grindery Pool: the token sent must be the test token."
-        );
-        require(
-            amount > 0,
-            "Grindery Pool: transfered amount must be positive."
-        );
-        require(
-            destAddress != address(0),
-            "Grindery Pool: zero address as destination address is not allowed."
-        );
-        require(
-            _offers[offerId].isActive,
-            "Grindery Pool: the offer is inactive."
-        );
+        require(token != address(0), "Grindery Pool: the token must not be zero address.");
+        require(token == _tokenMRI, "Grindery Pool: the token sent must be the test token.");
+        require(amount > 0, "Grindery Pool: transfered amount must be positive.");
+        require(destAddress != address(0), "Grindery Pool: zero address as destination address is not allowed.");
+        require(_offers[offerId].isActive, "Grindery Pool: the offer is inactive.");
 
-        bytes32 tradeId = setInfoTrade(
-            destAddress,
-            _tokenMRI,
-            amount,
-            offerId,
-            amountOffer
-        );
+        bytes32 tradeId = setInfoTrade(destAddress, _tokenMRI, amount, offerId, amountOffer);
 
         IERC20(_tokenMRI).safeTransferFrom(msg.sender, address(this), amount);
 
@@ -142,13 +99,7 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         bytes32 offerId,
         uint256 amountOffer
     ) internal returns (bytes32) {
-        bytes32 tradeId = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                _noncesTrade[msg.sender],
-                block.chainid
-            )
-        );
+        bytes32 tradeId = keccak256(abi.encodePacked(msg.sender, _noncesTrade[msg.sender], block.chainid));
         Trade storage trade = _trades[tradeId];
         trade.buyerAddress = msg.sender;
         trade.destAddress = destAddress;
@@ -156,13 +107,7 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         trade.offerId = offerId;
         trade.amountOffer = amountOffer;
         _noncesTrade[msg.sender]++;
-        emit LogNewTrade(
-            getSellerOffer(offerId),
-            tradeId,
-            token,
-            amount,
-            offerId
-        );
+        emit LogNewTrade(getSellerOffer(offerId), tradeId, token, amount, offerId);
         return tradeId;
     }
 
@@ -171,14 +116,8 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     }
 
     function setCompleteTrade(bytes32 tradeId) external returns (bool) {
-        require(
-            !_trades[tradeId].isComplete,
-            "Grindery Pool: the order is already complete."
-        );
-        require(
-            msg.sender == _trades[tradeId].buyerAddress,
-            "Grindery Pool: you are not the user who made the order."
-        );
+        require(!_trades[tradeId].isComplete, "Grindery Pool: the order is already complete.");
+        require(msg.sender == _trades[tradeId].buyerAddress, "Grindery Pool: you are not the user who made the order.");
 
         _trades[tradeId].isComplete = true;
         return true;
@@ -186,16 +125,7 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
 
     function getPaymentInfoTrade(
         bytes32 tradeId
-    )
-        external
-        view
-        returns (
-            bytes32 offerId,
-            address destAddress,
-            address token,
-            uint256 amount
-        )
-    {
+    ) external view returns (bytes32 offerId, address destAddress, address token, uint256 amount) {
         return (
             _trades[tradeId].offerId,
             _trades[tradeId].destAddress,
@@ -216,15 +146,11 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         return _trades[tradeId].isComplete;
     }
 
-    function getAmountOfferForTrade(
-        bytes32 tradeId
-    ) external view returns (uint256) {
+    function getAmountOfferForTrade(bytes32 tradeId) external view returns (uint256) {
         return _trades[tradeId].amountOffer;
     }
 
-    function getOfferIdForTrade(
-        bytes32 tradeId
-    ) external view returns (bytes32) {
+    function getOfferIdForTrade(bytes32 tradeId) external view returns (bytes32) {
         return _trades[tradeId].offerId;
     }
 
@@ -232,35 +158,23 @@ contract GrtPoolV2 is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         return _trades[tradeId].buyerAddress;
     }
 
-    function getDestinationAddressTrade(
-        bytes32 tradeId
-    ) external view returns (address) {
+    function getDestinationAddressTrade(bytes32 tradeId) external view returns (address) {
         return _trades[tradeId].destAddress;
     }
 
-    function getDepositTokenTrade(
-        bytes32 tradeId
-    ) external view returns (address) {
+    function getDepositTokenTrade(bytes32 tradeId) external view returns (address) {
         return _trades[tradeId].deposit.token;
     }
 
-    function getDepositAmountTrade(
-        bytes32 tradeId
-    ) external view returns (uint256) {
+    function getDepositAmountTrade(bytes32 tradeId) external view returns (uint256) {
         return _trades[tradeId].deposit.amount;
     }
 
-    function getDepositChainIdTrade(
-        bytes32 tradeId
-    ) external view returns (uint256) {
+    function getDepositChainIdTrade(bytes32 tradeId) external view returns (uint256) {
         return _trades[tradeId].deposit.chainId;
     }
 
-    function setTokenInfo(
-        address token,
-        uint256 amount,
-        uint256 chainId
-    ) internal pure returns (TokenInfo memory) {
+    function setTokenInfo(address token, uint256 amount, uint256 chainId) internal pure returns (TokenInfo memory) {
         return TokenInfo(token, amount, chainId);
     }
 }

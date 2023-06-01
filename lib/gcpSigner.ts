@@ -1,6 +1,6 @@
-import { extendEnvironment } from "hardhat/config";
-import { ethers } from "ethers";
-import { GcpKmsSigner } from "ethers-gcp-kms-signer";
+import { extendEnvironment } from 'hardhat/config';
+import { ethers } from 'ethers';
+import { GcpKmsSigner } from 'ethers-gcp-kms-signer';
 
 export function getEthSignerWithKeyPath(keyPath: string) {
   const [, projectId, locationId, keyRingId, keyId, keyVersion] =
@@ -24,7 +24,7 @@ export function registerSigner(address: string, keyPath: string) {
   registeredSigners[address] = getEthSignerWithKeyPath(keyPath);
 }
 
-const getSignerApply: ProxyHandler<any>["apply"] = function (
+const getSignerApply: ProxyHandler<any>['apply'] = function (
   target,
   thisArg,
   args
@@ -38,9 +38,9 @@ const getSignerApply: ProxyHandler<any>["apply"] = function (
   return Reflect.apply(target, thisArg, args);
 };
 
-const sendApply: ProxyHandler<any>["apply"] = function (target, thisArg, args) {
+const sendApply: ProxyHandler<any>['apply'] = function (target, thisArg, args) {
   const promise = Reflect.apply(target, thisArg, args);
-  if (args[0] !== "eth_accounts") {
+  if (args[0] !== 'eth_accounts') {
     return promise;
   }
   return Promise.resolve(promise)
@@ -125,7 +125,7 @@ class SignerWithAddressAlt extends ethers.Signer {
   }
 
   public _signTypedData(
-    ...params: Parameters<ethers.providers.JsonRpcSigner["_signTypedData"]>
+    ...params: Parameters<ethers.providers.JsonRpcSigner['_signTypedData']>
   ): Promise<string> {
     return (this._signer as any)._signTypedData(...params);
   }
@@ -136,10 +136,10 @@ class SignerWithAddressAlt extends ethers.Signer {
 }
 
 extendEnvironment((env) => {
-  patchField(env, "ethers", (ethers) => {
+  patchField(env, 'ethers', (ethers) => {
     patchField(
       ethers,
-      "getSigner",
+      'getSigner',
       (oldFunc) =>
         new Proxy(oldFunc, {
           apply: async function (...args) {
@@ -153,7 +153,7 @@ extendEnvironment((env) => {
     );
     patchField(
       ethers,
-      "getSigners",
+      'getSigners',
       (oldFunc) =>
         new Proxy(oldFunc, {
           apply: function (target, thisArg, args) {

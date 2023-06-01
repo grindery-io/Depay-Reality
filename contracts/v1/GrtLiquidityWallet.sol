@@ -10,12 +10,7 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
     using SafeERC20 for IERC20;
     address _bot;
 
-    event LogOfferPaid(
-        bytes32 indexed _offerId,
-        address indexed _token,
-        address indexed _to,
-        uint256 _amount
-    );
+    event LogOfferPaid(bytes32 indexed _offerId, address indexed _token, address indexed _to, uint256 _amount);
 
     function initialize(address bot) external initializer {
         __Ownable_init();
@@ -39,11 +34,8 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
-        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(address(this).balance >= amount, "Grindery wallet: insufficient balance.");
+        (bool sent, ) = msg.sender.call{ value: amount }("");
         require(sent, "Grindery wallet: failed to send native tokens.");
         return sent;
     }
@@ -54,29 +46,16 @@ contract GrtLiquidityWallet is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
-        );
+        require(msg.sender == owner() || msg.sender == _bot, "Grindery wallet: not allowed to pay the offer.");
         IERC20(token).safeTransfer(to, amount);
         emit LogOfferPaid(offerId, token, to, amount);
         return true;
     }
 
-    function payOfferWithNativeTokens(
-        bytes32 offerId,
-        address to,
-        uint256 amount
-    ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
-        );
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
-        (bool sent, ) = to.call{value: amount}("");
+    function payOfferWithNativeTokens(bytes32 offerId, address to, uint256 amount) external returns (bool) {
+        require(msg.sender == owner() || msg.sender == _bot, "Grindery wallet: not allowed to pay the offer.");
+        require(address(this).balance >= amount, "Grindery wallet: insufficient balance.");
+        (bool sent, ) = to.call{ value: amount }("");
         require(sent, "Grindery wallet: failed to send native tokens.");
         emit LogOfferPaid(offerId, address(0), to, amount);
         return true;

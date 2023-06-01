@@ -33,21 +33,15 @@ contract GrtOfferUtils is OwnableUpgradeable {
         return _offers[offerId].isActive;
     }
 
-    function getAddressPriceContractOffer(
-        bytes32 offerId
-    ) external view returns (address) {
+    function getAddressPriceContractOffer(bytes32 offerId) external view returns (address) {
         return _offers[offerId].priceContractAddress;
     }
 
-    function getLowerLimitFnHashOffer(
-        bytes32 offerId
-    ) external view returns (bytes32) {
+    function getLowerLimitFnHashOffer(bytes32 offerId) external view returns (bytes32) {
         return _offers[offerId].lowerLimitFn;
     }
 
-    function getUpperLimitFnHashOffer(
-        bytes32 offerId
-    ) external view returns (bytes32) {
+    function getUpperLimitFnHashOffer(bytes32 offerId) external view returns (bytes32) {
         return _offers[offerId].upperLimitFn;
     }
 

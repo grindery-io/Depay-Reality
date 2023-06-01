@@ -39,11 +39,8 @@ contract GrtLiquidityWalletV2Tmp is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
-        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(address(this).balance >= amount, "Grindery wallet: insufficient balance.");
+        (bool sent, ) = msg.sender.call{ value: amount }("");
         require(sent, "Grindery wallet: failed to send native tokens.");
         return sent;
     }
@@ -55,10 +52,7 @@ contract GrtLiquidityWalletV2Tmp is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
-        );
+        require(msg.sender == owner() || msg.sender == _bot, "Grindery wallet: not allowed to pay the offer.");
         IERC20(token).safeTransfer(to, amount);
         emit LogOfferPaid(offerId, tradeId, token, to, amount);
         return true;
@@ -70,15 +64,9 @@ contract GrtLiquidityWalletV2Tmp is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the offer."
-        );
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
-        (bool sent, ) = to.call{value: amount}("");
+        require(msg.sender == owner() || msg.sender == _bot, "Grindery wallet: not allowed to pay the offer.");
+        require(address(this).balance >= amount, "Grindery wallet: insufficient balance.");
+        (bool sent, ) = to.call{ value: amount }("");
         require(sent, "Grindery wallet: failed to send native tokens.");
         emit LogOfferPaid(offerId, tradeId, address(0), to, amount);
         return true;

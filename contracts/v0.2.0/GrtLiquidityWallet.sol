@@ -34,45 +34,27 @@ contract GrtLiquidityWallet is Ownable {
         return _GrtSatellite;
     }
 
-    function withdrawERC20(
-        address _addrGrtToken,
-        uint256 amount
-    ) external onlyOwner returns (bool) {
+    function withdrawERC20(address _addrGrtToken, uint256 amount) external onlyOwner returns (bool) {
         return IERC20(_addrGrtToken).transfer(msg.sender, amount);
     }
 
     function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
         require(address(this).balance >= amount, "Insufficient balance");
-        (bool sent, ) = msg.sender.call{value: amount}("");
+        (bool sent, ) = msg.sender.call{ value: amount }("");
         require(sent, "Failed to send native tokens");
         return true;
     }
 
-    function payOfferERC20(
-        bytes32 offerId,
-        address token,
-        address to,
-        uint256 amount
-    ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Not allowed to pay the offer"
-        );
+    function payOfferERC20(bytes32 offerId, address token, address to, uint256 amount) external returns (bool) {
+        require(msg.sender == owner() || msg.sender == _bot, "Not allowed to pay the offer");
         IERC20(token).transfer(to, amount);
         return IGrtSatellite(_GrtSatellite).rewardOffer(offerId, 1);
     }
 
-    function payOfferNative(
-        bytes32 offerId,
-        address to,
-        uint256 amount
-    ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Not allowed to pay the offer"
-        );
+    function payOfferNative(bytes32 offerId, address to, uint256 amount) external returns (bool) {
+        require(msg.sender == owner() || msg.sender == _bot, "Not allowed to pay the offer");
         require(address(this).balance >= amount, "Insufficient balance");
-        (bool sent, ) = to.call{value: amount}("");
+        (bool sent, ) = to.call{ value: amount }("");
         require(sent, "Failed to send native tokens");
         bool resp = IGrtSatellite(_GrtSatellite).rewardOffer(offerId, 1);
         return resp;

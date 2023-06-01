@@ -39,11 +39,8 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function withdrawNative(uint256 amount) external onlyOwner returns (bool) {
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
-        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(address(this).balance >= amount, "Grindery wallet: insufficient balance.");
+        (bool sent, ) = msg.sender.call{ value: amount }("");
         require(sent, "Grindery wallet: failed to send native tokens.");
         return sent;
     }
@@ -55,10 +52,7 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the trade."
-        );
+        require(msg.sender == owner() || msg.sender == _bot, "Grindery wallet: not allowed to pay the trade.");
         IERC20(token).safeTransfer(to, amount);
         emit LogTradePaid(offerId, tradeId, token, to, amount);
         return true;
@@ -70,15 +64,9 @@ contract GrtLiquidityWalletV2 is OwnableUpgradeable, UUPSUpgradeable {
         address to,
         uint256 amount
     ) external returns (bool) {
-        require(
-            msg.sender == owner() || msg.sender == _bot,
-            "Grindery wallet: not allowed to pay the trade."
-        );
-        require(
-            address(this).balance >= amount,
-            "Grindery wallet: insufficient balance."
-        );
-        (bool sent, ) = to.call{value: amount}("");
+        require(msg.sender == owner() || msg.sender == _bot, "Grindery wallet: not allowed to pay the trade.");
+        require(address(this).balance >= amount, "Grindery wallet: insufficient balance.");
+        (bool sent, ) = to.call{ value: amount }("");
         require(sent, "Grindery wallet: failed to send native tokens.");
         emit LogTradePaid(offerId, tradeId, address(0), to, amount);
         return true;

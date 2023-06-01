@@ -23,15 +23,11 @@ contract GrtOfferUtils {
         return _offers[offerId].isActive;
     }
 
-    function getMinPriceLimitHashOffer(
-        bytes32 offerId
-    ) external view returns (bytes32) {
+    function getMinPriceLimitHashOffer(bytes32 offerId) external view returns (bytes32) {
         return _offers[offerId].minPriceLimit;
     }
 
-    function getMaxPriceLimitHashOffer(
-        bytes32 offerId
-    ) external view returns (bytes32) {
+    function getMaxPriceLimitHashOffer(bytes32 offerId) external view returns (bytes32) {
         return _offers[offerId].maxPriceLimit;
     }
 

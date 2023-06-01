@@ -11,11 +11,7 @@ import "hardhat/console.sol";
 contract GrtSatellite is OwnableUpgradeable, UUPSUpgradeable {
     address internal _addrGRT;
 
-    event LogRewardOffer(
-        bytes32 indexed _idOffer,
-        address indexed _token,
-        uint256 indexed _amount
-    );
+    event LogRewardOffer(bytes32 indexed _idOffer, address indexed _token, uint256 indexed _amount);
     event LogNewLiquidityContract(address indexed _LiquidityContractAddress);
 
     function _authorizeUpgrade(address) internal override onlyOwner onlyProxy {}
@@ -26,19 +22,13 @@ contract GrtSatellite is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     function deployLiquidityContract() public returns (address) {
-        GrtLiquidityWallet newContract = new GrtLiquidityWallet(
-            address(this),
-            msg.sender
-        );
+        GrtLiquidityWallet newContract = new GrtLiquidityWallet(address(this), msg.sender);
         newContract.transferOwnership(msg.sender);
         emit LogNewLiquidityContract(address(newContract));
         return address(newContract);
     }
 
-    function rewardOffer(
-        bytes32 offerId,
-        uint256 amount
-    ) external returns (bool) {
+    function rewardOffer(bytes32 offerId, uint256 amount) external returns (bool) {
         IERC20(_addrGRT).transfer(msg.sender, amount);
         emit LogRewardOffer(offerId, _addrGRT, amount);
         return true;

@@ -25,12 +25,7 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
     mapping(bytes32 => Trade) internal _trades;
     mapping(address => uint256) internal _noncesDeposit;
 
-    event LogTrade(
-        bytes32 indexed _idTrade,
-        address indexed _token,
-        uint256 indexed _amount,
-        bytes32 _idOffer
-    );
+    event LogTrade(bytes32 indexed _idTrade, address indexed _token, uint256 indexed _amount, bytes32 _idOffer);
 
     // function initializedVersion() external view returns (uint8) {
     //     return _getInitializedVersion();
@@ -47,17 +42,11 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         _addrGRT = grt;
     }
 
-    function depositGRTWithOffer(
-        uint256 amntDepGRT,
-        bytes32 offerId,
-        address destAddr
-    ) external returns (bool) {
+    function depositGRTWithOffer(uint256 amntDepGRT, bytes32 offerId, address destAddr) external returns (bool) {
         require(destAddr != address(0), "zero address as destination address");
         require(_offers[offerId].isActive, "the offer is inactive");
         depositGRT(amntDepGRT);
-        bytes32 tradeId = keccak256(
-            abi.encodePacked(msg.sender, _noncesDeposit[msg.sender])
-        );
+        bytes32 tradeId = keccak256(abi.encodePacked(msg.sender, _noncesDeposit[msg.sender]));
         emit LogTrade(tradeId, _addrGRT, amntDepGRT, offerId);
         Trade storage trade = _trades[tradeId];
         trade.userAddr = msg.sender;
@@ -92,17 +81,11 @@ contract GrtPool is OwnableUpgradeable, GrtOffer, UUPSUpgradeable {
         return _trades[tradeId].deposit.amount;
     }
 
-    function getDepositChainId(
-        bytes32 tradeId
-    ) external view returns (uint256) {
+    function getDepositChainId(bytes32 tradeId) external view returns (uint256) {
         return _trades[tradeId].deposit.chainId;
     }
 
-    function setTokenInfo(
-        address token,
-        uint256 amount,
-        uint256 chainId
-    ) internal pure returns (TokenInfo memory) {
+    function setTokenInfo(address token, uint256 amount, uint256 chainId) internal pure returns (TokenInfo memory) {
         return TokenInfo(token, amount, chainId);
     }
 }

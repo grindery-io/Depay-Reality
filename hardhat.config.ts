@@ -1,12 +1,12 @@
-import "./tasks/v2/update-grtPool";
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "@openzeppelin/hardhat-upgrades";
-import "@nomiclabs/hardhat-ethers";
-import "@nomicfoundation/hardhat-chai-matchers";
-import "hardhat-deploy";
-import "@nomiclabs/hardhat-etherscan";
-import "hardhat-abi-exporter";
+import './tasks/v2/update-grtPool';
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomicfoundation/hardhat-toolbox';
+import '@openzeppelin/hardhat-upgrades';
+import '@nomiclabs/hardhat-ethers';
+import '@nomicfoundation/hardhat-chai-matchers';
+import 'hardhat-deploy';
+import '@nomiclabs/hardhat-etherscan';
+import 'hardhat-abi-exporter';
 import {
   OWNER_ADDRESS,
   ALCHEMY_API_KEY,
@@ -17,31 +17,31 @@ import {
   FANTOM_SCAN_KEY,
   MUMBAI_SCAN_KEY,
   OWNER_KMS_KEY_PATH,
-} from "./secrets";
-import "./tasks/v1/deploy-grtPool";
-import "./tasks/v1/deploy-grtLiquidityWallet";
-import "./tasks/v1/update-grtLiquidityWallet";
-import "./tasks/v1/update-grtPool";
-import "./tasks/v2/deploy-grtPool";
-import "./tasks/v2/deploy-grtLiquidityWallet";
-import "./tasks/v2/update-grtLiquidityWallet";
-import "./tasks/v2/update-grtPool";
-import "./tasks/Mocks/deploy-grtupgradeable";
-import { registerSigner } from "./lib/gcpSigner";
+} from './secrets';
+import './tasks/v1/deploy-grtPool';
+import './tasks/v1/deploy-grtLiquidityWallet';
+import './tasks/v1/update-grtLiquidityWallet';
+import './tasks/v1/update-grtPool';
+import './tasks/v2/deploy-grtPool';
+import './tasks/v2/deploy-grtLiquidityWallet';
+import './tasks/v2/update-grtLiquidityWallet';
+import './tasks/v2/update-grtPool';
+import './tasks/Mocks/deploy-grtupgradeable';
+import { registerSigner } from './lib/gcpSigner';
 
 registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
 
-let protocolVersion = "1";
+let protocolVersion = '1';
 
 function getGrtAddress(network: string) {
-  if (network === "goerli") {
-    return "0x1e3C935E9A45aBd04430236DE959d12eD9763162";
-  } else if (network == "cronosTestnet") {
-    return "0xa6Ec5790C26102018b07817fd464E2673a5e2B8D";
-  } else if (network == "bscTestnet") {
-    return "0x3b369B27c641637e5EE7FF9cF516Cb9F8F60cC85";
+  if (network === 'goerli') {
+    return '0x1e3C935E9A45aBd04430236DE959d12eD9763162';
+  } else if (network == 'cronosTestnet') {
+    return '0xa6Ec5790C26102018b07817fd464E2673a5e2B8D';
+  } else if (network == 'bscTestnet') {
+    return '0x3b369B27c641637e5EE7FF9cF516Cb9F8F60cC85';
   }
-  return "0x0000000000000000000000000000000000000000";
+  return '0x0000000000000000000000000000000000000000';
 }
 
 export { protocolVersion, getGrtAddress };
@@ -50,7 +50,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.17",
+        version: '0.8.17',
         settings: {
           optimizer: {
             enabled: true,
@@ -95,7 +95,7 @@ const config: HardhatUserConfig = {
     },
     ftmTestnet: {
       live: true,
-      url: "https://rpc.ankr.com/fantom_testnet",
+      url: 'https://rpc.ankr.com/fantom_testnet',
       // accounts: [OWNER_KEY],
     },
     gnosis: {
@@ -146,11 +146,11 @@ const config: HardhatUserConfig = {
     },
     customChains: [
       {
-        network: "cronosTestnet",
+        network: 'cronosTestnet',
         chainId: 338,
         urls: {
-          apiURL: "https://api-testnet.cronoscan.com/api",
-          browserURL: "https://testnet.cronoscan.com/",
+          apiURL: 'https://api-testnet.cronoscan.com/api',
+          browserURL: 'https://testnet.cronoscan.com/',
         },
       },
     ],
@@ -162,32 +162,32 @@ const config: HardhatUserConfig = {
     },
   },
   deterministicDeployment: {
-    "338": {
-      factory: "0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7",
+    '338': {
+      factory: '0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7',
       deployer: OWNER_ADDRESS,
-      funding: "0",
-      signedTx: "0x",
+      funding: '0',
+      signedTx: '0x',
     },
   },
   // https://github.com/ItsNickBarry/hardhat-abi-exporter
   abiExporter: {
-    path: "./abis",
+    path: './abis',
     runOnCompile: true,
     clear: true,
     flat: true,
     only: [
-      "contracts/v1/GrtPool.sol:GrtPool",
-      "contracts/v1/GrtSatellite.sol:GrtSatellite",
-      "contracts/v1/GrtLiquidityWallet.sol:GrtLiquidityWallet",
-      "contracts/v2/GrtPool.sol:GrtPoolV2",
-      "contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2",
-      "contracts/v2-tmp/GrtPool.sol:GrtPoolV2Tmp",
-      "contracts/v2-tmp/GrtLiquidityWallet.sol:GrtLiquidityWalletV2Tmp",
-      "ERC20Sample",
-      "GRTUpgradeable",
+      'contracts/v1/GrtPool.sol:GrtPool',
+      'contracts/v1/GrtSatellite.sol:GrtSatellite',
+      'contracts/v1/GrtLiquidityWallet.sol:GrtLiquidityWallet',
+      'contracts/v2/GrtPool.sol:GrtPoolV2',
+      'contracts/v2/GrtLiquidityWallet.sol:GrtLiquidityWalletV2',
+      'contracts/v2-tmp/GrtPool.sol:GrtPoolV2Tmp',
+      'contracts/v2-tmp/GrtLiquidityWallet.sol:GrtLiquidityWalletV2Tmp',
+      'ERC20Sample',
+      'GRTUpgradeable',
     ],
     spacing: 2,
-    format: "json",
+    format: 'json',
   },
 
   // deterministicDeployment: () => {
