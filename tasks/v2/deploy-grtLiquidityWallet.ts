@@ -1,4 +1,6 @@
 import { task } from 'hardhat/config';
+import { registerSigner } from '../../lib/gcpSigner';
+import { OWNER_ADDRESS, OWNER_KMS_KEY_PATH } from '../../secrets';
 
 task(
   'deployGrtLiquidityWalletV2',
@@ -9,6 +11,7 @@ task(
   .setAction(async (taskArgs, hre) => {
     const { getNamedAccounts, ethers, upgrades } = hre;
     const { owner } = await getNamedAccounts();
+    registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
 
     console.log('###############################################');
     console.log('Deploying GRT Liquidity Wallet on:', hre.network.name, '...');

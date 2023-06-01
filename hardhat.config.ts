@@ -9,14 +9,11 @@ import '@nomiclabs/hardhat-etherscan';
 import 'hardhat-abi-exporter';
 import {
   OWNER_ADDRESS,
-  ALCHEMY_API_KEY,
-  OWNER_KEY,
   ETHERSCAN_KEY,
   BSCSCAN_KEY,
   CRONOS_SCAN_KEY,
   FANTOM_SCAN_KEY,
   MUMBAI_SCAN_KEY,
-  OWNER_KMS_KEY_PATH,
 } from './secrets';
 import './tasks/v1/deploy-grtPool';
 import './tasks/v1/deploy-grtLiquidityWallet';
@@ -27,13 +24,22 @@ import './tasks/v2/deploy-grtLiquidityWallet';
 import './tasks/v2/update-grtLiquidityWallet';
 import './tasks/v2/update-grtPool';
 import './tasks/Mocks/deploy-grtupgradeable';
-import { registerSigner } from './lib/gcpSigner';
+import type { NetworkUserConfig } from 'hardhat/types';
+import { chains } from './lib/chains';
 
-registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
+export const protocolVersion = '1';
 
-const protocolVersion = '1';
-
-function getGrtAddress(network: string) {
+/**
+ * The function returns a specific address based on the input network parameter.
+ * @param {string} network - The `network` parameter is a string that represents the name of a
+ * blockchain network. The function `getGrtAddress` takes this parameter as input and returns a
+ * specific address depending on the value of the `network` parameter.
+ * @returns a string representing an Ethereum address. The address returned depends on the input
+ * parameter `network`. If `network` is equal to 'goerli', the function returns
+ * '0x1e3C935E9A45aBd04430236DE959d12eD9763162'. If `network` is equal to 'cronosTestnet', the function
+ * returns
+ */
+export function getGrtAddress(network: string) {
   if (network === 'goerli') {
     return '0x1e3C935E9A45aBd04430236DE959d12eD9763162';
   } else if (network == 'cronosTestnet') {
@@ -44,7 +50,21 @@ function getGrtAddress(network: string) {
   return '0x0000000000000000000000000000000000000000';
 }
 
-export { protocolVersion, getGrtAddress };
+/**
+ * The function returns a network configuration object based on the input chain parameter.
+ * @param chain - The `chain` parameter is a string representing the name of a blockchain network. It
+ * is used to look up the corresponding configuration for that network in the `chains` object.
+ * @returns The function `getChainConfig` is returning a `NetworkUserConfig` object that contains the
+ * `chainId` and `url` properties of the specified `chain` parameter. The `chain` parameter is a string
+ * that represents a key of the `chains` object, which is of type `typeof chains`. The `typeof`
+ * operator returns the type of the `chains` object, which is
+ */
+function getChainConfig(chain: keyof typeof chains): NetworkUserConfig {
+  return {
+    chainId: chains[chain].chainId,
+    url: chains[chain].rpc,
+  };
+}
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -65,74 +85,21 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       allowUnlimitedContractSize: true,
     },
-    goerli: {
-      url: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      // accounts: [OWNER_KEY],
-    },
-    polygonMumbai: {
-      url: `https://rpc.ankr.com/polygon_mumbai`,
-      // accounts: [OWNER_KEY],
-    },
-    chapel: {
-      url: `https://rpc.ankr.com/bsc_testnet_chapel`,
-      // accounts: [OWNER_KEY],
-    },
-    polygon: {
-      url: `https://rpc.ankr.com/polygon`,
-      // accounts: [OWNER_KEY],
-    },
-    harmony: {
-      url: `https://rpc.ankr.com/harmony`,
-      // accounts: [OWNER_KEY],
-    },
-    celo: {
-      url: `https://rpc.ankr.com/celo`,
-      // accounts: [OWNER_KEY],
-    },
-    fantom: {
-      url: `https://rpc.ankr.com/fantom`,
-      // accounts: [OWNER_KEY],
-    },
-    ftmTestnet: {
-      live: true,
-      url: 'https://rpc.ankr.com/fantom_testnet',
-      // accounts: [OWNER_KEY],
-    },
-    gnosis: {
-      url: `https://rpc.ankr.com/gnosis`,
-      // accounts: [OWNER_KEY],
-    },
-    avalanche: {
-      url: `https://rpc.ankr.com/avalanche`,
-      // accounts: [OWNER_KEY],
-    },
-    bsc: {
-      url: `https://rpc.ankr.com/bsc`,
-      // accounts: [OWNER_KEY],
-    },
-    bscTestnet: {
-      url: `https://rpc.ankr.com/bsc_testnet_chapel`,
-      // accounts: [OWNER_KEY],
-      chainId: 97,
-      gasPrice: 20000000000,
-    },
-    eth: {
-      url: `https://rpc.ankr.com/eth`,
-      // accounts: [OWNER_KEY],
-    },
-    arbitrum: {
-      url: `https://arb1.arbitrum.io/rpc`,
-      // accounts: [OWNER_KEY],
-    },
-    cronos: {
-      url: `https://evm.cronos.org`,
-      // accounts: [OWNER_KEY],
-    },
-    cronosTestnet: {
-      url: `https://evm-t3.cronos.org/`,
-      chainId: 338,
-      // accounts: [OWNER_KEY],
-    },
+    goerli: getChainConfig('goerli'),
+    polygonMumbai: getChainConfig('polygonMumbai'),
+    polygon: getChainConfig('polygon'),
+    harmony: getChainConfig('harmony'),
+    celo: getChainConfig('celo'),
+    fantom: getChainConfig('fantom'),
+    ftmTestnet: getChainConfig('ftmTestnet'),
+    gnosis: getChainConfig('gnosis'),
+    avalanche: getChainConfig('avalanche'),
+    bsc: getChainConfig('bsc'),
+    bscTestnet: getChainConfig('bscTestnet'),
+    eth: getChainConfig('eth'),
+    arbitrum: getChainConfig('arbitrum'),
+    cronos: getChainConfig('cronos'),
+    cronosTestnet: getChainConfig('cronosTestnet'),
   },
   etherscan: {
     // Your API key for Etherscan
@@ -169,6 +136,7 @@ const config: HardhatUserConfig = {
       signedTx: '0x',
     },
   },
+
   // https://github.com/ItsNickBarry/hardhat-abi-exporter
   abiExporter: {
     path: './abis',
@@ -189,15 +157,6 @@ const config: HardhatUserConfig = {
     spacing: 2,
     format: 'json',
   },
-
-  // deterministicDeployment: () => {
-  //   return {
-  //     factory: contractAddress,
-  //     deployer: signerAddress,
-  //     funding: "0",
-  //     signedTx: "0x0", // We will deploy from our own script
-  //   };
-  // },
 };
 
 export default config;

@@ -1,9 +1,12 @@
 import { task } from 'hardhat/config';
+import { registerSigner } from '../../lib/gcpSigner';
+import { OWNER_ADDRESS, OWNER_KMS_KEY_PATH } from '../../secrets';
 
 task('updateGrtPoolV2', 'Update GRT Pool for testnet launch')
   .addParam('address', 'Address of the GRT Pool')
   .setAction(async (taskArgs, hre) => {
     const { ethers, upgrades } = hre;
+    registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
 
     console.log('###############################################');
     console.log('Updating GRT Pool on:', hre.network.name, '...');
