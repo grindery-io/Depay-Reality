@@ -1,13 +1,14 @@
 import { extendEnvironment } from 'hardhat/config';
 import { ethers } from 'ethers';
 import { GcpKmsSigner } from 'ethers-gcp-kms-signer';
+import { GcpKmsSignerCredentials } from 'ethers-gcp-kms-signer';
 
 export function getEthSignerWithKeyPath(keyPath: string) {
   const [, projectId, locationId, keyRingId, keyId, keyVersion] =
     /^\s*projects\/([^/]+?)\/locations\/([^/]+?)\/keyRings\/([^/]+?)\/cryptoKeys\/([^/]+?)\/cryptoKeyVersions\/([^/]+?)\s*$/.exec(
       keyPath
     ) as string[];
-  const signer = new GcpKmsSigner({
+  const signer = new GcpKmsSigner2({
     projectId,
     locationId,
     keyRingId,
@@ -17,7 +18,7 @@ export function getEthSignerWithKeyPath(keyPath: string) {
   return signer;
 }
 
-const registeredSigners = {} as { [address: string]: GcpKmsSigner };
+const registeredSigners = {} as { [address: string]: GcpKmsSigner2 };
 
 export function registerSigner(address: string, keyPath: string) {
   address = ethers.utils.getAddress(address);
@@ -82,6 +83,35 @@ function patchField<T, N extends keyof T>(
     enumerable,
   });
   return obj;
+}
+
+class GcpKmsSigner2 extends GcpKmsSigner {
+  constructor(
+    private _kmsCredentials: GcpKmsSignerCredentials,
+    provider?: ethers.providers.Provider
+  ) {
+    super(_kmsCredentials, provider);
+  }
+
+  connect(provider: ethers.providers.Provider): GcpKmsSigner {
+    return new GcpKmsSigner2(this._kmsCredentials, provider);
+  }
+
+  public async signTransaction(
+    transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>
+  ): Promise<string> {
+    transaction = await ethers.utils.resolveProperties(transaction);
+    delete transaction.from;
+    return super.signTransaction(transaction);
+  }
+
+  public async sendTransaction(
+    transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>
+  ): Promise<ethers.providers.TransactionResponse> {
+    transaction = await ethers.utils.resolveProperties(transaction);
+    delete transaction.from;
+    return super.sendTransaction(transaction);
+  }
 }
 
 class SignerWithAddressAlt extends ethers.Signer {
