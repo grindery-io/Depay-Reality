@@ -32,10 +32,4 @@ task(
       await grtLiquidityWalletUpdate.owner()
     );
     console.log('--------------------------------------------');
-
-    if (hre.network.name === 'bscTestnet' || hre.network.name === 'goerli') {
-      await hre.run('verify:verify', {
-        address: grtLiquidityWalletUpdate.address,
-      });
-    }
   });

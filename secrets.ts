@@ -6,12 +6,13 @@ const OPERATOR_ADDRESS = process.env.OPERATOR_ADDRESS || '';
 const DETERMINISTIC_DEPLOYMENT_KEY =
   process.env.DETERMINISTIC_DEPLOYMENT_KEY || '';
 const OWNER_KMS_KEY_PATH = process.env.OWNER_KMS_KEY_PATH || '';
-const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
-const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY;
-const BSCSCAN_KEY = process.env.BSCSCAN_KEY;
-const CRONOS_SCAN_KEY = process.env.CRONOS_SCAN_KEY;
-const FANTOM_SCAN_KEY = process.env.FANTOM_SCAN_KEY;
-const MUMBAI_SCAN_KEY = process.env.MUMBAI_SCAN_KEY;
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || '';
+const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || '';
+const BSCSCAN_KEY = process.env.BSCSCAN_KEY || '';
+const CRONOS_SCAN_KEY = process.env.CRONOS_SCAN_KEY || '';
+const FANTOM_SCAN_KEY = process.env.FANTOM_SCAN_KEY || '';
+const MUMBAI_SCAN_KEY = process.env.MUMBAI_SCAN_KEY || '';
+const GETBLOCK_BSCTESTNET_KEY = process.env.GETBLOCK_BSCTESTNET_KEY || '';
 
 export {
   OWNER_ADDRESS,
@@ -25,4 +26,5 @@ export {
   CRONOS_SCAN_KEY,
   FANTOM_SCAN_KEY,
   MUMBAI_SCAN_KEY,
+  GETBLOCK_BSCTESTNET_KEY,
 };

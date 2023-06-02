@@ -24,10 +24,4 @@ task('updateGrtPoolV2', 'Update GRT Pool for testnet launch')
       await grtPoolUpdate.owner()
     );
     console.log('--------------------------------------------');
-
-    if (hre.network.name === 'bscTestnet' || hre.network.name === 'goerli') {
-      await hre.run('verify:verify', {
-        address: grtPoolUpdate.address,
-      });
-    }
   });

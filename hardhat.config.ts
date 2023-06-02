@@ -14,6 +14,9 @@ import {
   CRONOS_SCAN_KEY,
   FANTOM_SCAN_KEY,
   MUMBAI_SCAN_KEY,
+  GETBLOCK_BSCTESTNET_KEY,
+  OWNER_KEY,
+  ALCHEMY_API_KEY,
 } from './secrets';
 import './tasks/v1/deploy-grtPool';
 import './tasks/v1/deploy-grtLiquidityWallet';
@@ -24,8 +27,6 @@ import './tasks/v2/deploy-grtLiquidityWallet';
 import './tasks/v2/update-grtLiquidityWallet';
 import './tasks/v2/update-grtPool';
 import './tasks/Mocks/deploy-grtupgradeable';
-import type { NetworkUserConfig } from 'hardhat/types';
-import { chains } from './lib/chains';
 
 export const protocolVersion = '1';
 
@@ -50,22 +51,6 @@ export function getGrtAddress(network: string) {
   return '0x0000000000000000000000000000000000000000';
 }
 
-/**
- * The function returns a network configuration object based on the input chain parameter.
- * @param chain - The `chain` parameter is a string representing the name of a blockchain network. It
- * is used to look up the corresponding configuration for that network in the `chains` object.
- * @returns The function `getChainConfig` is returning a `NetworkUserConfig` object that contains the
- * `chainId` and `url` properties of the specified `chain` parameter. The `chain` parameter is a string
- * that represents a key of the `chains` object, which is of type `typeof chains`. The `typeof`
- * operator returns the type of the `chains` object, which is
- */
-function getChainConfig(chain: keyof typeof chains): NetworkUserConfig {
-  return {
-    chainId: chains[chain].chainId,
-    url: chains[chain].rpc,
-  };
-}
-
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
@@ -85,31 +70,62 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       allowUnlimitedContractSize: true,
     },
-    goerli: getChainConfig('goerli'),
-    polygonMumbai: getChainConfig('polygonMumbai'),
-    polygon: getChainConfig('polygon'),
-    harmony: getChainConfig('harmony'),
-    celo: getChainConfig('celo'),
-    fantom: getChainConfig('fantom'),
-    ftmTestnet: getChainConfig('ftmTestnet'),
-    gnosis: getChainConfig('gnosis'),
-    avalanche: getChainConfig('avalanche'),
-    bsc: getChainConfig('bsc'),
-    bscTestnet: getChainConfig('bscTestnet'),
-    eth: getChainConfig('eth'),
-    arbitrum: getChainConfig('arbitrum'),
-    cronos: getChainConfig('cronos'),
-    cronosTestnet: getChainConfig('cronosTestnet'),
+    eth: { chainId: 1, url: 'https://rpc.ankr.com/eth' },
+    ropsten: { chainId: 3, url: '' },
+    rinkeby: { chainId: 4, url: '' },
+    goerli: {
+      chainId: 5,
+      url: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+    },
+    optimisticEthereum: { chainId: 10, url: '' },
+    kovan: { chainId: 42, url: '' },
+    bsc: { chainId: 56, url: 'https://rpc.ankr.com/bsc' },
+    sokol: { chainId: 77, url: '' },
+    bscTestnet: {
+      chainId: 97,
+      url: `https://bsc.getblock.io/${GETBLOCK_BSCTESTNET_KEY}/testnet/`,
+    },
+    xdai: { chainId: 100, url: '' },
+    gnosis: { chainId: 100, url: 'https://rpc.ankr.com/gnosis' },
+    heco: { chainId: 128, url: '' },
+    polygon: { chainId: 137, url: 'https://rpc.ankr.com/polygon' },
+    opera: { chainId: 250, url: '' },
+    hecoTestnet: { chainId: 256, url: '' },
+    optimisticGoerli: { chainId: 420, url: '' },
+    moonbeam: { chainId: 1284, url: '' },
+    moonriver: { chainId: 1285, url: '' },
+    moonbaseAlpha: { chainId: 1287, url: '' },
+    fantom: { chainId: 250, url: 'https://rpc.ankr.com/fantom' },
+    ftmTestnet: { chainId: 4002, url: 'https://rpc.ankr.com/fantom_testnet' },
+    chiado: { chainId: 10200, url: '' },
+    arbitrumOne: { chainId: 42161, url: '' },
+    avalancheFujiTestnet: { chainId: 43113, url: '' },
+    avalanche: { chainId: 43114, url: 'https://rpc.ankr.com/avalanche' },
+    polygonMumbai: {
+      chainId: 80001,
+      url: 'https://rpc.ankr.com/polygon_mumbai',
+    },
+    arbitrumTestnet: { chainId: 421611, url: '' },
+    arbitrumGoerli: { chainId: 421613, url: '' },
+    sepolia: { chainId: 11155111, url: '' },
+    aurora: { chainId: 1313161554, url: '' },
+    auroraTestnet: { chainId: 1313161555, url: '' },
+    harmony: { chainId: 1666600000, url: 'https://rpc.ankr.com/harmony' },
+    harmonyTest: { chainId: 1666700000, url: '' },
+    cronosTestnet: { chainId: 338, url: 'https://evm-t3.cronos.org/' },
+    cronos: { chainId: 25, url: 'https://evm.cronos.org' },
+    celo: { chainId: 42220, url: 'https://rpc.ankr.com/celo' },
+    arbitrum: { chainId: 42161, url: 'https://arb1.arbitrum.io/rpc' },
   },
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
     apiKey: {
-      goerli: ETHERSCAN_KEY || '',
-      bscTestnet: BSCSCAN_KEY || '',
-      cronosTestnet: CRONOS_SCAN_KEY || '',
-      ftmTestnet: FANTOM_SCAN_KEY || '',
-      polygonMumbai: MUMBAI_SCAN_KEY || '',
+      goerli: ETHERSCAN_KEY,
+      bscTestnet: BSCSCAN_KEY,
+      cronosTestnet: CRONOS_SCAN_KEY,
+      ftmTestnet: FANTOM_SCAN_KEY,
+      polygonMumbai: MUMBAI_SCAN_KEY,
     },
     customChains: [
       {
