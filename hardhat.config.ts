@@ -26,6 +26,7 @@ import './tasks/v2/deploy-grtPool';
 import './tasks/v2/deploy-grtLiquidityWallet';
 import './tasks/v2/update-grtLiquidityWallet';
 import './tasks/v2/update-grtPool';
+import './tasks/v2/deploy-mriToken';
 import './tasks/Mocks/deploy-grtupgradeable';
 
 export const protocolVersion = '1';
