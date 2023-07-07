@@ -21,9 +21,11 @@ export async function getGasConfiguration(provider: Provider): Promise<
     };
   }
   return {
-    // maxFeePerGas: BigNumber.from(ethers.utils.parseUnits("0", "gwei")),
-    // maxPriorityFeePerGas: BigNumber.from(maxPriorityFeePerGas).add(ethers.utils.parseUnits("0", "gwei")),
-    maxFeePerGas: BigNumber.from(maxFeePerGas),
-    maxPriorityFeePerGas: BigNumber.from(maxPriorityFeePerGas),
+    maxFeePerGas: BigNumber.from(maxFeePerGas).add(
+      ethers.utils.parseUnits('20', 'gwei')
+    ),
+    maxPriorityFeePerGas: BigNumber.from(maxPriorityFeePerGas).add(
+      ethers.utils.parseUnits('10', 'gwei')
+    ),
   };
 }

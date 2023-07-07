@@ -3,7 +3,7 @@ import { DETERMINISTIC_DEPLOYMENT_KEY } from '../secrets';
 import { getGasConfiguration } from './gas';
 import { verifyContractAddress } from './verify';
 
-const nonce = 1000;
+const nonce = 0;
 const value = 0;
 const data = ethers.utils.arrayify(
   '0x604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3'
@@ -47,13 +47,11 @@ export const ensureDeploymentProxy = async function (owner: Signer) {
     'DETERMINISTIC_DEPLOYMENT_PROXY',
     contractAddress
   );
-  console.log('avant');
   if (
     (await owner.provider.getCode(contractAddress).catch(() => '0x')) !== '0x'
   ) {
     return;
   }
-  console.log('apres');
   console.log(`Deploying deployment proxy...`);
   const signerWithProvider = signer.connect(owner.provider);
   const gasConf = await getGasConfiguration(owner.provider);

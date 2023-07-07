@@ -2,17 +2,21 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { ethers } from 'hardhat';
 import { getGasConfiguration } from '../lib/gas';
-import { protocolVersion } from '../hardhat.config';
+import { registerSigner } from '../lib/gcpSigner';
+import { OWNER_ADDRESS, OWNER_KMS_KEY_PATH } from '../secrets';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  console.log('--------------------- GRT Pool - upgrade ---------------------');
-  const { deployments } = hre;
-  const impl = await deployments.get('GrtPool_GrtPoolImpl');
-  const proxy = await deployments.get('GrtPool_GrtPool');
-  const factory = await ethers.getContractFactory(
-    `contracts/v${protocolVersion}/GrtPool.sol:GrtPool`
-  );
-  const GrtPool = factory.attach(proxy.address);
+  if (hre.network.name !== 'hardhat') {
+    registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
+  }
+  const { deployments, getNamedAccounts } = hre;
+  const { owner } = await getNamedAccounts();
+  const impl = await deployments.get('GrtPoolImpl');
+  const proxy = await deployments.get('GrtPool');
+  const factory = await ethers.getContractFactory('GrtPoolV2');
+  const GrtPool = factory
+    .attach(proxy.address)
+    .connect(await hre.ethers.getSigner(owner));
   await hre.upgrades.validateUpgrade(proxy.address, factory, {
     kind: 'uups',
   });
@@ -35,10 +39,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       kind: 'uups',
     });
   }
-  console.log(
-    '-----------------------------------------------------------------'
-  );
 };
-func.tags = ['GrtPool_upgrade-GrtPool'];
-func.dependencies = ['GrtPool_GrtPool', 'GrtPool_GrtPoolImpl'];
+func.tags = ['upgrade-GrtPool'];
+func.dependencies = ['GrtPool', 'GrtPoolImpl'];
 export default func;
