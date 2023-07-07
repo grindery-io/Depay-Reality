@@ -3,13 +3,8 @@ import { DeployFunction } from 'hardhat-deploy/types';
 import { ethers } from 'hardhat';
 import { getGasConfiguration } from '../lib/gas';
 import { verifyContractAddress } from '../lib/verify';
-import { registerSigner } from '../lib/gcpSigner';
-import { OWNER_ADDRESS, OWNER_KMS_KEY_PATH } from '../secrets';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  if (hre.network.name !== 'hardhat') {
-    registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
-  }
   const { getNamedAccounts, deployments } = hre;
   const { deploy } = deployments;
   const { owner } = await getNamedAccounts();

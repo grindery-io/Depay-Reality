@@ -4,7 +4,6 @@ import '@nomicfoundation/hardhat-toolbox';
 import '@openzeppelin/hardhat-upgrades';
 import '@nomiclabs/hardhat-ethers';
 import '@nomicfoundation/hardhat-chai-matchers';
-import 'hardhat-deploy';
 import '@nomiclabs/hardhat-etherscan';
 import 'hardhat-abi-exporter';
 import {
@@ -17,6 +16,7 @@ import {
   GETBLOCK_BSCTESTNET_KEY,
   OWNER_KEY,
   ALCHEMY_API_KEY,
+  OWNER_KMS_KEY_PATH,
 } from './secrets';
 import './tasks/v1/deploy-grtPool';
 import './tasks/v1/deploy-grtLiquidityWallet';
@@ -28,29 +28,25 @@ import './tasks/v2/update-grtLiquidityWallet';
 import './tasks/v2/update-grtPool';
 import './tasks/v2/deploy-mriToken';
 import './tasks/Mocks/deploy-grtupgradeable';
+import { ethers } from 'ethers';
 
-export const protocolVersion = '1';
+import { registerSigner } from './lib/gcpSigner';
+registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
+import 'hardhat-deploy';
 
-/**
- * The function returns a specific address based on the input network parameter.
- * @param {string} network - The `network` parameter is a string that represents the name of a
- * blockchain network. The function `getGrtAddress` takes this parameter as input and returns a
- * specific address depending on the value of the `network` parameter.
- * @returns a string representing an Ethereum address. The address returned depends on the input
- * parameter `network`. If `network` is equal to 'goerli', the function returns
- * '0x1e3C935E9A45aBd04430236DE959d12eD9763162'. If `network` is equal to 'cronosTestnet', the function
- * returns
- */
-export function getGrtAddress(network: string) {
-  if (network === 'goerli') {
-    return '0x1e3C935E9A45aBd04430236DE959d12eD9763162';
-  } else if (network == 'cronosTestnet') {
-    return '0xa6Ec5790C26102018b07817fd464E2673a5e2B8D';
-  } else if (network == 'bscTestnet') {
-    return '0x3b369B27c641637e5EE7FF9cF516Cb9F8F60cC85';
-  }
-  return '0x0000000000000000000000000000000000000000';
+function randomKey(salt: string) {
+  return ethers.utils.keccak256(
+    ethers.utils.arrayify(
+      ethers.utils.toUtf8Bytes('GrinderyTestAccount' + salt)
+    )
+  );
 }
+const TEST_ACCOUNTS = Array(10)
+  .fill(0)
+  .map((_, index) => ({
+    balance: ethers.utils.parseEther('10000').toString(),
+    privateKey: randomKey(index.toString()),
+  }));
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -69,6 +65,7 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       chainId: 31337,
+      accounts: TEST_ACCOUNTS,
       allowUnlimitedContractSize: true,
     },
     eth: { chainId: 1, url: 'https://rpc.ankr.com/eth' },

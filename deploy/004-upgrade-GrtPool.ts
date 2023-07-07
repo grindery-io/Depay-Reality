@@ -2,13 +2,8 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { ethers } from 'hardhat';
 import { getGasConfiguration } from '../lib/gas';
-import { registerSigner } from '../lib/gcpSigner';
-import { OWNER_ADDRESS, OWNER_KMS_KEY_PATH } from '../secrets';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  if (hre.network.name !== 'hardhat') {
-    registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
-  }
   const { deployments, getNamedAccounts } = hre;
   const { owner } = await getNamedAccounts();
   const impl = await deployments.get('GrtPoolImpl');

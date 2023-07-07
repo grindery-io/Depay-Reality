@@ -166,75 +166,79 @@ class SignerWithAddressAlt extends ethers.Signer {
 }
 
 extendEnvironment((env) => {
-  patchField(env, 'ethers', (ethers) => {
-    patchField(
-      ethers,
-      'getSigner',
-      (oldFunc) =>
-        new Proxy(oldFunc, {
-          apply: async function (...args) {
-            let signer = await getSignerApply(...args);
-            if (!signer.provider && env.ethers.provider) {
-              signer = signer.connect(env.ethers.provider);
-            }
-            return await SignerWithAddressAlt.create(signer);
-          },
-        })
-    );
-    patchField(
-      ethers,
-      'getSigners',
-      (oldFunc) =>
-        new Proxy(oldFunc, {
-          apply: function (target, thisArg, args) {
-            const promise = Reflect.apply(target, thisArg, args);
-            return Promise.resolve(promise).then(
-              async (signers: SignerWithAddressAlt[]) =>
-                signers
-                  .filter(
-                    (x) =>
-                      !registeredSigners[env.ethers.utils.getAddress(x.address)]
-                  )
-                  .concat(
-                    await Promise.all(
-                      Object.values(registeredSigners).map((x) =>
-                        SignerWithAddressAlt.create(
-                          signers[0].provider
-                            ? (x.connect(signers[0].provider) as any)
-                            : x
+  if (env.network.name !== 'hardhat') {
+    patchField(env, 'ethers', (ethers) => {
+      patchField(
+        ethers,
+        'getSigner',
+        (oldFunc) =>
+          new Proxy(oldFunc, {
+            apply: async function (...args) {
+              let signer = await getSignerApply(...args);
+              if (!signer.provider && env.ethers.provider) {
+                signer = signer.connect(env.ethers.provider);
+              }
+              return await SignerWithAddressAlt.create(signer);
+            },
+          })
+      );
+      patchField(
+        ethers,
+        'getSigners',
+        (oldFunc) =>
+          new Proxy(oldFunc, {
+            apply: function (target, thisArg, args) {
+              const promise = Reflect.apply(target, thisArg, args);
+              return Promise.resolve(promise).then(
+                async (signers: SignerWithAddressAlt[]) =>
+                  signers
+                    .filter(
+                      (x) =>
+                        !registeredSigners[
+                          env.ethers.utils.getAddress(x.address)
+                        ]
+                    )
+                    .concat(
+                      await Promise.all(
+                        Object.values(registeredSigners).map((x) =>
+                          SignerWithAddressAlt.create(
+                            signers[0].provider
+                              ? (x.connect(signers[0].provider) as any)
+                              : x
+                          )
                         )
                       )
                     )
-                  )
-            );
-          },
-        })
-    );
-    return ethers;
-  });
-  let proto = ethers.providers.JsonRpcProvider.prototype;
-  proto.getSigner = new Proxy(proto.getSigner, {
-    apply: getSignerApply,
-  });
-  proto.listAccounts = new Proxy(proto.listAccounts, {
-    apply: function (target, thisArg, args) {
-      const promise = Reflect.apply(target, thisArg, args);
-      return Promise.resolve(promise)
-        .then((accounts) =>
-          accounts.concat(
-            Object.keys(registeredSigners).filter(
-              (x) => !accounts.includes(ethers.utils.getAddress(x))
+              );
+            },
+          })
+      );
+      return ethers;
+    });
+    let proto = ethers.providers.JsonRpcProvider.prototype;
+    proto.getSigner = new Proxy(proto.getSigner, {
+      apply: getSignerApply,
+    });
+    proto.listAccounts = new Proxy(proto.listAccounts, {
+      apply: function (target, thisArg, args) {
+        const promise = Reflect.apply(target, thisArg, args);
+        return Promise.resolve(promise)
+          .then((accounts) =>
+            accounts.concat(
+              Object.keys(registeredSigners).filter(
+                (x) => !accounts.includes(ethers.utils.getAddress(x))
+              )
             )
           )
-        )
-        .catch(() => Object.keys(registeredSigners));
-    },
-  });
-  proto.send = new Proxy(proto.send, {
-    apply: sendApply,
-  });
-  proto = ethers.providers.Web3Provider.prototype;
-  proto.send = new Proxy(proto.send, {
-    apply: sendApply,
-  });
+          .catch(() => Object.keys(registeredSigners));
+      },
+    });
+    proto.send = new Proxy(proto.send, {
+      apply: sendApply,
+    });
+    proto = ethers.providers.Web3Provider.prototype;
+    proto.send = new Proxy(proto.send, {
+      apply: sendApply,
+    });
+  }
 });
