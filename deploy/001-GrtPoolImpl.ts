@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     waitConfirmations: 1,
     deterministicDeployment: ethers.utils.keccak256(
-      ethers.utils.arrayify(ethers.utils.toUtf8Bytes('GrtPoolImpl'))
+      ethers.utils.arrayify(ethers.utils.toUtf8Bytes('GrtPoolImplV2'))
     ),
     ...(await getGasConfiguration(hre.ethers.provider)),
   });

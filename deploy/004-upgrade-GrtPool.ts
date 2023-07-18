@@ -6,8 +6,8 @@ import { getGasConfiguration } from '../lib/gas';
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { owner } = await getNamedAccounts();
-  const impl = await deployments.get('GrtPoolImpl');
-  const proxy = await deployments.get('GrtPool');
+  const impl = await deployments.get('GrtPoolImplV2');
+  const proxy = await deployments.get('GrtPoolV2');
   const factory = await ethers.getContractFactory('GrtPoolV2');
   const GrtPool = factory
     .attach(proxy.address)

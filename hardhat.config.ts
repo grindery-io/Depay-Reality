@@ -105,7 +105,7 @@ const config: HardhatUserConfig = {
     },
     arbitrumTestnet: { chainId: 421611, url: '' },
     arbitrumGoerli: { chainId: 421613, url: '' },
-    sepolia: { chainId: 11155111, url: '' },
+    sepolia: { chainId: 11155111, url: 'https://rpc.ankr.com/eth_sepolia' },
     aurora: { chainId: 1313161554, url: '' },
     auroraTestnet: { chainId: 1313161555, url: '' },
     harmony: { chainId: 1666600000, url: 'https://rpc.ankr.com/harmony' },

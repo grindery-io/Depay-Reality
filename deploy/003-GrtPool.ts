@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { owner } = await getNamedAccounts();
   const stub = await deployments.get('ERC1967Stub');
-  const impl = await deployments.get('GrtPoolImpl');
+  const impl = await deployments.get('GrtPoolImplV2');
 
   const result = await deploy('GrtPool', {
     contract: 'ERC1967Proxy',
@@ -17,7 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [stub.address, '0x'],
     log: true,
     deterministicDeployment: ethers.utils.keccak256(
-      ethers.utils.arrayify(ethers.utils.toUtf8Bytes('GrtPool'))
+      ethers.utils.arrayify(ethers.utils.toUtf8Bytes('GrtPoolV2'))
     ),
     waitConfirmations: 1,
     ...(await getGasConfiguration(hre.ethers.provider)),
