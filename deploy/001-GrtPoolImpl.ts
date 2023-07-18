@@ -15,7 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }
   );
 
-  await deploy('GrtPoolImpl', {
+  await deploy('GrtPoolImplV2', {
     contract: 'GrtPoolV2',
     from: owner,
     log: true,
@@ -26,5 +26,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ...(await getGasConfiguration(hre.ethers.provider)),
   });
 };
-func.tags = ['GrtPoolImpl'];
+func.tags = ['GrtPoolImplV2'];
 export default func;

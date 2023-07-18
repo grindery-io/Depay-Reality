@@ -11,7 +11,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const stub = await deployments.get('ERC1967Stub');
   const impl = await deployments.get('GrtPoolImplV2');
 
-  const result = await deploy('GrtPool', {
+  const result = await deploy('GrtPoolV2', {
     contract: 'ERC1967Proxy',
     from: owner,
     args: [stub.address, '0x'],
@@ -24,7 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
   verifyContractAddress(await hre.getChainId(), 'POOL', result.address);
   const factory = await ethers.getContractFactory('GrtPoolV2');
-  const GrtPool = factory
+  const GrtPoolV2 = factory
     .attach(result.address)
     .connect(await hre.ethers.getSigner(owner));
   const currentImplAddress = ethers.BigNumber.from(
@@ -34,32 +34,32 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     )
   );
   if (currentImplAddress.eq(stub.address)) {
-    await GrtPool.upgradeToAndCall(
+    await GrtPoolV2.upgradeToAndCall(
       impl.address,
-      GrtPool.interface.encodeFunctionData('initialize', [
+      GrtPoolV2.interface.encodeFunctionData('initialize', [
         '0x0000000000000000000000000000000000000000',
       ]),
       await getGasConfiguration(hre.ethers.provider)
     ).then((x) => x.wait());
   } else if (
-    (await GrtPool.owner()) === '0x0000000000000000000000000000000000000000'
+    (await GrtPoolV2.owner()) === '0x0000000000000000000000000000000000000000'
   ) {
     console.log('Calling initialize only');
-    await GrtPool.initialize(
+    await GrtPoolV2.initialize(
       '0x0000000000000000000000000000000000000000',
       await getGasConfiguration(hre.ethers.provider)
     ).then((x) => x.wait());
   }
-  await hre.upgrades.forceImport(GrtPool.address, factory, {
+  await hre.upgrades.forceImport(GrtPoolV2.address, factory, {
     kind: 'uups',
   });
   return true;
 };
-func.id = 'GrtPool';
-func.tags = ['GrtPool'];
+func.id = 'GrtPoolV2';
+func.tags = ['GrtPoolV2'];
 func.dependencies = [
   'DeterministicDeploymentProxy',
   'ERC1967Stub',
-  'GrtPoolImpl',
+  'GrtPoolImplV2',
 ];
 export default func;
