@@ -33,6 +33,7 @@ import { ethers } from 'ethers';
 import { registerSigner } from './lib/gcpSigner';
 registerSigner(OWNER_ADDRESS, OWNER_KMS_KEY_PATH);
 import 'hardhat-deploy';
+import { contractAddress, signerAddress } from './lib/deterministicDeployment';
 
 function randomKey(salt: string) {
   return ethers.utils.keccak256(
@@ -120,6 +121,7 @@ const config: HardhatUserConfig = {
     // Obtain one at https://etherscan.io/
     apiKey: {
       goerli: ETHERSCAN_KEY,
+      sepolia: ETHERSCAN_KEY,
       bscTestnet: BSCSCAN_KEY,
       cronosTestnet: CRONOS_SCAN_KEY,
       ftmTestnet: FANTOM_SCAN_KEY,
@@ -142,13 +144,13 @@ const config: HardhatUserConfig = {
       31337: 0,
     },
   },
-  deterministicDeployment: {
-    '338': {
-      factory: '0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7',
-      deployer: OWNER_ADDRESS,
+  deterministicDeployment: () => {
+    return {
+      factory: contractAddress,
+      deployer: signerAddress,
       funding: '0',
-      signedTx: '0x',
-    },
+      signedTx: '0x0', // We will deploy from our own script
+    };
   },
 
   // https://github.com/ItsNickBarry/hardhat-abi-exporter
