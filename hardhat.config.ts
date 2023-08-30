@@ -17,6 +17,7 @@ import {
   OWNER_KEY,
   ALCHEMY_API_KEY,
   OWNER_KMS_KEY_PATH,
+  ANKR_KEY,
 } from './secrets';
 import './tasks/v1/deploy-grtPool';
 import './tasks/v1/deploy-grtLiquidityWallet';
@@ -27,6 +28,7 @@ import './tasks/v2/deploy-grtLiquidityWallet';
 import './tasks/v2/update-grtLiquidityWallet';
 import './tasks/v2/update-grtPool';
 import './tasks/v2/deploy-mriToken';
+import './tasks/v2/deploy-G1Token';
 import './tasks/Mocks/deploy-grtupgradeable';
 import { ethers } from 'ethers';
 
@@ -87,7 +89,7 @@ const config: HardhatUserConfig = {
     xdai: { chainId: 100, url: '' },
     gnosis: { chainId: 100, url: 'https://rpc.ankr.com/gnosis' },
     heco: { chainId: 128, url: '' },
-    polygon: { chainId: 137, url: 'https://rpc.ankr.com/polygon' },
+    polygon: { chainId: 137, url: `https://rpc.ankr.com/polygon/${ANKR_KEY}` },
     opera: { chainId: 250, url: '' },
     hecoTestnet: { chainId: 256, url: '' },
     optimisticGoerli: { chainId: 420, url: '' },
@@ -126,6 +128,7 @@ const config: HardhatUserConfig = {
       cronosTestnet: CRONOS_SCAN_KEY,
       ftmTestnet: FANTOM_SCAN_KEY,
       polygonMumbai: MUMBAI_SCAN_KEY,
+      polygon: MUMBAI_SCAN_KEY,
     },
     customChains: [
       {

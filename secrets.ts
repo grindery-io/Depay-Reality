@@ -13,6 +13,7 @@ const CRONOS_SCAN_KEY = process.env.CRONOS_SCAN_KEY || '';
 const FANTOM_SCAN_KEY = process.env.FANTOM_SCAN_KEY || '';
 const MUMBAI_SCAN_KEY = process.env.MUMBAI_SCAN_KEY || '';
 const GETBLOCK_BSCTESTNET_KEY = process.env.GETBLOCK_BSCTESTNET_KEY || '';
+const ANKR_KEY = process.env.ANKR_KEY || '';
 
 export {
   OWNER_ADDRESS,
@@ -27,4 +28,5 @@ export {
   FANTOM_SCAN_KEY,
   MUMBAI_SCAN_KEY,
   GETBLOCK_BSCTESTNET_KEY,
+  ANKR_KEY,
 };
