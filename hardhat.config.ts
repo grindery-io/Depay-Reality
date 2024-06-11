@@ -1,4 +1,4 @@
-import './tasks/v2/update-grtPool';
+// import './tasks/v2/update-grtPool';
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import '@openzeppelin/hardhat-upgrades';
@@ -10,6 +10,7 @@ import {
   OWNER_ADDRESS,
   ETHERSCAN_KEY,
   BSCSCAN_KEY,
+  OPBNB_BSCSCAN_KEY,
   CRONOS_SCAN_KEY,
   FANTOM_SCAN_KEY,
   MUMBAI_SCAN_KEY,
@@ -29,6 +30,10 @@ import './tasks/v2/update-grtLiquidityWallet';
 import './tasks/v2/update-grtPool';
 import './tasks/v2/deploy-mriToken';
 import './tasks/v2/deploy-G1Token';
+import './tasks/v2/dummyTx';
+import './tasks/v2/addMinter-G1Token';
+import './tasks/v2/mint-G1Token';
+import './tasks/v2/transfer-G1Token';
 import './tasks/Mocks/deploy-grtupgradeable';
 import { ethers } from 'ethers';
 
@@ -81,6 +86,7 @@ const config: HardhatUserConfig = {
     optimisticEthereum: { chainId: 10, url: '' },
     kovan: { chainId: 42, url: '' },
     bsc: { chainId: 56, url: 'https://rpc.ankr.com/bsc' },
+    opbnb: { chainId: 204, url: 'https://opbnb-rpc.publicnode.com' },
     sokol: { chainId: 77, url: '' },
     bscTestnet: {
       chainId: 97,
@@ -106,6 +112,10 @@ const config: HardhatUserConfig = {
       chainId: 80001,
       url: 'https://rpc.ankr.com/polygon_mumbai',
     },
+    polygonAmoy: {
+      chainId: 80002,
+      url: 'https://rpc.ankr.com/polygon_amoy',
+    },
     arbitrumTestnet: { chainId: 421611, url: '' },
     arbitrumGoerli: { chainId: 421613, url: '' },
     sepolia: { chainId: 11155111, url: 'https://rpc.ankr.com/eth_sepolia' },
@@ -125,6 +135,8 @@ const config: HardhatUserConfig = {
       goerli: ETHERSCAN_KEY,
       sepolia: ETHERSCAN_KEY,
       bscTestnet: BSCSCAN_KEY,
+      bsc: BSCSCAN_KEY,
+      opbnb: OPBNB_BSCSCAN_KEY,
       cronosTestnet: CRONOS_SCAN_KEY,
       ftmTestnet: FANTOM_SCAN_KEY,
       polygonMumbai: MUMBAI_SCAN_KEY,
@@ -137,6 +149,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://api-testnet.cronoscan.com/api',
           browserURL: 'https://testnet.cronoscan.com/',
+        },
+      },
+      {
+        network: 'opbnb',
+        chainId: 204,
+        urls: {
+          apiURL: 'https://api-opbnb.bscscan.com/api',
+          browserURL: 'https://opbnbscan.com/',
         },
       },
     ],
